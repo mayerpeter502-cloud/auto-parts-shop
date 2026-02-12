@@ -1,34 +1,77 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDown, X } from 'lucide-react';
+import { ChevronDown, X, Car } from 'lucide-react';
+import CarSelector from './CarSelector';
 
-export default function FilterSidebar({ filters, onChange, onReset }) {
+export default function FilterSidebar({ filters, onChange, availableFilters, selectedCar }) {
   const [expanded, setExpanded] = useState({
     price: true,
     brands: true,
+    categories: true,
     availability: true,
-    category: true,
   });
 
-  const toggleSection = (key) => {
-    setExpanded(prev => ({ ...prev, [key]: !prev[key] }));
+  const toggleSection = (section) => {
+    setExpanded({ ...expanded, [section]: !expanded[section] });
   };
 
-  const brands = ['Bosch', 'Mann-Filter', 'Mobil', 'Castrol', 'Liqui Moly', 'Febi', 'SKF', 'VAG'];
-  const categories = ['Масла', 'Фильтры', 'Тормоза', 'Двигатель', 'Подвеска', 'Электрика'];
+  const handlePriceChange = (index, value) => {
+    const newRange = [...filters.priceRange];
+    newRange[index] = Number(value);
+    onChange({ ...filters, priceRange: newRange });
+  };
+
+  const handleCheckboxChange = (type, value) => {
+    const current = filters[type];
+    const updated = current.includes(value)
+      ? current.filter(item => item !== value)
+      : [...current, value];
+    onChange({ ...filters, [type]: updated });
+  };
+
+  const clearFilters = () => {
+    onChange({
+      brands: [],
+      categories: [],
+      priceRange: [0, 100000],
+      inStock: false,
+    });
+  };
+
+  const hasActiveFilters = filters.brands.length > 0 || 
+    filters.categories.length > 0 || 
+    filters.inStock ||
+    filters.priceRange[0] > 0 || 
+    filters.priceRange[1] < 100000;
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-4 space-y-4">
-      <div className="flex items-center justify-between lg:hidden">
-        <h3 className="font-bold text-gray-900">Фильтры</h3>
-        <button onClick={onReset} className="text-sm text-red-500 hover:text-red-600">
-          Сбросить
-        </button>
+    <div className="space-y-4">
+      {/* Подбор по авто - НОВОЕ */}
+      <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
+        <div className="flex items-center gap-2 mb-3 text-blue-800 font-medium">
+          <Car className="w-5 h-5" />
+          Ваш автомобиль
+        </div>
+        <CarSelector />
       </div>
 
-      {/* Price Range */}
-      <div className="border-b pb-4">
+      {/* Заголовок и сброс */}
+      <div className="flex items-center justify-between">
+        <h3 className="font-bold text-gray-900">Фильтры</h3>
+        {hasActiveFilters && (
+          <button
+            onClick={clearFilters}
+            className="text-sm text-red-500 hover:text-red-600 flex items-center gap-1"
+          >
+            <X className="w-4 h-4" />
+            Сбросить
+          </button>
+        )}
+      </div>
+
+      {/* Цена */}
+      <div className="bg-white rounded-xl p-4 shadow-sm">
         <button
           onClick={() => toggleSection('price')}
           className="flex items-center justify-between w-full font-medium text-gray-900 mb-3"
@@ -36,41 +79,94 @@ export default function FilterSidebar({ filters, onChange, onReset }) {
           Цена
           <ChevronDown className={`w-4 h-4 transition-transform ${expanded.price ? '' : '-rotate-90'}`} />
         </button>
-        
         {expanded.price && (
           <div className="space-y-3">
-            <div className="flex items-center gap-2">
+            <div className="flex gap-2">
               <input
                 type="number"
+                value={filters.priceRange[0]}
+                onChange={(e) => handlePriceChange(0, e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                 placeholder="От"
-                value={filters.priceMin || ''}
-                onChange={(e) => onChange({ ...filters, priceMin: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-blue-600"
               />
-              <span className="text-gray-400">—</span>
               <input
                 type="number"
+                value={filters.priceRange[1]}
+                onChange={(e) => handlePriceChange(1, e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                 placeholder="До"
-                value={filters.priceMax || ''}
-                onChange={(e) => onChange({ ...filters, priceMax: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-blue-600"
               />
             </div>
             <input
               type="range"
               min="0"
-              max="500000"
-              step="1000"
-              value={filters.priceMax || 500000}
-              onChange={(e) => onChange({ ...filters, priceMax: e.target.value })}
+              max="100000"
+              value={filters.priceRange[1]}
+              onChange={(e) => handlePriceChange(1, e.target.value)}
               className="w-full accent-blue-600"
             />
           </div>
         )}
       </div>
 
-      {/* Availability */}
-      <div className="border-b pb-4">
+      {/* Бренды */}
+      {availableFilters?.brands && (
+        <div className="bg-white rounded-xl p-4 shadow-sm">
+          <button
+            onClick={() => toggleSection('brands')}
+            className="flex items-center justify-between w-full font-medium text-gray-900 mb-3"
+          >
+            Бренды
+            <ChevronDown className={`w-4 h-4 transition-transform ${expanded.brands ? '' : '-rotate-90'}`} />
+          </button>
+          {expanded.brands && (
+            <div className="space-y-2 max-h-48 overflow-y-auto">
+              {availableFilters.brands.map(brand => (
+                <label key={brand} className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={filters.brands.includes(brand)}
+                    onChange={() => handleCheckboxChange('brands', brand)}
+                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                  />
+                  <span className="text-sm text-gray-700">{brand}</span>
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Категории */}
+      {availableFilters?.categories && (
+        <div className="bg-white rounded-xl p-4 shadow-sm">
+          <button
+            onClick={() => toggleSection('categories')}
+            className="flex items-center justify-between w-full font-medium text-gray-900 mb-3"
+          >
+            Категории
+            <ChevronDown className={`w-4 h-4 transition-transform ${expanded.categories ? '' : '-rotate-90'}`} />
+          </button>
+          {expanded.categories && (
+            <div className="space-y-2 max-h-48 overflow-y-auto">
+              {availableFilters.categories.map(category => (
+                <label key={category} className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={filters.categories.includes(category)}
+                    onChange={() => handleCheckboxChange('categories', category)}
+                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                  />
+                  <span className="text-sm text-gray-700">{category}</span>
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Наличие */}
+      <div className="bg-white rounded-xl p-4 shadow-sm">
         <button
           onClick={() => toggleSection('availability')}
           className="flex items-center justify-between w-full font-medium text-gray-900 mb-3"
@@ -78,103 +174,18 @@ export default function FilterSidebar({ filters, onChange, onReset }) {
           Наличие
           <ChevronDown className={`w-4 h-4 transition-transform ${expanded.availability ? '' : '-rotate-90'}`} />
         </button>
-        
         {expanded.availability && (
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={filters.inStock}
-                onChange={(e) => onChange({ ...filters, inStock: e.target.checked })}
-                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-              />
-              <span className="text-sm text-gray-700">В наличии</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={filters.onOrder}
-                onChange={(e) => onChange({ ...filters, onOrder: e.target.checked })}
-                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-              />
-              <span className="text-sm text-gray-700">Под заказ</span>
-            </label>
-          </div>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={filters.inStock}
+              onChange={(e) => onChange({ ...filters, inStock: e.target.checked })}
+              className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+            />
+            <span className="text-sm text-gray-700">Только в наличии</span>
+          </label>
         )}
       </div>
-
-      {/* Brands */}
-      <div className="border-b pb-4">
-        <button
-          onClick={() => toggleSection('brands')}
-          className="flex items-center justify-between w-full font-medium text-gray-900 mb-3"
-        >
-          Бренды
-          <ChevronDown className={`w-4 h-4 transition-transform ${expanded.brands ? '' : '-rotate-90'}`} />
-        </button>
-        
-        {expanded.brands && (
-          <div className="space-y-2 max-h-48 overflow-y-auto">
-            {brands.map(brand => (
-              <label key={brand} className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={filters.brands?.includes(brand)}
-                  onChange={(e) => {
-                    const newBrands = e.target.checked
-                      ? [...(filters.brands || []), brand]
-                      : (filters.brands || []).filter(b => b !== brand);
-                    onChange({ ...filters, brands: newBrands });
-                  }}
-                  className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                />
-                <span className="text-sm text-gray-700">{brand}</span>
-              </label>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Category */}
-      <div>
-        <button
-          onClick={() => toggleSection('category')}
-          className="flex items-center justify-between w-full font-medium text-gray-900 mb-3"
-        >
-          Категория
-          <ChevronDown className={`w-4 h-4 transition-transform ${expanded.category ? '' : '-rotate-90'}`} />
-        </button>
-        
-        {expanded.category && (
-          <div className="space-y-2">
-            {categories.map(cat => (
-              <label key={cat} className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={filters.categories?.includes(cat)}
-                  onChange={(e) => {
-                    const newCats = e.target.checked
-                      ? [...(filters.categories || []), cat]
-                      : (filters.categories || []).filter(c => c !== cat);
-                    onChange({ ...filters, categories: newCats });
-                  }}
-                  className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                />
-                <span className="text-sm text-gray-700">{cat}</span>
-              </label>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Reset button desktop */}
-      <button
-        onClick={onReset}
-        className="hidden lg:flex w-full items-center justify-center gap-2 border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition-colors"
-      >
-        <X className="w-4 h-4" />
-        Сбросить фильтры
-      </button>
     </div>
   );
 }
