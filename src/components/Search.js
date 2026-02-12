@@ -29,7 +29,6 @@ export default function Search() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Автоскрытие toast
   useEffect(() => {
     if (toast) {
       const timer = setTimeout(() => setToast(null), 3000);
@@ -72,116 +71,58 @@ export default function Search() {
     const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
     return parts.map((part, i) => 
       part.toLowerCase() === highlight.toLowerCase() ? 
-        <span key={i} style={{background: '#dbeafe', color: '#1d4ed8', padding: '0 2px', borderRadius: '2px'}}>{part}</span> : part
+        <span key={i} className="bg-blue-100 text-blue-700 px-0.5 rounded">{part}</span> : part
     );
   };
 
   return (
     <>
-      <div ref={wrapperRef} style={{position: 'relative', width: '100%', maxWidth: '600px'}}>
+      <div ref={wrapperRef} className="relative w-full max-w-2xl">
         <input
           type="text"
           value={query}
           onChange={handleInput}
           placeholder="Поиск по номеру или названию..."
-          style={{
-            width: '100%',
-            padding: '12px 16px',
-            fontSize: '16px',
-            color: '#111827',
-            background: 'white',
-            border: '2px solid #e5e7eb',
-            borderRadius: '8px',
-            outline: 'none'
-          }}
+          className="w-full px-4 py-3 text-base text-gray-900 bg-white border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-600 md:text-lg"
         />
         
         {isOpen && (
-          <div style={{
-            position: 'absolute',
-            top: 'calc(100% + 8px)',
-            left: 0,
-            right: 0,
-            background: 'white',
-            borderRadius: '8px',
-            boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
-            maxHeight: '400px',
-            overflowY: 'auto',
-            zIndex: 100
-          }}>
+          <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl max-h-96 overflow-y-auto z-50 md:mt-3">
             {loading ? (
-              <div style={{padding: '16px', color: '#6b7280'}}>Поиск...</div>
+              <div className="p-4 text-gray-500">Поиск...</div>
             ) : results.length === 0 ? (
-              <div style={{padding: '24px', textAlign: 'center', color: '#6b7280'}}>
-                <div style={{fontSize: '24px', marginBottom: '8px'}}>🔍</div>
+              <div className="p-6 text-center text-gray-500">
+                <div className="text-3xl mb-2">🔍</div>
                 <div>Ничего не найдено</div>
               </div>
             ) : (
               <>
-                <div style={{
-                  padding: '12px 16px',
-                  background: '#f3f4f6',
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  color: '#6b7280',
-                  textTransform: 'uppercase'
-                }}>
+                <div className="px-4 py-3 bg-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wide">
                   Найдено {results.length} товаров
                 </div>
                 {results.map(item => (
                   <div
                     key={item.id}
-                    style={{
-                      padding: '12px 16px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '12px',
-                      borderBottom: '1px solid #f3f4f6'
-                    }}
+                    className="p-4 flex items-center gap-3 border-b border-gray-100 last:border-b-0 md:gap-4"
                   >
-                    <div style={{
-                      width: '48px',
-                      height: '48px',
-                      background: '#f3f4f6',
-                      borderRadius: '6px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '24px',
-                      flexShrink: 0
-                    }}>
+                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-2xl flex-shrink-0 md:w-14 md:h-14">
                       {item.icon}
                     </div>
-                    <div style={{flex: 1, minWidth: 0}}>
-                      <div style={{
-                        fontWeight: 500,
-                        color: '#111827',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis'
-                      }}>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-gray-900 truncate">
                         {highlightText(item.name, query)}
                       </div>
-                      <div style={{fontSize: '14px', color: '#6b7280', marginTop: '4px'}}>
+                      <div className="text-sm text-gray-500 mt-0.5">
                         {item.brand} • {item.number}
                       </div>
                     </div>
-                    <div style={{textAlign: 'right'}}>
-                      <div style={{fontWeight: 600, color: '#2563eb', whiteSpace: 'nowrap'}}>
+                    <div className="text-right flex-shrink-0">
+                      <div className="font-semibold text-blue-600">
                         {item.price.toLocaleString()} ₽
                       </div>
                       <button
                         onClick={() => addToCart(item)}
-                        style={{
-                          marginTop: '6px',
-                          padding: '6px 12px',
-                          background: '#2563eb',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          fontSize: '12px',
-                          cursor: 'pointer'
-                        }}
+                        className="mt-1.5 px-3 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors md:mt-2 md:px-4"
                       >
                         В корзину
                       </button>
@@ -194,51 +135,22 @@ export default function Search() {
         )}
       </div>
 
-      {/* Toast Notification */}
+      {/* Toast */}
       {toast && (
-        <div style={{
-          position: 'fixed',
-          bottom: '24px',
-          right: '24px',
-          background: '#10b981',
-          color: 'white',
-          padding: '16px 24px',
-          borderRadius: '12px',
-          boxShadow: '0 10px 15px -3px rgba(0,0,0,0.2)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          zIndex: 1000,
-          animation: 'slideIn 0.3s ease'
-        }}>
-          <span style={{fontSize: '20px'}}>✓</span>
-          <div>
-            <div style={{fontWeight: 600}}>Добавлено в корзину</div>
-            <div style={{fontSize: '14px', opacity: 0.9}}>{toast.name}</div>
+        <div className="fixed bottom-4 right-4 left-4 md:left-auto md:w-80 bg-green-500 text-white p-4 rounded-xl shadow-2xl flex items-center gap-3 z-50 animate-slide-in">
+          <span className="text-xl">✓</span>
+          <div className="flex-1">
+            <div className="font-semibold">Добавлено в корзину</div>
+            <div className="text-sm opacity-90 truncate">{toast.name}</div>
           </div>
           <button 
             onClick={() => setToast(null)}
-            style={{
-              marginLeft: '8px',
-              background: 'none',
-              border: 'none',
-              color: 'white',
-              fontSize: '18px',
-              cursor: 'pointer',
-              opacity: 0.8
-            }}
+            className="text-xl opacity-80 hover:opacity-100"
           >
             ×
           </button>
         </div>
       )}
-
-      <style jsx>{`
-        @keyframes slideIn {
-          from { transform: translateX(100%); opacity: 0; }
-          to { transform: translateX(0); opacity: 1; }
-        }
-      `}</style>
     </>
   );
 }
