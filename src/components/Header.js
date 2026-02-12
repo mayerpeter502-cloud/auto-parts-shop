@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, ShoppingCart, Heart, Scale, User, Menu, X, Car, ChevronDown } from 'lucide-react';
 import useCart from '@/hooks/useCart';
+import CarSelector from './CarSelector';
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -50,7 +51,12 @@ export default function Header() {
               </span>
             </Link>
 
-            {/* Поиск - скрывается при скролле на мобильных */}
+            {/* Подбор по авто - НОВОЕ */}
+            <div className="hidden lg:block">
+              <CarSelector compact />
+            </div>
+
+            {/* Поиск */}
             <div className={`hidden md:block flex-1 max-w-2xl transition-all ${
               isScrolled ? 'max-w-xl' : 'max-w-2xl'
             }`}>
@@ -72,7 +78,6 @@ export default function Header() {
 
             {/* Иконки */}
             <div className="flex items-center gap-1 sm:gap-3">
-              {/* Выбор авто */}
               <button 
                 onClick={() => setShowCarSelector(!showCarSelector)}
                 className="hidden lg:flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
@@ -103,7 +108,6 @@ export default function Header() {
                 <User className="w-5 h-5" />
               </Link>
 
-              {/* Мобильное меню */}
               <button 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="lg:hidden p-2 text-gray-700 hover:bg-gray-100 rounded-lg"
@@ -113,7 +117,7 @@ export default function Header() {
             </div>
           </div>
 
-          {/* Навигация - скрывается при скролле */}
+          {/* Навигация */}
           <nav className={`hidden lg:flex items-center gap-6 mt-4 transition-all duration-300 ${
             isScrolled ? 'h-0 opacity-0 overflow-hidden mt-0' : 'h-auto opacity-100'
           }`}>
