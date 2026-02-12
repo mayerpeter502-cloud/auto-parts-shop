@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { Heart, ShoppingCart, Check } from 'lucide-react';
-import { useFavorites } from '../hooks/useFavorites';
+import { useFavorites } from '../../hooks/useFavorites';
 
 export default function Product() {
   const { toggleFavorite, isFavorite } = useFavorites();

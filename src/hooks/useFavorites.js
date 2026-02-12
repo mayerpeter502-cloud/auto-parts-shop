@@ -8,19 +8,21 @@ export const useFavorites = () => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        setFavorites(JSON.parse(stored));
-      } catch (e) {
-        console.error('Error parsing favorites:', e);
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        try {
+          setFavorites(JSON.parse(stored));
+        } catch (e) {
+          console.error('Error parsing favorites:', e);
+        }
       }
+      setIsLoaded(true);
     }
-    setIsLoaded(true);
   }, []);
 
   useEffect(() => {
-    if (isLoaded) {
+    if (isLoaded && typeof window !== 'undefined') {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(favorites));
     }
   }, [favorites, isLoaded]);
