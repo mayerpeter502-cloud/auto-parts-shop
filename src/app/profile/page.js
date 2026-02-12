@@ -1,133 +1,157 @@
-export default function Profile() {
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Шапка */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-3 md:py-4 flex items-center justify-between">
-          <div className="text-xl md:text-2xl font-bold text-blue-600">AutoParts.kz</div>
-          <div className="flex gap-2 md:gap-4">
-            <button className="text-gray-600 hover:text-blue-600 text-sm md:text-base">Выйти</button>
-            <button className="bg-blue-600 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-lg text-sm md:text-base">Корзина</button>
+'use client';
+
+import { useState } from 'react';
+import Link from 'next/link';
+import { Package, Heart, MapPin, User, LogOut, ChevronRight } from 'lucide-react';
+import AvatarUpload from '@/components/AvatarUpload';
+import ProfileForm from '@/components/ProfileForm';
+import Breadcrumbs from '@/components/Breadcrumbs';
+
+const menuItems = [
+  { id: 'profile', label: 'Профиль', icon: User },
+  { id: 'orders', label: 'Мои заказы', icon: Package },
+  { id: 'addresses', label: 'Адреса доставки', icon: MapPin },
+  { id: 'favorites', label: 'Избранное', icon: Heart },
+];
+
+const mockOrders = [
+  { id: '12345', date: '10.02.2025', total: 45800, status: 'delivered', items: 3 },
+  { id: '12344', date: '05.02.2025', total: 12300, status: 'processing', items: 1 },
+];
+
+export default function ProfilePage() {
+  const [activeTab, setActiveTab] = useState('profile');
+  const [avatar, setAvatar] = useState(null);
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'profile':
+        return (
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl p-6 shadow-sm">
+              <h2 className="text-lg font-bold text-gray-900 mb-6">Личные данные</h2>
+              <div className="flex flex-col md:flex-row gap-8">
+                <AvatarUpload currentAvatar={avatar} onUpload={setAvatar} />
+                <div className="flex-1">
+                  <ProfileForm initialData={{ name: 'Иван Иванов', phone: '+7 (777) 123-45-67' }} />
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </header>
+        );
 
-      <div className="max-w-7xl mx-auto px-4 py-4 md:py-8">
-        <div className="flex flex-col md:flex-row gap-4 md:gap-6">
-          {/* Меню — на мобильном горизонтально, на ПК слева */}
-          <aside className="w-full md:w-64 bg-white rounded-lg shadow p-3 md:p-4 h-fit">
-            <div className="flex items-center gap-3 mb-4 md:mb-6 pb-3 md:pb-4 border-b">
-              <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg md:text-xl">
-                А
+      case 'orders':
+        return (
+          <div className="space-y-4">
+            <h2 className="text-lg font-bold text-gray-900">История заказов</h2>
+            {mockOrders.map(order => (
+              <div key={order.id} className="bg-white rounded-xl p-6 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <div className="font-bold text-gray-900">Заказ #{order.id}</div>
+                    <div className="text-sm text-gray-500">{order.date}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-bold text-gray-900">{order.total.toLocaleString()} ₸</div>
+                    <div className={`text-sm ${
+                      order.status === 'delivered' ? 'text-green-600' : 'text-blue-600'
+                    }`}>
+                      {order.status === 'delivered' ? 'Доставлен' : 'В обработке'}
+                    </div>
+                  </div>
+                </div>
+                <div className="text-sm text-gray-600">
+                  {order.items} товаров
+                </div>
               </div>
-              <div className="min-w-0">
-                <div className="font-medium text-sm md:text-base truncate">Алексей</div>
-                <div className="text-xs md:text-sm text-gray-500 truncate">aleksey@mail.ru</div>
-              </div>
+            ))}
+          </div>
+        );
+
+      case 'addresses':
+        return (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-bold text-gray-900">Адреса доставки</h2>
+              <button className="text-blue-600 hover:text-blue-700 font-medium">
+                + Добавить адрес
+              </button>
             </div>
-            
-            <nav className="flex md:flex-col gap-1 overflow-x-auto md:overflow-visible pb-2 md:pb-0 -mx-1 px-1 md:mx-0 md:px-0">
-              <button className="whitespace-nowrap px-3 py-2 md:px-4 md:w-full text-left bg-blue-50 text-blue-600 rounded-lg font-medium text-sm md:text-base">
-                Мои заказы
-              </button>
-              <button className="whitespace-nowrap px-3 py-2 md:px-4 md:w-full text-left text-gray-600 hover:bg-gray-50 rounded-lg text-sm md:text-base">
-                Избранное
-              </button>
-              <button className="whitespace-nowrap px-3 py-2 md:px-4 md:w-full text-left text-gray-600 hover:bg-gray-50 rounded-lg text-sm md:text-base">
-                Адреса
-              </button>
-              <button className="whitespace-nowrap px-3 py-2 md:px-4 md:w-full text-left text-gray-600 hover:bg-gray-50 rounded-lg text-sm md:text-base">
-                Настройки
-              </button>
-            </nav>
-          </aside>
-
-          {/* Контент */}
-          <main className="flex-1">
-            <h1 className="text-lg md:text-2xl font-bold mb-4 md:mb-6">Мои заказы</h1>
-            
-            {/* Заказ 1 */}
-            <div className="bg-white rounded-lg shadow p-4 md:p-6 mb-3 md:mb-4">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3 md:mb-4">
+            <div className="bg-white rounded-xl p-6 shadow-sm border-2 border-blue-500">
+              <div className="flex items-start justify-between">
                 <div>
-                  <div className="font-medium text-base md:text-lg">Заказ #12345</div>
-                  <div className="text-xs md:text-sm text-gray-500">от 15 февраля 2025</div>
+                  <div className="font-bold text-gray-900 mb-1">Домашний адрес</div>
+                  <div className="text-gray-600">г. Алматы, ул. Абая, 123, кв. 45</div>
+                  <div className="text-sm text-gray-500 mt-1">+7 (777) 123-45-67</div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                  <span className="text-green-600 text-xs md:text-sm">Доставлен</span>
-                </div>
-              </div>
-              
-              <div className="border-t pt-3 md:pt-4 mb-3 md:mb-4 space-y-2 md:space-y-3">
-                <div className="flex gap-3 md:gap-4">
-                  <div className="w-12 h-12 md:w-16 md:h-16 bg-gray-200 rounded flex-shrink-0"></div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm md:text-base truncate">Castrol EDGE 5W-30 4L</div>
-                    <div className="text-xs md:text-sm text-gray-500">1 шт. × 12 500 ₸</div>
-                  </div>
-                  <div className="font-medium text-sm md:text-base">12 500 ₸</div>
-                </div>
-                <div className="flex gap-3 md:gap-4">
-                  <div className="w-12 h-12 md:w-16 md:h-16 bg-gray-200 rounded flex-shrink-0"></div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm md:text-base truncate">Масляный фильтр Bosch</div>
-                    <div className="text-xs md:text-sm text-gray-500">1 шт. × 2 500 ₸</div>
-                  </div>
-                  <div className="font-medium text-sm md:text-base">2 500 ₸</div>
-                </div>
-              </div>
-              
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-t pt-3 md:pt-4">
-                <div className="text-base md:text-lg font-bold">Итого: 15 000 ₸</div>
-                <div className="flex gap-2 w-full sm:w-auto">
-                  <button className="flex-1 sm:flex-none px-3 py-2 border rounded-lg hover:bg-gray-50 text-xs md:text-sm">
-                    Повторить
-                  </button>
-                  <button className="flex-1 sm:flex-none px-3 py-2 text-blue-600 hover:bg-blue-50 rounded-lg text-xs md:text-sm">
-                    Подробнее
-                  </button>
-                </div>
+                <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded">
+                  По умолчанию
+                </span>
               </div>
             </div>
+          </div>
+        );
 
-            {/* Заказ 2 */}
-            <div className="bg-white rounded-lg shadow p-4 md:p-6">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3 md:mb-4">
-                <div>
-                  <div className="font-medium text-base md:text-lg">Заказ #12344</div>
-                  <div className="text-xs md:text-sm text-gray-500">от 10 февраля 2025</div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-                  <span className="text-blue-600 text-xs md:text-sm">В пути</span>
-                </div>
-              </div>
-              
-              <div className="border-t pt-3 md:pt-4 mb-3 md:mb-4">
-                <div className="flex gap-3 md:gap-4">
-                  <div className="w-12 h-12 md:w-16 md:h-16 bg-gray-200 rounded flex-shrink-0"></div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm md:text-base truncate">Тормозные колодки Brembo</div>
-                    <div className="text-xs md:text-sm text-gray-500">1 шт. × 18 000 ₸</div>
-                  </div>
-                  <div className="font-medium text-sm md:text-base">18 000 ₸</div>
-                </div>
-              </div>
-              
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-t pt-3 md:pt-4">
-                <div className="text-base md:text-lg font-bold">Итого: 18 000 ₸</div>
-                <div className="flex gap-2 w-full sm:w-auto">
-                  <button className="flex-1 sm:flex-none px-3 py-2 border rounded-lg hover:bg-gray-50 text-xs md:text-sm">
-                    Отследить
+      case 'favorites':
+        return (
+          <div className="text-center py-12">
+            <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-600 mb-4">Перейдите в каталог, чтобы добавить товары в избранное</p>
+            <Link href="/catalog" className="text-blue-600 hover:text-blue-700 font-medium">
+              Перейти в каталог →
+            </Link>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Breadcrumbs items={[{ label: 'Личный кабинет', href: '/profile' }]} />
+        
+        <h1 className="text-2xl font-bold text-gray-900 mb-6">Личный кабинет</h1>
+
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Sidebar */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+              {menuItems.map(item => {
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveTab(item.id)}
+                    className={`w-full flex items-center gap-3 px-6 py-4 text-left transition-colors ${
+                      activeTab === item.id
+                        ? 'bg-blue-50 text-blue-600 border-l-4 border-blue-600'
+                        : 'text-gray-700 hover:bg-gray-50 border-l-4 border-transparent'
+                    }`}
+                  >
+                    <Icon className="w-5 h-5" />
+                    <span className="font-medium">{item.label}</span>
+                    <ChevronRight className={`w-4 h-4 ml-auto ${
+                      activeTab === item.id ? 'opacity-100' : 'opacity-0'
+                    }`} />
                   </button>
-                  <button className="flex-1 sm:flex-none px-3 py-2 text-blue-600 hover:bg-blue-50 rounded-lg text-xs md:text-sm">
-                    Подробнее
-                  </button>
-                </div>
+                );
+              })}
+              <div className="border-t border-gray-200">
+                <button className="w-full flex items-center gap-3 px-6 py-4 text-red-600 hover:bg-red-50 transition-colors">
+                  <LogOut className="w-5 h-5" />
+                  <span className="font-medium">Выйти</span>
+                </button>
               </div>
             </div>
-          </main>
+          </div>
+
+          {/* Content */}
+          <div className="lg:col-span-3">
+            {renderContent()}
+          </div>
         </div>
       </div>
     </div>
