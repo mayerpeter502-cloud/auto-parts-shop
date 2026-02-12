@@ -1,107 +1,230 @@
-export default function Catalog() {
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import Breadcrumbs from '@/components/Breadcrumbs';
+import FilterSidebar from '@/components/FilterSidebar';
+import ProductCard from '@/components/ProductCard';
+import Pagination from '@/components/Pagination';
+import SkeletonLoader from '@/components/SkeletonLoader';
+import { SlidersHorizontal, Grid, List } from 'lucide-react';
+
+// Моковые данные
+const mockProducts = [
+  { id: 1, name: 'Моторное масло Mobil 1 5W-30 4L', price: 24500, oldPrice: 28900, brand: 'Mobil', category: 'Масла', inStock: true, sku: 'MOB-5W30-4L', image: null },
+  { id: 2, name: 'Фильтр масляный Mann-Filter W 712/80', price: 3200, brand: 'Mann-Filter', category: 'Фильтры', inStock: true, sku: 'MAN-W712', image: null },
+  { id: 3, name: 'Тормозные колодки Bosch BP937', price: 18500, oldPrice: 22000, brand: 'Bosch', category: 'Тормоза', inStock: false, sku: 'BOS-BP937', image: null, discount: 15 },
+  { id: 4, name: 'Свеча зажигания NGK BKR6E', price: 1200, brand: 'NGK', category: 'Электрика', inStock: true, sku: 'NGK-BKR6E', image: null, isNew: true },
+  { id: 5, name: 'Масло Castrol EDGE 5W-40 4L', price: 26800, brand: 'Castrol', category: 'Масла', inStock: true, sku: 'CAS-5W40-4L', image: null },
+  { id: 6, name: 'Фильтр воздушный Mann-Filter C 30 005', price: 4500, brand: 'Mann-Filter', category: 'Фильтры', inStock: true, sku: 'MAN-C30005', image: null },
+  { id: 7, name: 'Амортизатор KYB 341319', price: 32000, oldPrice: 35000, brand: 'KYB', category: 'Подвеска', inStock: true, sku: 'KYB-341319', image: null },
+  { id: 8, name: 'Ремень ГРМ Gates 5669XS', price: 8900, brand: 'Gates', category: 'Двигатель', inStock: false, sku: 'GAT-5669XS', image: null },
+];
+
+export default function CatalogPage() {
+  const searchParams = useSearchParams();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState('grid');
+  const [sortBy, setSortBy] = useState('popular');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filters, setFilters] = useState({
+    priceMin: '',
+    priceMax: '',
+    brands: [],
+    categories: [],
+    inStock: false,
+    onOrder: false,
+  });
+  const [favorites, setFavorites] = useState([]);
+
+  const itemsPerPage = 8;
+
+  useEffect(() => {
+    // Имитация загрузки
+    setTimeout(() => {
+      setProducts(mockProducts);
+      setLoading(false);
+    }, 500);
+
+    // Загрузка избранного
+    const saved = JSON.parse(localStorage.getItem('autoparts_favorites') || '[]');
+    setFavorites(saved.map(f => f.id));
+  }, []);
+
+  const handleAddToCart = (product) => {
+    const cart = JSON.parse(localStorage.getItem('autoparts_cart') || '[]');
+    const existing = cart.find(item => item.id === product.id);
+    
+    if (existing) {
+      existing.quantity += 1;
+    } else {
+      cart.push({ ...product, quantity: 1 });
+    }
+    
+    localStorage.setItem('autoparts_cart', JSON.stringify(cart));
+    window.dispatchEvent(new Event('storage'));
+    alert('Товар добавлен в корзину');
+  };
+
+  const handleToggleFavorite = (product) => {
+    const saved = JSON.parse(localStorage.getItem('autoparts_favorites') || '[]');
+    const exists = saved.find(item => item.id === product.id);
+    
+    let updated;
+    if (exists) {
+      updated = saved.filter(item => item.id !== product.id);
+      setFavorites(prev => prev.filter(id => id !== product.id));
+    } else {
+      updated = [...saved, product];
+      setFavorites(prev => [...prev, product.id]);
+    }
+    
+    localStorage.setItem('autoparts_favorites', JSON.stringify(updated));
+    window.dispatchEvent(new Event('storage'));
+  };
+
+  const handleResetFilters = () => {
+    setFilters({
+      priceMin: '',
+      priceMax: '',
+      brands: [],
+      categories: [],
+      inStock: false,
+      onOrder: false,
+    });
+  };
+
+  // Фильтрация
+  const filteredProducts = products.filter(product => {
+    if (filters.priceMin && product.price < Number(filters.priceMin)) return false;
+    if (filters.priceMax && product.price > Number(filters.priceMax)) return false;
+    if (filters.brands.length > 0 && !filters.brands.includes(product.brand)) return false;
+    if (filters.categories.length > 0 && !filters.categories.includes(product.category)) return false;
+    if (filters.inStock && !product.inStock) return false;
+    if (filters.onOrder && product.inStock) return false;
+    return true;
+  });
+
+  // Сортировка
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    switch (sortBy) {
+      case 'price_asc': return a.price - b.price;
+      case 'price_desc': return b.price - a.price;
+      case 'name': return a.name.localeCompare(b.name);
+      default: return 0;
+    }
+  });
+
+  // Пагинация
+  const totalPages = Math.ceil(sortedProducts.length / itemsPerPage);
+  const paginatedProducts = sortedProducts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Шапка */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-3 md:py-4 flex items-center justify-between">
-          <div className="text-xl md:text-2xl font-bold text-blue-600">AutoParts.kz</div>
-          <div className="flex gap-2 md:gap-4">
-            <button className="text-gray-600 hover:text-blue-600 text-sm md:text-base">Войти</button>
-            <button className="bg-blue-600 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-lg text-sm md:text-base">Корзина</button>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <Header />
+      
+      <main className="flex-1 container mx-auto px-4 py-8">
+        <Breadcrumbs items={[{ label: 'Каталог' }]} />
+        
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">Каталог запчастей</h1>
 
-      <div className="max-w-7xl mx-auto px-4 py-4 md:py-6 flex flex-col md:flex-row gap-4 md:gap-6">
-        {/* Фильтры — на мобильном сверху, на ПК слева */}
-        <aside className="w-full md:w-64 bg-white p-3 md:p-4 rounded-lg shadow h-fit">
-          <div className="flex justify-between items-center mb-3 md:mb-4">
-            <h3 className="font-bold text-base md:text-lg">Фильтры</h3>
-            <button className="md:hidden text-blue-600 text-sm">Скрыть</button>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-1 gap-3">
-            <div className="mb-0 md:mb-4">
-              <label className="block text-xs md:text-sm font-medium mb-1">Марка</label>
-              <select className="w-full border rounded-lg px-2 py-1.5 text-sm">
-                <option>Все марки</option>
-                <option>Toyota</option>
-                <option>Hyundai</option>
-                <option>Kia</option>
-              </select>
-            </div>
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Sidebar */}
+          <aside className="lg:w-64 shrink-0">
+            <FilterSidebar 
+              filters={filters} 
+              onChange={setFilters} 
+              onReset={handleResetFilters} 
+            />
+          </aside>
 
-            <div className="mb-0 md:mb-4">
-              <label className="block text-xs md:text-sm font-medium mb-1">Модель</label>
-              <select className="w-full border rounded-lg px-2 py-1.5 text-sm">
-                <option>Все модели</option>
-              </select>
-            </div>
+          {/* Content */}
+          <div className="flex-1">
+            {/* Toolbar */}
+            <div className="bg-white p-4 rounded-lg shadow-sm mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <span className="text-gray-600">
+                Найдено: <strong>{filteredProducts.length}</strong> товаров
+              </span>
+              
+              <div className="flex items-center gap-4">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-600"
+                >
+                  <option value="popular">По популярности</option>
+                  <option value="price_asc">Цена: по возрастанию</option>
+                  <option value="price_desc">Цена: по убыванию</option>
+                  <option value="name">По названию</option>
+                </select>
 
-            <div className="mb-0 md:mb-4">
-              <label className="block text-xs md:text-sm font-medium mb-1">Год</label>
-              <select className="w-full border rounded-lg px-2 py-1.5 text-sm">
-                <option>Все годы</option>
-              </select>
-            </div>
-
-            <div className="mb-0 md:mb-4">
-              <label className="block text-xs md:text-sm font-medium mb-1">Цена</label>
-              <div className="flex gap-2">
-                <input type="number" placeholder="от" className="w-1/2 border rounded px-2 py-1.5 text-sm"/>
-                <input type="number" placeholder="до" className="w-1/2 border rounded px-2 py-1.5 text-sm"/>
-              </div>
-            </div>
-
-            <div className="mb-3 md:mb-4 col-span-2 md:col-span-1">
-              <label className="block text-xs md:text-sm font-medium mb-1">Бренд</label>
-              <div className="grid grid-cols-2 md:grid-cols-1 gap-1">
-                {['Castrol', 'Shell', 'Mobil', 'Liqui Moly'].map(brand => (
-                  <label key={brand} className="flex items-center gap-2">
-                    <input type="checkbox" className="rounded"/>
-                    <span className="text-xs md:text-sm">{brand}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <button className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 text-sm md:text-base">
-            Применить
-          </button>
-        </aside>
-
-        {/* Контент */}
-        <main className="flex-1">
-          {/* Сортировка */}
-          <div className="bg-white p-3 md:p-4 rounded-lg shadow mb-3 md:mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-            <span className="text-gray-600 text-sm">Найдено: 128 товаров</span>
-            <select className="border rounded px-2 py-1 text-sm">
-              <option>По популярности</option>
-              <option>Сначала дешевле</option>
-              <option>Сначала дороже</option>
-            </select>
-          </div>
-
-          {/* Сетка товаров — 2 на мобильном, 3 на планшете, 4 на ПК */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
-            {[1,2,3,4,5,6].map(item => (
-              <div key={item} className="bg-white rounded-lg shadow hover:shadow-lg transition">
-                <div className="h-32 md:h-40 bg-gray-200 rounded-t-lg"></div>
-                <div className="p-2 md:p-4">
-                  <div className="text-xs text-gray-500 mb-1">Моторное масло</div>
-                  <h3 className="font-medium mb-1 md:mb-2 text-xs md:text-sm">Castrol EDGE 5W-30 4L Synthetic</h3>
-                  <div className="text-base md:text-lg font-bold text-blue-600 mb-1 md:mb-2">12 500 ₸</div>
-                  <div className="text-xs text-green-600 mb-2">✓ В наличии</div>
-                  <button className="w-full bg-blue-600 text-white py-1.5 md:py-2 rounded hover:bg-blue-700 text-xs md:text-sm">
-                    В корзину
+                <div className="flex items-center gap-2 border border-gray-300 rounded-lg p-1">
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`p-2 rounded ${viewMode === 'grid' ? 'bg-blue-100 text-blue-600' : 'text-gray-400'}`}
+                  >
+                    <Grid className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`p-2 rounded ${viewMode === 'list' ? 'bg-blue-100 text-blue-600' : 'text-gray-400'}`}
+                  >
+                    <List className="w-5 h-5" />
                   </button>
                 </div>
               </div>
-            ))}
+            </div>
+
+            {/* Products */}
+            {loading ? (
+              <SkeletonLoader count={8} />
+            ) : paginatedProducts.length === 0 ? (
+              <div className="text-center py-16 bg-white rounded-lg">
+                <p className="text-gray-500">Товары не найдены</p>
+                <button
+                  onClick={handleResetFilters}
+                  className="mt-4 text-blue-600 hover:underline"
+                >
+                  Сбросить фильтры
+                </button>
+              </div>
+            ) : (
+              <div className={`grid gap-6 ${
+                viewMode === 'grid' 
+                  ? 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3' 
+                  : 'grid-cols-1'
+              }`}>
+                {paginatedProducts.map(product => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    onAddToCart={handleAddToCart}
+                    onToggleFavorite={handleToggleFavorite}
+                    isFavorite={favorites.includes(product.id)}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Pagination */}
+            {!loading && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
+            )}
           </div>
-        </main>
-      </div>
+        </div>
+      </main>
+      
+      <Footer />
     </div>
   );
 }
