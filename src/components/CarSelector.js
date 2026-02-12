@@ -180,7 +180,7 @@ export default function CarSelector({ onSelect, compact = false }) {
                   <button
                     key={year}
                     onClick={() => handleYearSelect(year)}
-                    className="p-3 text-center rounded-lg border border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-colors font-medium"
+                    className="p-3 text-center rounded-lg border border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-colors font-medium text-gray-900 bg-white"
                   >
                     {year}
                   </button>

@@ -3,14 +3,26 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, ShoppingCart, Heart, Scale, User, Menu, X, Car, ChevronDown } from 'lucide-react';
-import useCart from '@/hooks/useCart';
 import CarSelector from './CarSelector';
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showCarSelector, setShowCarSelector] = useState(false);
-  const { totalItems } = useCart();
+  const [cartCount, setCartCount] = useState(0);
+
+  // Получаем количество товаров из localStorage
+  useEffect(() => {
+    const updateCartCount = () => {
+      const cart = JSON.parse(localStorage.getItem('autoparts_cart') || '[]');
+      const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+      setCartCount(count);
+    };
+    
+    updateCartCount();
+    window.addEventListener('storage', updateCartCount);
+    return () => window.removeEventListener('storage', updateCartCount);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -51,7 +63,7 @@ export default function Header() {
               </span>
             </Link>
 
-            {/* Подбор по авто - НОВОЕ */}
+            {/* Подбор по авто */}
             <div className="hidden lg:block">
               <CarSelector compact />
             </div>
@@ -97,9 +109,9 @@ export default function Header() {
 
               <Link href="/cart" className="p-2 text-gray-700 hover:bg-gray-100 rounded-lg relative">
                 <ShoppingCart className="w-5 h-5" />
-                {totalItems > 0 && (
+                {cartCount > 0 && (
                   <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
-                    {totalItems}
+                    {cartCount}
                   </span>
                 )}
               </Link>
