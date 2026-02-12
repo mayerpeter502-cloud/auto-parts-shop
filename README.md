@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# AutoParts.kz — Интернет-магазин автозапчастей
 
-## Getting Started
+[![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-18-blue)](https://reactjs.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-cyan)](https://tailwindcss.com/)
 
-First, run the development server:
+## 🚀 Функционал
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Готовые страницы (15+)
+- `/` — Главная с подбором по авто и VIN
+- `/catalog` — Каталог с фильтрами и сортировкой
+- `/product` — Карточка товара с табами
+- `/cart` — Корзина (3 шага: контакты → доставка → оплата)
+- `/profile` — Личный кабинет с редактированием
+- `/favorites` — Избранное
+- `/compare` — Сравнение товаров
+- `/search` — Результаты поиска
+- `/vin` — Подбор по VIN-номеру
+- `/brands` — Список брендов
+- `/blog` — Статьи о ремонте
+- `/blog/[id]` — Страница статьи
+- `/about`, `/delivery`, `/contacts` — Информационные
+- `/not-found` — 404 страница
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Компоненты
+- `Header` — Липкий хедер с CarSelector
+- `Footer` — Подвал с навигацией
+- `ProductCard` — Карточка товара с lazy load
+- `CartItem` — Элемент корзины
+- `FilterSidebar` — Фильтры с подбором по авто
+- `CarSelector` — Выбор марка/модель/год
+- `SearchAutocomplete` — Поиск с подсказками
+- `QuickView` — Быстрый просмотр товара
+- `ToastProvider` — Уведомления
+- `LazyImage` — Ленивая загрузка изображений
+- `ErrorBoundary` — Обработка ошибок
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+### Хуки
+- `useCart` — Управление корзиной
+- `useFavorites` — Избранное
+- `useApi` — API запросы с обработкой ошибок
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## 🛠 Технологии
 
-## Learn More
+- **Next.js 14** (App Router)
+- **React 18**
+- **Tailwind CSS**
+- **Lucide React** (иконки)
+- **localStorage** (состояние)
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## 📁 Структура
