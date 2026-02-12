@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import ProductPlaceholder from './ProductPlaceholder';
 
 export default function LazyImage({ 
   src, 
@@ -16,6 +17,7 @@ export default function LazyImage({
 }) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(false);
+  const [error, setError] = useState(false);
   const imgRef = useRef(null);
 
   useEffect(() => {
@@ -44,6 +46,19 @@ export default function LazyImage({
     return () => observer.disconnect();
   }, [priority]);
 
+  const handleError = () => {
+    setError(true);
+    setIsLoaded(true);
+  };
+
+  if (error) {
+    return (
+      <div ref={imgRef} className={`relative overflow-hidden ${className} ${fill ? 'w-full h-full' : ''}`}>
+        <ProductPlaceholder className="w-full h-full" />
+      </div>
+    );
+  }
+
   const imageProps = fill 
     ? { fill: true }
     : { width, height };
@@ -57,13 +72,14 @@ export default function LazyImage({
     >
       {isInView && (
         <Image
-          src={src}
+          src={src || '/placeholder.png'}
           alt={alt}
           {...imageProps}
           className={`object-cover transition-opacity duration-500 ${
             isLoaded ? 'opacity-100' : 'opacity-0'
           }`}
           onLoad={() => setIsLoaded(true)}
+          onError={handleError}
           placeholder={placeholder}
           blurDataURL={blurDataURL}
           priority={priority}
