@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import ProductPlaceholder from './ProductPlaceholder';
 
 export default function LazyImage({ 
   src, 
@@ -12,19 +11,14 @@ export default function LazyImage({
   height,
   className = '',
   priority = false,
-  placeholder = 'blur',
-  blurDataURL = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUdk'
+  sizes = '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
 }) {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [isInView, setIsInView] = useState(false);
-  const [error, setError] = useState(false);
+  const [isInView, setIsInView] = useState(priority);
   const imgRef = useRef(null);
 
   useEffect(() => {
-    if (priority) {
-      setIsInView(true);
-      return;
-    }
+    if (priority) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -33,10 +27,7 @@ export default function LazyImage({
           observer.disconnect();
         }
       },
-      {
-        rootMargin: '50px',
-        threshold: 0.01
-      }
+      { rootMargin: '50px' }
     );
 
     if (imgRef.current) {
@@ -46,50 +37,36 @@ export default function LazyImage({
     return () => observer.disconnect();
   }, [priority]);
 
-  const handleError = () => {
-    setError(true);
-    setIsLoaded(true);
-  };
+  const handleLoad = () => setIsLoaded(true);
 
-  if (error) {
+  if (!isInView) {
     return (
-      <div ref={imgRef} className={`relative overflow-hidden ${className} ${fill ? 'w-full h-full' : ''}`}>
-        <ProductPlaceholder className="w-full h-full" />
-      </div>
+      <div 
+        ref={imgRef}
+        className={`bg-gray-200 animate-pulse ${className}`}
+        style={!fill ? { width, height } : undefined}
+      />
     );
   }
 
   const imageProps = fill 
-    ? { fill: true }
+    ? { fill: true, sizes }
     : { width, height };
 
   return (
-    <div 
-      ref={imgRef}
-      className={`relative overflow-hidden bg-gray-100 ${className} ${
-        fill ? 'w-full h-full' : ''
-      }`}
-    >
-      {isInView && (
-        <Image
-          src={src || '/placeholder.png'}
-          alt={alt}
-          {...imageProps}
-          className={`object-cover transition-opacity duration-500 ${
-            isLoaded ? 'opacity-100' : 'opacity-0'
-          }`}
-          onLoad={() => setIsLoaded(true)}
-          onError={handleError}
-          placeholder={placeholder}
-          blurDataURL={blurDataURL}
-          priority={priority}
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-        />
-      )}
-      {/* Плейсхолдер */}
+    <div className={`relative ${className}`} style={fill ? undefined : { width, height }}>
       {!isLoaded && (
-        <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+        <div className="absolute inset-0 bg-gray-200 animate-pulse rounded-lg" />
       )}
+      <Image
+        src={src}
+        alt={alt}
+        {...imageProps}
+        className={`${className} transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+        onLoad={handleLoad}
+        priority={priority}
+        loading={priority ? 'eager' : 'lazy'}
+      />
     </div>
   );
 }
