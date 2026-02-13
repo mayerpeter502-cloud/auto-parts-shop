@@ -5,16 +5,24 @@ const STORAGE_KEY = 'auto_parts_products';
 export const productApi = {
   getAll: (): Product[] => {
     if (typeof window === 'undefined') return [];
-    const data = localStorage.getItem(STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
+    try {
+      const data = localStorage.getItem(STORAGE_KEY);
+      if (!data) return [];
+      const parsed = JSON.parse(data);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
   },
 
   getById: (id: string): Product | null => {
+    if (typeof window === 'undefined') return null;
     const products = productApi.getAll();
     return products.find(p => p.id === id) || null;
   },
 
   create: (product: Omit<Product, 'id' | 'createdAt'>): Product => {
+    if (typeof window === 'undefined') throw new Error('Server side');
     const products = productApi.getAll();
     const newProduct: Product = {
       ...product,
@@ -26,6 +34,7 @@ export const productApi = {
   },
 
   update: (id: string, updates: Partial<Product>): Product | null => {
+    if (typeof window === 'undefined') return null;
     const products = productApi.getAll();
     const index = products.findIndex(p => p.id === id);
     if (index === -1) return null;
@@ -37,6 +46,7 @@ export const productApi = {
   },
 
   delete: (id: string): boolean => {
+    if (typeof window === 'undefined') return false;
     const products = productApi.getAll();
     const filtered = products.filter(p => p.id !== id);
     if (filtered.length === products.length) return false;
@@ -45,6 +55,7 @@ export const productApi = {
   },
 
   search: (query: string): Product[] => {
+    if (typeof window === 'undefined') return [];
     const products = productApi.getAll();
     const lowerQuery = query.toLowerCase();
     return products.filter(p => 
@@ -55,11 +66,13 @@ export const productApi = {
   },
 
   filterByCategory: (category: string): Product[] => {
+    if (typeof window === 'undefined') return [];
     const products = productApi.getAll();
     return products.filter(p => p.category === category);
   },
 
   getPopular: (): Product[] => {
+    if (typeof window === 'undefined') return [];
     const products = productApi.getAll();
     return products.filter(p => p.isPopular).slice(0, 8);
   },
@@ -67,7 +80,14 @@ export const productApi = {
   seedData: () => {
     if (typeof window === 'undefined') return;
     const existing = localStorage.getItem(STORAGE_KEY);
-    if (existing) return;
+    if (existing) {
+      try {
+        const parsed = JSON.parse(existing);
+        if (Array.isArray(parsed) && parsed.length > 0) return;
+      } catch {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    }
 
     const mockProducts: Omit<Product, 'id' | 'createdAt'>[] = [
       {
@@ -179,6 +199,7 @@ export const productApi = {
       }
     ];
 
+    localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
     mockProducts.forEach(p => productApi.create(p));
   }
 };
