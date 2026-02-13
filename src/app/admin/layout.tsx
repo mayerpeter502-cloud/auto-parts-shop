@@ -4,31 +4,21 @@ import { useAdmin } from '@/hooks/useAdmin';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { LayoutDashboard, Package, ShoppingCart, Users, Settings } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Users } from 'lucide-react';
 
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { isAdmin, user } = useAdmin();
   const router = useRouter();
 
   useEffect(() => {
-    if (!user) {
-      router.push('/login');
-    } else if (!isAdmin) {
-      router.push('/');
-    }
+    if (!user) router.push('/login');
+    else if (!isAdmin) router.push('/');
   }, [user, isAdmin, router]);
 
-  if (!user || !isAdmin) {
-    return <div className="p-8">Проверка доступа...</div>;
-  }
+  if (!user || !isAdmin) return <div className="p-8">Проверка доступа...</div>;
 
   return (
     <div className="min-h-screen bg-gray-100 flex">
-      {/* Sidebar */}
       <aside className="w-64 bg-white shadow-md">
         <div className="p-4 border-b">
           <h2 className="text-xl font-bold text-blue-600">Admin Panel</h2>
@@ -43,19 +33,9 @@ export default function AdminLayout({
           <Link href="/admin/orders" className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded">
             <ShoppingCart size={20} /> Заказы
           </Link>
-          <Link href="/admin/users" className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded">
-            <Users size={20} /> Пользователи
-          </Link>
-          <Link href="/admin/settings" className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded">
-            <Settings size={20} /> Настройки
-          </Link>
         </nav>
       </aside>
-
-      {/* Main content */}
-      <main className="flex-1 p-8">
-        {children}
-      </main>
+      <main className="flex-1 p-8">{children}</main>
     </div>
   );
 }
