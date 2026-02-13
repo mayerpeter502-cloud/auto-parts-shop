@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Car, ChevronDown, Search, X } from 'lucide-react';
+import { Car, ChevronDown, X } from 'lucide-react';
 import { useToast } from '@/components/ToastProvider';
 
 // Моковые данные
@@ -160,35 +160,36 @@ export default function CarSelector({ onSelect, compact = false }) {
             </div>
           )}
 
-          {/* Шаг 3: Год */}
-{step === 3 && (
-  <div className="p-4">
-    <div className="flex items-center justify-between mb-4">
-      <button 
-        onClick={() => setStep(2)}
-        className="text-sm text-blue-600 hover:text-blue-700"
-      >
-        ← Назад
-      </button>
-      <h3 className="font-bold text-gray-900">{selected.brand} {selected.model} — год</h3>
-      <button onClick={() => setIsOpen(false)} className="p-1 hover:bg-gray-100 rounded">
-        <X className="w-5 h-5 text-gray-400" />
-      </button>
-    </div>
-    {/* Годы в столбик */}
-    <div className="flex flex-col gap-2 max-h-60 overflow-y-auto">
-      {years.map(year => (
-        <button
-          key={year}
-          onClick={() => handleYearSelect(year)}
-          className="w-full p-3 text-left rounded-lg border border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-colors font-medium text-gray-900 bg-white"
-        >
-          {year}
-        </button>
-      ))}
-    </div>
-  </div>
-)}
+          {/* Шаг 3: Год — ВЕРТИКАЛЬНЫЙ СПИСОК */}
+          {step === 3 && (
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-4">
+                <button 
+                  onClick={() => setStep(2)}
+                  className="text-sm text-blue-600 hover:text-blue-700"
+                >
+                  ← Назад
+                </button>
+                <h3 className="font-bold text-gray-900">{selected.brand} {selected.model} — год</h3>
+                <button onClick={() => setIsOpen(false)} className="p-1 hover:bg-gray-100 rounded">
+                  <X className="w-5 h-5 text-gray-400" />
+                </button>
+              </div>
+              <div className="flex flex-col gap-2 max-h-60 overflow-y-auto">
+                {years.map(year => (
+                  <button
+                    key={year}
+                    onClick={() => handleYearSelect(year)}
+                    className="w-full p-3 text-left rounded-lg border border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-colors font-medium text-gray-900 bg-white"
+                  >
+                    {year}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Сброс выбора */}
       {selected.brand && !isOpen && (

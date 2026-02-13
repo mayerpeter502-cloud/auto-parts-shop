@@ -2,23 +2,19 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Search, ChevronRight, Star, Package } from 'lucide-react';
+import { Search, Star, Package } from 'lucide-react';
 import Breadcrumbs from '@/components/Breadcrumbs';
-import LazyImage from '@/components/LazyImage';
+import SearchAutocomplete from '@/components/SearchAutocomplete';
 
 const brands = [
-  { id: 1, name: 'Bosch', country: 'Германия', logo: '/brands/bosch.png', rating: 4.9, products: 1250, category: 'Запчасти' },
-  { id: 2, name: 'Castrol', country: 'Великобритания', logo: '/brands/castrol.png', rating: 4.8, products: 340, category: 'Масла' },
-  { id: 3, name: 'Brembo', country: 'Италия', logo: '/brands/brembo.png', rating: 4.9, products: 520, category: 'Тормоза' },
-  { id: 4, name: 'NGK', country: 'Япония', logo: '/brands/ngk.png', rating: 4.7, products: 280, category: 'Свечи' },
-  { id: 5, name: 'Mann', country: 'Германия', logo: '/brands/mann.png', rating: 4.8, products: 890, category: 'Фильтры' },
-  { id: 6, name: 'Varta', country: 'Германия', logo: '/brands/varta.png', rating: 4.6, products: 45, category: 'Аккумуляторы' },
-  { id: 7, name: 'Toyota', country: 'Япония', logo: '/brands/toyota.png', rating: 4.9, products: 2100, category: 'Оригинал' },
-  { id: 8, name: 'Mobil', country: 'США', logo: '/brands/mobil.png', rating: 4.8, products: 290, category: 'Масла' },
-  { id: 9, name: 'Continental', country: 'Германия', logo: '/brands/continental.png', rating: 4.7, products: 670, category: 'Ремни' },
-  { id: 10, name: 'Denso', country: 'Япония', logo: '/brands/denso.png', rating: 4.8, products: 450, category: 'Запчасти' },
-  { id: 11, name: 'KYB', country: 'Япония', logo: '/brands/kyb.png', rating: 4.6, products: 320, category: 'Амортизаторы' },
-  { id: 12, name: 'SKF', country: 'Швеция', logo: '/brands/skf.png', rating: 4.9, products: 780, category: 'Подшипники' },
+  { id: 1, name: 'Bosch', country: 'Германия', rating: 4.9, products: 1250, category: 'Запчасти' },
+  { id: 2, name: 'Castrol', country: 'Великобритания', rating: 4.8, products: 340, category: 'Масла' },
+  { id: 3, name: 'Brembo', country: 'Италия', rating: 4.9, products: 520, category: 'Тормоза' },
+  { id: 4, name: 'NGK', country: 'Япония', rating: 4.7, products: 280, category: 'Свечи' },
+  { id: 5, name: 'Mann', country: 'Германия', rating: 4.8, products: 890, category: 'Фильтры' },
+  { id: 6, name: 'Varta', country: 'Германия', rating: 4.6, products: 45, category: 'Аккумуляторы' },
+  { id: 7, name: 'Toyota', country: 'Япония', rating: 4.9, products: 2100, category: 'Оригинал' },
+  { id: 8, name: 'Mobil', country: 'США', rating: 4.8, products: 290, category: 'Масла' },
 ];
 
 const categories = ['Все', 'Запчасти', 'Масла', 'Фильтры', 'Тормоза', 'Свечи', 'Аккумуляторы', 'Оригинал'];
@@ -45,16 +41,7 @@ export default function BrandsPage() {
 
         {/* Поиск */}
         <div className="max-w-xl mx-auto mb-8">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Поиск бренда..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+          <SearchAutocomplete />
         </div>
 
         {/* Фильтры */}
@@ -106,25 +93,6 @@ export default function BrandsPage() {
             Бренды не найдены
           </div>
         )}
-
-        {/* Популярные бренды */}
-        <div className="mt-12 bg-blue-600 rounded-2xl p-8 text-white">
-          <h2 className="text-2xl font-bold mb-4">Почему оригинальные бренды?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <h3 className="font-bold mb-2">Гарантия качества</h3>
-              <p className="text-blue-100 text-sm">Все товары сертифицированы и имеют гарантию от производителя</p>
-            </div>
-            <div>
-              <h3 className="font-bold mb-2">Официальные дилеры</h3>
-              <p className="text-blue-100 text-sm">Работаем напрямую с производителями без посредников</p>
-            </div>
-            <div>
-              <h3 className="font-bold mb-2">Проверка подлинности</h3>
-              <p className="text-blue-100 text-sm">Каждая деталь проходит проверку перед отправкой</p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

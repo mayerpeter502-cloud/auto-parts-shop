@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, ShoppingCart, Heart, Scale, User, Menu, X, Car, ChevronDown } from 'lucide-react';
 import CarSelector from './CarSelector';
+import SearchAutocomplete from './SearchAutocomplete';
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -11,7 +12,6 @@ export default function Header() {
   const [showCarSelector, setShowCarSelector] = useState(false);
   const [cartCount, setCartCount] = useState(0);
 
-  // Получаем количество товаров из localStorage
   useEffect(() => {
     const updateCartCount = () => {
       const cart = JSON.parse(localStorage.getItem('autoparts_cart') || '[]');
@@ -63,46 +63,26 @@ export default function Header() {
               </span>
             </Link>
 
-            {/* Подбор по авто */}
+            {/* Подбор по авто — КНОПКА ОТКРЫВАЕТ МОДАЛКУ */}
             <div className="hidden lg:block">
-              <CarSelector compact />
+              <button
+                onClick={() => setShowCarSelector(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <Car className="w-5 h-5" />
+                <span>Подбор по авто</span>
+              </button>
             </div>
 
-            {/* Поиск */}
+            {/* Поиск с автодополнением */}
             <div className={`hidden md:block flex-1 max-w-2xl transition-all ${
               isScrolled ? 'max-w-xl' : 'max-w-2xl'
             }`}>
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Поиск по артикулу, названию или VIN..."
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border-transparent rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all"
-                />
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <Link 
-                  href="/vin"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-md hover:bg-blue-200 transition-colors"
-                >
-                  VIN
-                </Link>
-              </div>
+              <SearchAutocomplete />
             </div>
 
             {/* Иконки */}
             <div className="flex items-center gap-1 sm:gap-3">
-              <button 
-                onClick={() => setShowCarSelector(!showCarSelector)}
-                className="hidden lg:flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <Car className="w-5 h-5" />
-                <span className="text-sm font-medium">Мой авто</span>
-                <ChevronDown className={`w-4 h-4 transition-transform ${showCarSelector ? 'rotate-180' : ''}`} />
-              </button>
-
-              <Link href="/compare" className="hidden sm:flex p-2 text-gray-700 hover:bg-gray-100 rounded-lg relative">
-                <Scale className="w-5 h-5" />
-              </Link>
-
               <Link href="/favorites" className="p-2 text-gray-700 hover:bg-gray-100 rounded-lg relative">
                 <Heart className="w-5 h-5" />
               </Link>
@@ -151,6 +131,22 @@ export default function Header() {
         isScrolled ? 'h-16' : 'h-28'
       }`} />
 
+      {/* Модалка выбора авто */}
+      {showCarSelector && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setShowCarSelector(false)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-900">Выберите автомобиль</h2>
+              <button onClick={() => setShowCarSelector(false)} className="p-2 hover:bg-gray-100 rounded-full">
+                <X className="w-6 h-6 text-gray-400" />
+              </button>
+            </div>
+            <CarSelector onSelect={() => setShowCarSelector(false)} />
+          </div>
+        </div>
+      )}
+
       {/* Мобильное меню */}
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
@@ -173,19 +169,6 @@ export default function Header() {
                   {link.label}
                 </Link>
               ))}
-              <hr className="my-4" />
-              <Link href="/profile" className="flex items-center gap-3 py-2 text-gray-700">
-                <User className="w-5 h-5" />
-                Личный кабинет
-              </Link>
-              <Link href="/favorites" className="flex items-center gap-3 py-2 text-gray-700">
-                <Heart className="w-5 h-5" />
-                Избранное
-              </Link>
-              <Link href="/compare" className="flex items-center gap-3 py-2 text-gray-700">
-                <Scale className="w-5 h-5" />
-                Сравнение
-              </Link>
             </nav>
           </div>
         </div>
