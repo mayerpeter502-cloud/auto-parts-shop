@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { Search, Car, Wrench, Truck, Shield, ChevronRight, Star } from 'lucide-react';
 import CarSelector from '@/components/CarSelector';
 import ProductCard from '@/components/ProductCard';
-import LazyImage from '@/components/LazyImage';
 
 const categories = [
   { name: 'Масла и жидкости', icon: '🛢️', count: 1250 },
@@ -60,7 +59,7 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Подбор по авто - НОВОЕ */}
+              {/* Подбор по авто */}
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4">
                 <div className="flex items-center gap-2 mb-3 text-blue-100">
                   <Car className="w-5 h-5" />
@@ -162,25 +161,25 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* VIN запрос */}
+      {/* CTA секция */}
       <section className="py-12 bg-gray-900 text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold mb-4">Подбор по VIN-номеру</h2>
+          <h2 className="text-3xl font-bold mb-4">Нужна помощь с подбором?</h2>
           <p className="text-gray-400 mb-8">
-            Введите VIN вашего автомобиля и получите список совместимых запчастей с гарантией подбора
+            Наши специалисты помогут найти нужные запчасти по VIN или марке автомобиля
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto">
-            <input
-              type="text"
-              placeholder="VIN (17 символов)"
-              className="flex-1 px-6 py-4 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 uppercase tracking-wider"
-              maxLength={17}
-            />
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/vin"
+              href="/contacts"
               className="px-8 py-4 bg-blue-600 rounded-lg font-bold hover:bg-blue-700 transition-colors"
             >
-              Подобрать
+              Связаться с нами
+            </Link>
+            <Link
+              href="/catalog"
+              className="px-8 py-4 bg-white/10 rounded-lg font-bold hover:bg-white/20 transition-colors"
+            >
+              Перейти в каталог
             </Link>
           </div>
         </div>
