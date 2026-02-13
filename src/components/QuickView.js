@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
+import Image from './Image';
 import Link from 'next/link';
 import { X, ShoppingCart, Heart, Check, ChevronLeft, ChevronRight, Star, Minus, Plus } from 'lucide-react';
 
