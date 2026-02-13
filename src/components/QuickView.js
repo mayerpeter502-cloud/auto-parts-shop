@@ -1,13 +1,17 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { X, ShoppingCart, Heart, Scale, Check, Star } from 'lucide-react';
-import useCart from '@/hooks/useCart';
+import Link from 'next/link';
+import { X, ShoppingCart, Heart, Check, ChevronLeft, ChevronRight, Star, Minus, Plus } from 'lucide-react';
 
-export default function QuickView({ product, isOpen, onClose, onAddToCompare, onToggleFavorite, isFavorite }) {
-  const { addToCart } = useCart();
+export default function QuickView({ product, isOpen, onClose, onAddToCart, onToggleFavorite, isFavorite }) {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [quantity, setQuantity] = useState(1);
+  const [addedToCart, setAddedToCart] = useState(false);
+  const [activeTab, setActiveTab] = useState('description');
 
+  // Блокировка скролла при открытой модалке
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -19,155 +23,322 @@ export default function QuickView({ product, isOpen, onClose, onAddToCompare, on
     };
   }, [isOpen]);
 
+  // Сброс состояния при открытии
+  useEffect(() => {
+    if (isOpen) {
+      setCurrentImageIndex(0);
+      setQuantity(1);
+      setAddedToCart(false);
+      setActiveTab('description');
+    }
+  }, [isOpen, product?.id]);
+
   if (!isOpen || !product) return null;
 
-  const handleAddToCart = () => {
-    addToCart(product);
-    onClose();
+  // Моковые изображения если нет массива
+  const images = product.images || [product.image || '/products/placeholder.jpg'];
+  
+  // Моковые характеристики
+  const specifications = product.specifications || [
+    { label: 'Артикул', value: product.sku || 'N/A' },
+    { label: 'Бренд', value: product.brand || 'N/A' },
+    { label: 'Страна', value: 'Германия' },
+    { label: 'Гарантия', value: '12 месяцев' },
+  ];
+
+  // Моковая совместимость
+  const compatibility = product.compatibility || [
+    'Toyota Camry (2018-2023)',
+    'Toyota RAV4 (2019-2024)',
+    'Lexus ES (2019-2023)',
+  ];
+
+  const handlePrevImage = () => {
+    setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
   };
 
+  const handleNextImage = () => {
+    setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  };
+
+  const handleQuantityChange = (delta) => {
+    setQuantity((prev) => Math.max(1, Math.min(prev + delta, 99)));
+  };
+
+  const handleAddToCart = () => {
+    onAddToCart?.({ ...product, quantity });
+    setAddedToCart(true);
+    setTimeout(() => setAddedToCart(false), 2000);
+  };
+
+  // Закрытие по Escape
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [onClose]);
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Оверлей */}
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      onClick={onClose}
+    >
       <div 
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      
-      {/* Модалка */}
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+        className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Кнопка закрытия */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors z-10"
+          className="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/90 hover:bg-gray-100 transition-colors shadow-lg"
         >
-          <X className="w-6 h-6 text-gray-500" />
+          <X className="w-5 h-5 text-gray-600" />
         </button>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 md:p-8">
-          {/* Изображение */}
-          <div className="relative aspect-square bg-gray-100 rounded-xl overflow-hidden">
-            <Image
-              src={product.image || '/placeholder-product.png'}
-              alt={product.name}
-              fill
-              className="object-cover"
-            />
-            {product.oldPrice && (
-              <div className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
-                -{Math.round((1 - product.price/product.oldPrice) * 100)}%
+        <div className="flex flex-col md:flex-row h-full max-h-[90vh] overflow-auto">
+          {/* Левая часть - изображения */}
+          <div className="w-full md:w-1/2 p-6 bg-gray-50">
+            <div className="relative aspect-square bg-white rounded-xl overflow-hidden">
+              <Image
+                src={images[currentImageIndex]}
+                alt={product.name}
+                fill
+                className="object-contain p-4"
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+              
+              {/* Навигация по фото */}
+              {images.length > 1 && (
+                <>
+                  <button
+                    onClick={handlePrevImage}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full bg-white/90 hover:bg-white shadow-lg transition-colors"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={handleNextImage}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full bg-white/90 hover:bg-white shadow-lg transition-colors"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </>
+              )}
+
+              {/* Индикаторы */}
+              {images.length > 1 && (
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                  {images.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setCurrentImageIndex(idx)}
+                      className={`w-2 h-2 rounded-full transition-colors ${
+                        idx === currentImageIndex ? 'bg-blue-600' : 'bg-gray-300'
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Миниатюры */}
+            {images.length > 1 && (
+              <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
+                {images.map((img, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentImageIndex(idx)}
+                    className={`relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-colors ${
+                      idx === currentImageIndex ? 'border-blue-600' : 'border-transparent'
+                    }`}
+                  >
+                    <Image
+                      src={img}
+                      alt={`${product.name} ${idx + 1}`}
+                      fill
+                      className="object-cover"
+                    />
+                  </button>
+                ))}
               </div>
             )}
           </div>
 
-          {/* Информация */}
-          <div className="flex flex-col">
-            <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
-              <span className="bg-gray-100 px-2 py-1 rounded">{product.brand}</span>
-              <span>•</span>
-              <span>{product.sku}</span>
+          {/* Правая часть - информация */}
+          <div className="w-full md:w-1/2 p-6 flex flex-col">
+            {/* Хлебные крошки */}
+            <div className="text-sm text-gray-500 mb-2">
+              {product.category || 'Автозапчасти'} / {product.brand}
             </div>
 
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">{product.name}</h2>
+            {/* Название */}
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">{product.name}</h2>
 
             {/* Рейтинг */}
             <div className="flex items-center gap-2 mb-4">
               <div className="flex items-center gap-1">
                 {[...Array(5)].map((_, i) => (
-                  <Star 
-                    key={i} 
-                    className={`w-5 h-5 ${i < Math.floor(product.rating) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} 
+                  <Star
+                    key={i}
+                    className={`w-4 h-4 ${
+                      i < Math.floor(product.rating || 0)
+                        ? 'text-yellow-400 fill-yellow-400'
+                        : 'text-gray-300'
+                    }`}
                   />
                 ))}
               </div>
-              <span className="font-medium text-gray-900">{product.rating}</span>
-              <span className="text-gray-500">({product.reviews} отзывов)</span>
+              <span className="text-sm text-gray-600">
+                {product.rating || 0} ({product.reviews || 0} отзывов)
+              </span>
             </div>
 
             {/* Цена */}
             <div className="flex items-baseline gap-3 mb-6">
               <span className="text-3xl font-bold text-gray-900">
-                {product.price.toLocaleString('ru-RU')} ₸
+                {product.price?.toLocaleString('ru-RU')} ₸
               </span>
               {product.oldPrice && (
-                <span className="text-xl text-gray-400 line-through">
+                <span className="text-lg text-gray-400 line-through">
                   {product.oldPrice.toLocaleString('ru-RU')} ₸
+                </span>
+              )}
+              {product.oldPrice && (
+                <span className="px-2 py-1 bg-red-100 text-red-600 text-sm font-medium rounded-lg">
+                  -{Math.round((1 - product.price / product.oldPrice) * 100)}%
                 </span>
               )}
             </div>
 
             {/* Наличие */}
-            <div className="flex items-center gap-2 mb-6">
-              {product.inStock ? (
-                <>
-                  <Check className="w-5 h-5 text-green-500" />
-                  <span className="text-green-600 font-medium">В наличии</span>
-                </>
-              ) : (
-                <>
-                  <div className="w-2 h-2 bg-orange-500 rounded-full" />
-                  <span className="text-orange-500 font-medium">Под заказ (2-3 дня)</span>
-                </>
+            <div className={`flex items-center gap-2 mb-6 ${product.inStock ? 'text-green-600' : 'text-red-600'}`}>
+              <div className={`w-2 h-2 rounded-full ${product.inStock ? 'bg-green-600' : 'bg-red-600'}`} />
+              <span className="font-medium">
+                {product.inStock ? 'В наличии' : 'Нет в наличии'}
+              </span>
+            </div>
+
+            {/* Количество и кнопки */}
+            {product.inStock && (
+              <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                {/* Счетчик */}
+                <div className="flex items-center border border-gray-300 rounded-xl">
+                  <button
+                    onClick={() => handleQuantityChange(-1)}
+                    className="w-12 h-12 flex items-center justify-center hover:bg-gray-50 transition-colors"
+                  >
+                    <Minus className="w-4 h-4" />
+                  </button>
+                  <span className="w-12 text-center font-medium">{quantity}</span>
+                  <button
+                    onClick={() => handleQuantityChange(1)}
+                    className="w-12 h-12 flex items-center justify-center hover:bg-gray-50 transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Кнопка в корзину */}
+                <button
+                  onClick={handleAddToCart}
+                  className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${
+                    addedToCart
+                      ? 'bg-green-600 text-white'
+                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                  }`}
+                >
+                  {addedToCart ? (
+                    <>
+                      <Check className="w-5 h-5" />
+                      Добавлено
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingCart className="w-5 h-5" />
+                      В корзину
+                    </>
+                  )}
+                </button>
+
+                {/* Избранное */}
+                <button
+                  onClick={() => onToggleFavorite?.(product)}
+                  className={`w-12 h-12 flex items-center justify-center rounded-xl border-2 transition-colors ${
+                    isFavorite
+                      ? 'border-red-500 text-red-500 bg-red-50'
+                      : 'border-gray-300 text-gray-400 hover:border-red-500 hover:text-red-500'
+                  }`}
+                >
+                  <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
+                </button>
+              </div>
+            )}
+
+            {/* Табы */}
+            <div className="border-b border-gray-200 mb-4">
+              <div className="flex gap-6">
+                {[
+                  { id: 'description', label: 'Описание' },
+                  { id: 'specs', label: 'Характеристики' },
+                  { id: 'fitment', label: 'Совместимость' },
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`pb-3 text-sm font-medium border-b-2 transition-colors ${
+                      activeTab === tab.id
+                        ? 'border-blue-600 text-blue-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Контент табов */}
+            <div className="flex-1 overflow-auto">
+              {activeTab === 'description' && (
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  {product.description || 'Оригинальная запчасть высокого качества. Гарантия производителя 12 месяцев. Проверено на совместимость с указанными моделями автомобилей.'}
+                </p>
+              )}
+
+              {activeTab === 'specs' && (
+                <div className="space-y-2">
+                  {specifications.map((spec, idx) => (
+                    <div key={idx} className="flex justify-between py-2 border-b border-gray-100 last:border-0">
+                      <span className="text-gray-500 text-sm">{spec.label}</span>
+                      <span className="text-gray-900 text-sm font-medium">{spec.value}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {activeTab === 'fitment' && (
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600 mb-3">Подходит для:</p>
+                  {compatibility.map((car, idx) => (
+                    <div key={idx} className="flex items-center gap-2 text-sm text-gray-700">
+                      <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                      {car}
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
 
-            {/* Краткое описание */}
-            <p className="text-gray-600 mb-6 line-clamp-3">
-              Оригинальная запчасть высшего качества. Гарантия производителя 12 месяцев. 
-              Проверено на совместимость с вашим автомобилем.
-            </p>
-
-            {/* Характеристики */}
-            <div className="space-y-2 mb-6 text-sm">
-              <div className="flex justify-between py-2 border-b border-gray-100">
-                <span className="text-gray-500">Бренд</span>
-                <span className="font-medium">{product.brand}</span>
-              </div>
-              <div className="flex justify-between py-2 border-b border-gray-100">
-                <span className="text-gray-500">Артикул</span>
-                <span className="font-medium">{product.sku}</span>
-              </div>
-              <div className="flex justify-between py-2 border-b border-gray-100">
-                <span className="text-gray-500">Категория</span>
-                <span className="font-medium">{product.category}</span>
-              </div>
-            </div>
-
-            {/* Кнопки */}
-            <div className="flex gap-3 mt-auto">
-              <button
-                onClick={handleAddToCart}
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
-              >
-                <ShoppingCart className="w-5 h-5" />
-                В корзину
-              </button>
-              
-              <button
-                onClick={onToggleFavorite}
-                className={`p-3 border-2 rounded-lg transition-colors ${
-                  isFavorite 
-                    ? 'border-red-500 text-red-500 bg-red-50' 
-                    : 'border-gray-300 text-gray-600 hover:border-red-500 hover:text-red-500'
-                }`}
-              >
-                <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
-              </button>
-              
-              <button
-                onClick={onAddToCompare}
-                className="p-3 border-2 border-gray-300 text-gray-600 rounded-lg hover:border-blue-500 hover:text-blue-500 transition-colors"
-              >
-                <Scale className="w-5 h-5" />
-              </button>
-            </div>
-
             {/* Ссылка на полную страницу */}
-            <a 
+            <Link
               href={`/product?id=${product.id}`}
+              onClick={onClose}
               className="mt-4 text-center text-blue-600 hover:text-blue-700 font-medium text-sm"
             >
-              Перейти на страницу товара →
-            </a>
+              Подробнее о товаре →
+            </Link>
           </div>
         </div>
       </div>
