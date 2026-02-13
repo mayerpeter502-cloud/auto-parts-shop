@@ -6,16 +6,36 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { 
   Search, 
-  Filter, 
+  SlidersHorizontal,
   Grid, 
   List, 
   ShoppingCart, 
-  ChevronDown,
-  X,
-  SlidersHorizontal
+  X
 } from 'lucide-react';
-import { Product, productApi } from '@/app/lib/api';
-import { useCart } from '@/app/hooks/useCart';
+import { useCart } from '../hooks/useCart';
+
+// Типы прямо здесь пока нет api.ts
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  oldPrice?: number;
+  brand: string;
+  category: string;
+  image: string;
+  description?: string;
+  stock: number;
+  discount?: number;
+}
+
+// Временный API пока нет файла
+const productApi = {
+  getAll: (): Product[] => {
+    if (typeof window === 'undefined') return [];
+    const data = localStorage.getItem('autoparts_products');
+    return data ? JSON.parse(data) : [];
+  }
+};
 
 function CatalogContent() {
   const searchParams = useSearchParams();
@@ -102,7 +122,7 @@ function CatalogContent() {
   };
 
   const handleAddToCart = (product: Product) => {
-    addToCart(product, 1);
+    addToCart(product as any, 1);
     alert('Товар добавлен в корзину');
   };
 
@@ -305,7 +325,7 @@ function CatalogContent() {
                     <Link href={`/product/${product.id}`} className={`block ${viewMode === 'list' ? 'w-48 flex-shrink-0' : ''}`}>
                       <div className={`relative bg-gray-100 ${viewMode === 'list' ? 'h-32' : 'aspect-square'}`}>
                         <Image
-                          src={product.image}
+                          src={product.image || '/placeholder.png'}
                           alt={product.name}
                           fill
                           className="object-contain p-4"
