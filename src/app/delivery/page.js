@@ -111,7 +111,7 @@ export default function DeliveryPage() {
         </div>
       </main>
       
-      <Footer />
+      
     </div>
   );
 }

@@ -251,7 +251,7 @@ export default function ComparePage() {
         </div>
       </main>
       
-      <Footer />
+      
     </div>
   );
 }

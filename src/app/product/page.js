@@ -238,7 +238,7 @@ export default function ProductPage() {
         </div>
       </main>
       
-      <Footer />
+      
     </div>
   );
 }
