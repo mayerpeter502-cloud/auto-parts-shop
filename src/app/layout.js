@@ -3,6 +3,7 @@ import './globals.css';
 import { ToastProvider } from '@/components/ToastProvider';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 const inter = Inter({ subsets: ['latin', 'cyrillic'] });
 
@@ -19,7 +20,10 @@ export default function RootLayout({ children }) {
         <ErrorBoundary>
           <ToastProvider>
             <Header />
-            {children}
+            <main className="min-h-screen">
+              {children}
+            </main>
+            <Footer />
           </ToastProvider>
         </ErrorBoundary>
       </body>
