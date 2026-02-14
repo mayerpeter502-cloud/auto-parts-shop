@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Car, FileText, Search, ChevronLeft, ChevronRight, ShoppingCart } from "lucide-react";
-import { productsApi, initStorage, categories } from "../lib/api";
+import { productsApi, initStorage, categories } from "./lib/api";
 import { useCart } from "../contexts/CartContext";
 
 export default function HomePage() {
