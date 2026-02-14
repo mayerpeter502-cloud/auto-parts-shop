@@ -1,390 +1,341 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { 
-  ChevronRight, 
-  Check, 
-  Truck, 
-  CreditCard, 
-  User,
-  MapPin,
-  Package
-} from 'lucide-react';
-import { useCart } from '@/app/hooks/useCart';
-
-type DeliveryMethod = 'courier' | 'pickup' | 'post';
-type PaymentMethod = 'card' | 'cash' | 'online';
-
-interface OrderData {
-  contact: {
-    name: string;
-    phone: string;
-    email: string;
-  };
-  delivery: {
-    method: DeliveryMethod;
-    address?: string;
-    city: string;
-    comment?: string;
-  };
-  payment: {
-    method: PaymentMethod;
-  };
-}
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { ChevronLeft, Truck, CreditCard, User, MapPin, Check } from "lucide-react";
+import { useCart } from "../../contexts/CartContext";
+import { ordersApi } from "../lib/api";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { items, totalPrice, clearCart } = useCart();
+  const { items, total, clearCart } = useCart();
+  const { user } = useAuth();
+  
   const [step, setStep] = useState(1);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const [orderData, setOrderData] = useState<OrderData>({
-    contact: { name: '', phone: '', email: '' },
-    delivery: { method: 'courier', city: '', address: '', comment: '' },
-    payment: { method: 'online' },
+  const [formData, setFormData] = useState({
+    name: user?.name || "",
+    phone: "",
+    email: user?.email || "",
+    deliveryMethod: "pickup" as "pickup" | "courier" | "post",
+    city: "",
+    address: "",
+    paymentMethod: "cash" as "cash" | "card" | "kaspi"
   });
-
-  const deliveryCost = totalPrice > 50000 ? 0 : 2000;
-  const finalTotal = totalPrice + deliveryCost;
-
-  const handleNext = () => {
-    if (step < 3) setStep(step + 1);
-  };
-
-  const handleBack = () => {
-    if (step > 1) setStep(step - 1);
-  };
-
-  const handleSubmit = async () => {
-    setIsSubmitting(true);
-    
-    // Сохраняем заказ в localStorage для админки
-    const order = {
-      id: `ORD-${Date.now()}`,
-      date: new Date().toISOString(),
-      status: 'pending',
-      items: items,
-      total: finalTotal,
-      customer: orderData.contact,
-      delivery: orderData.delivery,
-      payment: orderData.payment,
-    };
-
-    const existingOrders = JSON.parse(localStorage.getItem('autoparts_orders') || '[]');
-    localStorage.setItem('autoparts_orders', JSON.stringify([order, ...existingOrders]));
-
-    // Имитация обработки
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    
-    clearCart();
-    router.push('/order-success?id=' + order.id);
-  };
-
-  const steps = [
-    { num: 1, title: 'Контакты', icon: User },
-    { num: 2, title: 'Доставка', icon: Truck },
-    { num: 3, title: 'Оплата', icon: CreditCard },
-  ];
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-20 text-center">
-        <h1 className="text-2xl font-bold mb-4">Корзина пуста</h1>
-        <button 
-          onClick={() => router.push('/catalog')}
-          className="text-blue-600 hover:underline"
-        >
-          Вернуться в каталог
-        </button>
+      <div className="min-h-screen bg-gray-50 py-12">
+        <div className="container mx-auto px-4 max-w-2xl text-center">
+          <h1 className="text-2xl font-bold mb-4">Корзина пуста</h1>
+          <p className="text-gray-500 mb-6">Добавьте товары для оформления заказа</p>
+          <Link href="/catalog" className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            Перейти в каталог
+          </Link>
+        </div>
       </div>
     );
   }
 
+  const handleSubmit = () => {
+    const order = ordersApi.create({
+      userId: user?.id || "guest",
+      items: items.map(item => ({
+        productId: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        image: item.image
+      })),
+      status: "pending",
+      total: total,
+      contactInfo: {
+        name: formData.name,
+        phone: formData.phone,
+        email: formData.email
+      },
+      delivery: {
+        method: formData.deliveryMethod,
+        city: formData.city,
+        address: formData.deliveryMethod === "pickup" ? undefined : formData.address
+      },
+      payment: {
+        method: formData.paymentMethod
+      }
+    });
+
+    clearCart();
+    router.push(`/order-success?id=${order.id}`);
+  };
+
+  const steps = [
+    { num: 1, title: "Контакты", icon: User },
+    { num: 2, title: "Доставка", icon: Truck },
+    { num: 3, title: "Оплата", icon: CreditCard }
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-50 py-6">
-      <div className="max-w-4xl mx-auto px-4">
-        {/* Прогресс */}
-        <div className="flex items-center justify-center mb-8">
-          {steps.map((s, idx) => (
-            <div key={s.num} className="flex items-center">
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="container mx-auto px-4 max-w-4xl">
+        {/* Back link */}
+        <Link href="/cart" className="flex items-center gap-1 text-gray-600 hover:text-blue-600 mb-6">
+          <ChevronLeft className="w-4 h-4" />
+          Назад в корзину
+        </Link>
+
+        <h1 className="text-2xl font-bold mb-6">Оформление заказа</h1>
+
+        {/* Progress */}
+        <div className="flex items-center gap-2 mb-8 overflow-x-auto">
+          {steps.map((s, index) => (
+            <div key={s.num} className="flex items-center gap-2 shrink-0">
               <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${
-                step >= s.num ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'
+                step >= s.num ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-500"
               }`}>
                 <s.icon className="w-4 h-4" />
-                <span className="text-sm font-medium hidden sm:inline">{s.title}</span>
+                <span className="text-sm font-medium hidden sm:block">{s.title}</span>
               </div>
-              {idx < steps.length - 1 && (
-                <ChevronRight className={`w-5 h-5 mx-2 ${
-                  step > s.num ? 'text-blue-600' : 'text-gray-300'
-                }`} />
+              {index < steps.length - 1 && (
+                <div className={`w-8 h-0.5 ${step > s.num ? "bg-blue-600" : "bg-gray-200"}`} />
               )}
             </div>
           ))}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Форма */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              {/* Шаг 1: Контакты */}
-              {step === 1 && (
+          {/* Main form */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Step 1: Contacts */}
+            {step === 1 && (
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <User className="w-5 h-5 text-blue-600" />
+                  Контактные данные
+                </h2>
                 <div className="space-y-4">
-                  <h2 className="text-xl font-bold mb-4">Контактные данные</h2>
-                  
                   <div>
-                    <label className="block text-sm font-medium mb-1">ФИО *</label>
+                    <label className="block text-sm font-medium mb-1">Имя *</label>
                     <input
                       type="text"
-                      value={orderData.contact.name}
-                      onChange={(e) => setOrderData({
-                        ...orderData,
-                        contact: { ...orderData.contact, name: e.target.value }
-                      })}
-                      className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
-                      placeholder="Иванов Иван Иванович"
+                      required
+                      value={formData.name}
+                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                      placeholder="Введите ваше имя"
                     />
                   </div>
-
                   <div>
                     <label className="block text-sm font-medium mb-1">Телефон *</label>
                     <input
                       type="tel"
-                      value={orderData.contact.phone}
-                      onChange={(e) => setOrderData({
-                        ...orderData,
-                        contact: { ...orderData.contact, phone: e.target.value }
-                      })}
-                      className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
-                      placeholder="+7 (777) 123-45-67"
+                      required
+                      value={formData.phone}
+                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                      placeholder="+7 (___) ___-__-__"
                     />
                   </div>
-
                   <div>
                     <label className="block text-sm font-medium mb-1">Email</label>
                     <input
                       type="email"
-                      value={orderData.contact.email}
-                      onChange={(e) => setOrderData({
-                        ...orderData,
-                        contact: { ...orderData.contact, email: e.target.value }
-                      })}
-                      className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
+                      value={formData.email}
+                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                       placeholder="email@example.com"
                     />
                   </div>
                 </div>
-              )}
+                <button
+                  onClick={() => setStep(2)}
+                  disabled={!formData.name || !formData.phone}
+                  className="w-full mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Продолжить
+                </button>
+              </div>
+            )}
 
-              {/* Шаг 2: Доставка */}
-              {step === 2 && (
-                <div className="space-y-4">
-                  <h2 className="text-xl font-bold mb-4">Способ доставки</h2>
-                  
-                  <div className="space-y-2">
-                    {[
-                      { id: 'courier', title: 'Курьерская доставка', desc: 'Доставка курьером на адрес', price: '2 000 ₸' },
-                      { id: 'pickup', title: 'Самовывоз', desc: 'Забрать из пункта выдачи', price: 'Бесплатно' },
-                      { id: 'post', title: 'Почта', desc: 'Доставка почтой по Казахстану', price: '1 500 ₸' },
-                    ].map((method) => (
-                      <label 
-                        key={method.id}
-                        className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer ${
-                          orderData.delivery.method === method.id ? 'border-blue-600 bg-blue-50' : 'border-gray-200'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <input
-                            type="radio"
-                            name="delivery"
-                            value={method.id}
-                            checked={orderData.delivery.method === method.id}
-                            onChange={(e) => setOrderData({
-                              ...orderData,
-                              delivery: { ...orderData.delivery, method: e.target.value as DeliveryMethod }
-                            })}
-                            className="w-4 h-4 text-blue-600"
-                          />
-                          <div>
-                            <p className="font-medium">{method.title}</p>
-                            <p className="text-sm text-gray-500">{method.desc}</p>
-                          </div>
-                        </div>
-                        <span className="font-medium">{method.price}</span>
-                      </label>
-                    ))}
-                  </div>
+            {/* Step 2: Delivery */}
+            {step === 2 && (
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <Truck className="w-5 h-5 text-blue-600" />
+                  Способ доставки
+                </h2>
+                
+                <div className="space-y-3 mb-6">
+                  {[
+                    { value: "pickup", label: "Самовывоз", desc: "Бесплатно, г. Алматы" },
+                    { value: "courier", label: "Курьер", desc: "500 ₸, 1-2 дня" },
+                    { value: "post", label: "Почта", desc: "1000 ₸, 3-5 дней" }
+                  ].map((method) => (
+                    <label
+                      key={method.value}
+                      className={`flex items-center gap-4 p-4 border-2 rounded-lg cursor-pointer transition-colors ${
+                        formData.deliveryMethod === method.value
+                          ? "border-blue-600 bg-blue-50"
+                          : "border-gray-200 hover:border-gray-300"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="delivery"
+                        value={method.value}
+                        checked={formData.deliveryMethod === method.value}
+                        onChange={(e) => setFormData({...formData, deliveryMethod: e.target.value as any})}
+                        className="w-4 h-4 text-blue-600"
+                      />
+                      <div className="flex-1">
+                        <div className="font-medium">{method.label}</div>
+                        <div className="text-sm text-gray-500">{method.desc}</div>
+                      </div>
+                    </label>
+                  ))}
+                </div>
 
-                  <div className="pt-4">
-                    <label className="block text-sm font-medium mb-1">Город *</label>
-                    <input
-                      type="text"
-                      value={orderData.delivery.city}
-                      onChange={(e) => setOrderData({
-                        ...orderData,
-                        delivery: { ...orderData.delivery, city: e.target.value }
-                      })}
-                      className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
-                      placeholder="Алматы"
-                    />
-                  </div>
-
-                  {orderData.delivery.method !== 'pickup' && (
+                {formData.deliveryMethod !== "pickup" && (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Город *</label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.city}
+                        onChange={(e) => setFormData({...formData, city: e.target.value})}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                        placeholder="Введите город"
+                      />
+                    </div>
                     <div>
                       <label className="block text-sm font-medium mb-1">Адрес *</label>
                       <textarea
-                        value={orderData.delivery.address}
-                        onChange={(e) => setOrderData({
-                          ...orderData,
-                          delivery: { ...orderData.delivery, address: e.target.value }
-                        })}
-                        className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
-                        rows={3}
+                        required
+                        value={formData.address}
+                        onChange={(e) => setFormData({...formData, address: e.target.value})}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                         placeholder="Улица, дом, квартира"
+                        rows={3}
                       />
                     </div>
-                  )}
-
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Комментарий к заказу</label>
-                    <textarea
-                      value={orderData.delivery.comment}
-                      onChange={(e) => setOrderData({
-                        ...orderData,
-                        delivery: { ...orderData.delivery, comment: e.target.value }
-                      })}
-                      className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
-                      rows={2}
-                      placeholder="Дополнительная информация"
-                    />
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Шаг 3: Оплата */}
-              {step === 3 && (
-                <div className="space-y-4">
-                  <h2 className="text-xl font-bold mb-4">Способ оплаты</h2>
-                  
-                  <div className="space-y-2">
-                    {[
-                      { id: 'online', title: 'Онлайн оплата картой', desc: 'Visa, Mastercard' },
-                      { id: 'card', title: 'Картой при получении', desc: 'Оплата курьеру картой' },
-                      { id: 'cash', title: 'Наличными', desc: 'Оплата при получении' },
-                    ].map((method) => (
-                      <label 
-                        key={method.id}
-                        className={`flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer ${
-                          orderData.payment.method === method.id ? 'border-blue-600 bg-blue-50' : 'border-gray-200'
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="payment"
-                          value={method.id}
-                          checked={orderData.payment.method === method.id}
-                          onChange={(e) => setOrderData({
-                            ...orderData,
-                            payment: { method: e.target.value as PaymentMethod }
-                          })}
-                          className="w-4 h-4 text-blue-600"
-                        />
-                        <div>
-                          <p className="font-medium">{method.title}</p>
-                          <p className="text-sm text-gray-500">{method.desc}</p>
-                        </div>
-                      </label>
-                    ))}
-                  </div>
-
-                  <div className="bg-blue-50 p-4 rounded-lg mt-4">
-                    <h3 className="font-medium mb-2">Итоговая информация</h3>
-                    <div className="space-y-1 text-sm">
-                      <p><span className="text-gray-600">Получатель:</span> {orderData.contact.name}</p>
-                      <p><span className="text-gray-600">Телефон:</span> {orderData.contact.phone}</p>
-                      <p><span className="text-gray-600">Город:</span> {orderData.delivery.city}</p>
-                      <p><span className="text-gray-600">Адрес:</span> {orderData.delivery.address || 'Самовывоз'}</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Кнопки навигации */}
-              <div className="flex justify-between mt-6 pt-6 border-t">
-                {step > 1 ? (
+                <div className="flex gap-3 mt-6">
                   <button
-                    onClick={handleBack}
-                    className="px-6 py-2 border rounded-lg hover:bg-gray-50"
+                    onClick={() => setStep(1)}
+                    className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
                   >
                     Назад
                   </button>
-                ) : (
-                  <div />
-                )}
-                
-                {step < 3 ? (
                   <button
-                    onClick={handleNext}
-                    disabled={step === 1 && (!orderData.contact.name || !orderData.contact.phone)}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300"
+                    onClick={() => setStep(3)}
+                    disabled={formData.deliveryMethod !== "pickup" && (!formData.city || !formData.address)}
+                    className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
                   >
-                    Далее
+                    Продолжить
                   </button>
-                ) : (
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Payment */}
+            {step === 3 && (
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <CreditCard className="w-5 h-5 text-blue-600" />
+                  Способ оплаты
+                </h2>
+                
+                <div className="space-y-3 mb-6">
+                  {[
+                    { value: "cash", label: "Наличными при получении", desc: "Оплата курьеру или в пункте выдачи" },
+                    { value: "card", label: "Банковской картой", desc: "Онлайн оплата через защищенный шлюз" },
+                    { value: "kaspi", label: "Kaspi Pay", desc: "Оплата через приложение Kaspi" }
+                  ].map((method) => (
+                    <label
+                      key={method.value}
+                      className={`flex items-center gap-4 p-4 border-2 rounded-lg cursor-pointer transition-colors ${
+                        formData.paymentMethod === method.value
+                          ? "border-blue-600 bg-blue-50"
+                          : "border-gray-200 hover:border-gray-300"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="payment"
+                        value={method.value}
+                        checked={formData.paymentMethod === method.value}
+                        onChange={(e) => setFormData({...formData, paymentMethod: e.target.value as any})}
+                        className="w-4 h-4 text-blue-600"
+                      />
+                      <div className="flex-1">
+                        <div className="font-medium">{method.label}</div>
+                        <div className="text-sm text-gray-500">{method.desc}</div>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+
+                <div className="flex gap-3 mt-6">
+                  <button
+                    onClick={() => setStep(2)}
+                    className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                  >
+                    Назад
+                  </button>
                   <button
                     onClick={handleSubmit}
-                    disabled={isSubmitting}
-                    className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-300 flex items-center gap-2"
+                    className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center justify-center gap-2"
                   >
-                    {isSubmitting ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        Оформление...
-                      </>
-                    ) : (
-                      <>
-                        <Check className="w-4 h-4" />
-                        Подтвердить заказ
-                      </>
-                    )}
+                    <Check className="w-5 h-5" />
+                    Оформить заказ
                   </button>
-                )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
-          {/* Сводка заказа */}
+          {/* Order summary */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm p-6 sticky top-4">
-              <h3 className="font-bold mb-4 flex items-center gap-2">
-                <Package className="w-5 h-5" />
-                Ваш заказ
-              </h3>
-              
-              <div className="space-y-3 mb-4 max-h-60 overflow-y-auto">
+            <div className="bg-white rounded-xl shadow-sm p-6 sticky top-4">
+              <h3 className="font-semibold mb-4">Ваш заказ</h3>
+              <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
                 {items.map((item) => (
-                  <div key={item.product.id} className="flex justify-between text-sm">
-                    <span className="line-clamp-1 flex-1">{item.product.name}</span>
-                    <span className="text-gray-500 ml-2">x{item.quantity}</span>
+                  <div key={item.id} className="flex gap-3">
+                    <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center text-2xl shrink-0">
+                      📦
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium truncate">{item.name}</div>
+                      <div className="text-sm text-gray-500">{item.quantity} шт × {item.price.toLocaleString()} ₸</div>
+                    </div>
+                    <div className="font-medium shrink-0">
+                      {(item.price * item.quantity).toLocaleString()} ₸
+                    </div>
                   </div>
                 ))}
               </div>
-
-              <div className="border-t pt-4 space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Товары</span>
-                  <span>{totalPrice.toLocaleString()} ₸</span>
+              
+              <div className="border-t pt-4 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">Товары ({items.reduce((sum, i) => sum + i.quantity, 0)})</span>
+                  <span>{total.toLocaleString()} ₸</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Доставка</span>
-                  <span>{deliveryCost === 0 ? 'Бесплатно' : `${deliveryCost.toLocaleString()} ₸`}</span>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">Доставка</span>
+                  <span className="text-green-600">
+                    {formData.deliveryMethod === "pickup" ? "Бесплатно" : 
+                     formData.deliveryMethod === "courier" ? "500 ₸" : "1000 ₸"}
+                  </span>
                 </div>
-              </div>
-
-              <div className="border-t pt-4 mt-4">
-                <div className="flex justify-between text-xl font-bold">
+                <div className="flex justify-between text-lg font-bold pt-2 border-t">
                   <span>Итого</span>
-                  <span>{finalTotal.toLocaleString()} ₸</span>
+                  <span>
+                    {(total + (formData.deliveryMethod === "pickup" ? 0 : 
+                              formData.deliveryMethod === "courier" ? 500 : 1000)).toLocaleString()} ₸
+                  </span>
                 </div>
               </div>
             </div>
