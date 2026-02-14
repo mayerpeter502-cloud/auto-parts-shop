@@ -2,14 +2,43 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { Car, FileText, Search, ChevronLeft, ChevronRight, ShoppingCart } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, ShoppingCart, Car, FileText, X } from "lucide-react";
 import { productsApi, initStorage, categories } from "./lib/api";
 import { useCart } from "../contexts/CartContext";
+
+// Данные для подбора авто
+const carBrands = [
+  "Toyota", "BMW", "Mercedes-Benz", "Audi", "Volkswagen",
+  "Hyundai", "Kia", "Nissan", "Honda", "Mazda", "Lexus", "Ford"
+];
+
+const carModels: Record<string, string[]> = {
+  "Toyota": ["Camry", "Corolla", "RAV4", "Land Cruiser", "Prado"],
+  "BMW": ["X5", "X3", "3 Series", "5 Series", "7 Series"],
+  "Mercedes-Benz": ["C-Class", "E-Class", "S-Class", "GLC", "GLE"],
+  "Audi": ["A4", "A6", "Q5", "Q7", "A3"],
+  "Volkswagen": ["Passat", "Tiguan", "Polo", "Golf", "Touareg"],
+  "Hyundai": ["Solaris", "Creta", "Tucson", "Santa Fe", "Elantra"],
+  "Kia": ["Rio", "Sportage", "Seltos", "K5", "Sorento"],
+  "Nissan": ["Qashqai", "X-Trail", "Teana", "Almera", "Patrol"],
+  "Honda": ["Civic", "Accord", "CR-V", "Pilot", "HR-V"],
+  "Mazda": ["CX-5", "CX-9", "Mazda3", "Mazda6", "CX-30"],
+  "Lexus": ["RX", "NX", "ES", "LX", "IS"],
+  "Ford": ["Focus", "Mondeo", "Kuga", "Explorer", "Mustang"]
+};
+
+const years = Array.from({ length: 25 }, (_, i) => 2024 - i);
 
 export default function HomePage() {
   const [products, setProducts] = useState<any[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showCarSelector, setShowCarSelector] = useState(false);
+  const [carBrand, setCarBrand] = useState("");
+  const [carModel, setCarModel] = useState("");
+  const [carYear, setCarYear] = useState(2024);
+  const [brandSearch, setBrandSearch] = useState("");
+  const [showBrandSuggestions, setShowBrandSuggestions] = useState(false);
   const { addItem } = useCart();
 
   useEffect(() => {
@@ -42,12 +71,21 @@ export default function HomePage() {
     }
   ];
 
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % banners.length);
+  const filteredBrands = carBrands.filter(b => 
+    b.toLowerCase().includes(brandSearch.toLowerCase())
+  );
+
+  const handleCarSelect = () => {
+    if (carBrand && carModel) {
+      window.location.href = `/catalog?carBrand=${encodeURIComponent(carBrand)}&carModel=${encodeURIComponent(carModel)}&year=${carYear}`;
+    }
   };
 
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + banners.length) % banners.length);
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      window.location.href = `/catalog?search=${encodeURIComponent(searchQuery)}`;
+    }
   };
 
   const categoryIcons: Record<string, string> = {
@@ -63,14 +101,110 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Car Selector Modal */}
+      {showCarSelector && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b flex justify-between items-center">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <Car className="w-6 h-6 text-blue-600" />
+                Подбор по автомобилю
+              </h2>
+              <button 
+                onClick={() => setShowCarSelector(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              {/* Brand with autocomplete */}
+              <div className="relative">
+                <label className="block text-sm font-medium mb-2">Марка автомобиля *</label>
+                <input
+                  type="text"
+                  value={brandSearch || carBrand}
+                  onChange={(e) => {
+                    setBrandSearch(e.target.value);
+                    setShowBrandSuggestions(true);
+                    setCarBrand("");
+                    setCarModel("");
+                  }}
+                  onFocus={() => setShowBrandSuggestions(true)}
+                  placeholder="Начните вводить марку..."
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                />
+                {showBrandSuggestions && filteredBrands.length > 0 && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                    {filteredBrands.map(brand => (
+                      <button
+                        key={brand}
+                        onClick={() => {
+                          setCarBrand(brand);
+                          setBrandSearch(brand);
+                          setShowBrandSuggestions(false);
+                          setCarModel("");
+                        }}
+                        className="w-full text-left px-4 py-2 hover:bg-blue-50 first:rounded-t-lg last:rounded-b-lg"
+                      >
+                        {brand}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Model */}
+              <div>
+                <label className="block text-sm font-medium mb-2">Модель *</label>
+                <select
+                  value={carModel}
+                  onChange={(e) => setCarModel(e.target.value)}
+                  disabled={!carBrand}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 disabled:bg-gray-100"
+                >
+                  <option value="">Выберите модель</option>
+                  {carBrand && carModels[carBrand]?.map(model => (
+                    <option key={model} value={model}>{model}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Year */}
+              <div>
+                <label className="block text-sm font-medium mb-2">Год выпуска</label>
+                <select
+                  value={carYear}
+                  onChange={(e) => setCarYear(Number(e.target.value))}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                >
+                  {years.map(year => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+              </div>
+
+              <button
+                onClick={handleCarSelect}
+                disabled={!carBrand || !carModel}
+                className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 font-semibold mt-4"
+              >
+                Показать запчасти
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hero Section */}
       <section className="bg-white py-6">
         <div className="container mx-auto px-4">
           {/* Search Block */}
           <div className="max-w-4xl mx-auto mb-8">
             <div className="flex flex-col md:flex-row gap-4 mb-6">
-              <Link
-                href="/catalog?carSelector=true"
+              <button
+                onClick={() => setShowCarSelector(true)}
                 className="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl"
               >
                 <Car className="w-6 h-6" />
@@ -78,7 +212,7 @@ export default function HomePage() {
                   <div className="font-semibold">Подбор по автомобилю</div>
                   <div className="text-sm text-blue-100">Выберите марку и модель</div>
                 </div>
-              </Link>
+              </button>
               <Link
                 href="/vin-check"
                 className="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-white text-blue-600 border-2 border-blue-600 rounded-xl hover:bg-blue-50 transition-all"
@@ -92,11 +226,12 @@ export default function HomePage() {
             </div>
 
             {/* Main Search */}
-            <form action="/catalog" className="relative">
+            <form onSubmit={handleSearch} className="relative">
               <input
                 type="text"
-                name="search"
                 placeholder="Поиск по названию, артикулу или VIN..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-6 pr-16 py-4 text-lg border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-colors"
               />
               <button
@@ -134,21 +269,19 @@ export default function HomePage() {
               ))}
             </div>
             
-            {/* Carousel Controls */}
             <button
-              onClick={prevSlide}
+              onClick={() => setCurrentSlide((prev) => (prev - 1 + banners.length) % banners.length)}
               className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/20 backdrop-blur text-white rounded-full hover:bg-white/30 transition-colors"
             >
               <ChevronLeft className="w-6 h-6" />
             </button>
             <button
-              onClick={nextSlide}
+              onClick={() => setCurrentSlide((prev) => (prev + 1) % banners.length)}
               className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/20 backdrop-blur text-white rounded-full hover:bg-white/30 transition-colors"
             >
               <ChevronRight className="w-6 h-6" />
             </button>
 
-            {/* Dots */}
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
               {banners.map((banner, index) => (
                 <button
