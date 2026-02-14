@@ -36,16 +36,16 @@ export default function Header() {
       {/* Main header */}
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between gap-4">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 shrink-0">
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-              <Car className="w-6 h-6 text-white" />
-            </div>
-            <div className="hidden sm:block">
-              <h1 className="text-xl font-bold text-gray-900">AutoParts</h1>
-              <p className="text-xs text-gray-500">Запчасти для авто</p>
-            </div>
-          </Link>
+         {/* Logo */}
+<Link href="/" className="flex items-center gap-2 shrink-0">
+  <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+    <Car className="w-6 h-6 text-white" />
+  </div>
+  <div>
+    <h1 className="text-lg sm:text-xl font-bold text-gray-900">AutoParts</h1>
+    <p className="text-xs text-gray-500 hidden sm:block">Запчасти для авто</p>
+  </div>
+</Link>
 
           {/* Search */}
           <form onSubmit={handleSearch} className="flex-1 max-w-2xl hidden md:block">
