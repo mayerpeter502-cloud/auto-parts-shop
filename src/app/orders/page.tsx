@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Package, Truck, CheckCircle, Clock, ChevronRight } from "lucide-react";
 import { ordersApi } from "../lib/api";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
