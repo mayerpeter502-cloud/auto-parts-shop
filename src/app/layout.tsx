@@ -1,33 +1,33 @@
-// src/app/layout.tsx
-import type { Metadata } from 'next';
-import './globals.css';
-import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
-import { AuthProvider } from '@/contexts/AuthContext';
-import { CartProvider } from '@/contexts/CartContext';
-import { ToastProvider } from '@/components/ToastProvider';
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import { AuthProvider } from "../contexts/AuthContext";
+import { CartProvider } from "../contexts/CartContext";
+
+const inter = Inter({ subsets: ["latin", "cyrillic"] });
 
 export const metadata: Metadata = {
-  title: 'AutoParts.kz - Автозапчасти с доставкой',
-  description: 'Интернет-магазин автозапчастей для вашего автомобиля',
+  title: "AutoParts.kz - Интернет-магазин автозапчастей",
+  description: "Широкий выбор автозапчастей с доставкой по Казахстану",
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <html lang="ru">
-      <body className="flex flex-col min-h-screen">
+      <body className={inter.className}>
         <AuthProvider>
           <CartProvider>
-            <Header />
-            <main className="flex-grow">
-              {children}
-            </main>
-            <Footer />
-            <ToastProvider />
+            <div className="min-h-screen flex flex-col">
+              <Header />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </div>
           </CartProvider>
         </AuthProvider>
       </body>
