@@ -1,74 +1,51 @@
+// src/contexts/AuthContext.tsx
 'use client';
-
-import { createContext, useContext, useState, ReactNode } from 'react';
-import { UserProfile } from '@/types';
+import { createContext, useContext, useState, useEffect } from 'react';
 
 interface AuthContextType {
-  user: { email: string; uid: string } | null;
-  profile: UserProfile | null;
-  loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signInAsAdmin: () => void;
+  user: any;
+  login: (email: string, password: string) => boolean;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<{ email: string; uid: string } | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading] = useState(false);
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<any>(null);
 
-  const signIn = async (email: string, password: string) => {
-    // Локальная авторизация
-    if (email === 'admin@autoparts.kz' && password === 'admin123') {
-      const adminUser = { email, uid: 'admin-1' };
-      setUser(adminUser);
-      setProfile({
-        uid: 'admin-1',
-        email,
-        displayName: 'Админ',
-        cars: [],
-        addresses: [],
-        favorites: [],
-        ordersCount: 0
-      });
-      localStorage.setItem('user', JSON.stringify(adminUser));
-    } else {
-      throw new Error('Неверный логин или пароль');
+  useEffect(() => {
+    const storedUser = localStorage.getItem('adminUser');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
     }
-  };
+  }, []);
 
-  const signInAsAdmin = () => {
-    const adminUser = { email: 'admin@autoparts.kz', uid: 'admin-1' };
-    setUser(adminUser);
-    setProfile({
-      uid: 'admin-1',
-      email: 'admin@autoparts.kz',
-      displayName: 'Админ',
-      cars: [],
-      addresses: [],
-      favorites: [],
-      ordersCount: 0
-    });
-    localStorage.setItem('user', JSON.stringify(adminUser));
+  const login = (email: string, password: string) => {
+    if (email === 'admin@autoparts.kz' && password === 'admin123') {
+      const userData = { email, role: 'admin' };
+      localStorage.setItem('adminUser', JSON.stringify(userData));
+      setUser(userData);
+      return true;
+    }
+    return false;
   };
 
   const logout = () => {
+    localStorage.removeItem('adminUser');
     setUser(null);
-    setProfile(null);
-    localStorage.removeItem('user');
   };
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signIn, signInAsAdmin, logout }}>
+    <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-export const useAuth = () => {
+export function useAuth() {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within AuthProvider');
+  if (context === undefined) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
   return context;
-};
+}
