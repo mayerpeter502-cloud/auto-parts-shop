@@ -1,6 +1,7 @@
-// Исправленный src/app/admin/layout.tsx
-import { AuthProvider } from '@/contexts/AuthContext';
-import { CartProvider } from '@/contexts/CartContext';
+"use client";
+
+import { AuthProvider } from "../../contexts/AuthContext";
+import { CartProvider } from "../../contexts/CartContext";
 
 export default function AdminLayout({
   children,
