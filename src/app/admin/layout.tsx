@@ -15,19 +15,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: "/admin/orders", icon: ShoppingCart, label: "Заказы" },
   ];
 
-  // Показываем доступ запрещен только если пользователь точно не админ
-  // Для разработки можно убрать проверку или сделать тестового админа
-  if (user && !user.isAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="text-center bg-white p-8 rounded-xl shadow-sm">
-          <h1 className="text-2xl font-bold mb-4">Доступ запрещен</h1>
-          <p className="text-gray-500 mb-4">У вас нет прав администратора</p>
-          <Link href="/" className="text-blue-600 hover:underline">На главную</Link>
-        </div>
-      </div>
-    );
-  }
+  // ВРЕМЕННО: убрана проверка isAdmin для разработки
+  // if (user && !user.isAdmin) {
+  //   return <div>Доступ запрещен</div>
+  // }
 
   return (
     <div className="min-h-screen bg-gray-100 flex">

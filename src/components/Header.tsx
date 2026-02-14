@@ -68,14 +68,8 @@ export default function Header() {
 
           {/* Actions */}
           <div className="flex items-center gap-2 sm:gap-4">
-            <Link
-              href="/catalog?carSelector=true"
-              className="hidden lg:flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
-            >
-              <Car className="w-4 h-4" />
-              <span className="text-sm font-medium">Подбор по авто</span>
-            </Link>
-
+            {/* УБРАНА КНОПКА "Подбор по авто" из шапки - она есть на главной */}
+            
             <Link
               href="/cart"
               className="relative p-2 text-gray-700 hover:text-blue-600 transition-colors"
