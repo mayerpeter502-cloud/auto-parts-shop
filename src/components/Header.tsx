@@ -95,7 +95,6 @@ export default function Header() {
                   <span className="hidden sm:block text-sm font-medium">{user.name}</span>
                 </button>
                 <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
-                  <Link href="/profile" className="block px-4 py-2 hover:bg-gray-50 text-sm">Профиль</Link>
                   <Link href="/orders" className="block px-4 py-2 hover:bg-gray-50 text-sm">Мои заказы</Link>
                   {user.isAdmin && (
                     <Link href="/admin" className="block px-4 py-2 hover:bg-gray-50 text-sm text-blue-600">Админка</Link>
@@ -148,21 +147,6 @@ export default function Header() {
         </form>
       </div>
 
-      {/* Navigation */}
-      <nav className="border-t border-gray-200 hidden lg:block">
-        <div className="container mx-auto px-4">
-          <ul className="flex gap-8 py-3 text-sm font-medium text-gray-700">
-            <li><Link href="/catalog" className="hover:text-blue-600 transition-colors">Все категории</Link></li>
-            <li><Link href="/catalog?category=Масла" className="hover:text-blue-600 transition-colors">Масла</Link></li>
-            <li><Link href="/catalog?category=Фильтры" className="hover:text-blue-600 transition-colors">Фильтры</Link></li>
-            <li><Link href="/catalog?category=Тормозная+система" className="hover:text-blue-600 transition-colors">Тормоза</Link></li>
-            <li><Link href="/catalog?category=Подвеска" className="hover:text-blue-600 transition-colors">Подвеска</Link></li>
-            <li><Link href="/catalog?category=Двигатель" className="hover:text-blue-600 transition-colors">Двигатель</Link></li>
-            <li><Link href="/vin-check" className="text-blue-600 hover:text-blue-700 transition-colors">Проверка по VIN</Link></li>
-          </ul>
-        </div>
-      </nav>
-
       {/* Mobile menu */}
       {isMenuOpen && (
         <div className="lg:hidden border-t border-gray-200 bg-white">
@@ -171,13 +155,7 @@ export default function Header() {
               <Car className="w-5 h-5" />
               <span className="font-medium">Подбор по автомобилю</span>
             </Link>
-            <nav className="space-y-2">
-              <Link href="/catalog" className="block py-2 text-gray-700 hover:text-blue-600">Все категории</Link>
-              <Link href="/catalog?category=Масла" className="block py-2 text-gray-700 hover:text-blue-600">Масла</Link>
-              <Link href="/catalog?category=Фильтры" className="block py-2 text-gray-700 hover:text-blue-600">Фильтры</Link>
-              <Link href="/catalog?category=Тормозная+система" className="block py-2 text-gray-700 hover:text-blue-600">Тормоза</Link>
-              <Link href="/vin-check" className="block py-2 text-blue-600">Проверка по VIN</Link>
-            </nav>
+            <Link href="/vin-check" className="block py-2 text-blue-600">Проверка по VIN</Link>
           </div>
         </div>
       )}
