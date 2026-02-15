@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle, Package, ArrowRight, Home } from "lucide-react";
-import { ordersApi } from "../lib/api";
+import { ordersApi } from "../lib/orders";
 
 export default function OrderSuccessPage() {
   const searchParams = useSearchParams();
