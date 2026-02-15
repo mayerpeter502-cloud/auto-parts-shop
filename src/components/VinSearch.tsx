@@ -1,0 +1,196 @@
+import React, { useState } from 'react';
+import { Search, Car, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+
+const mockVinDatabase = {
+  'JTDBU4EE3B9123456': {
+    brand: 'Toyota',
+    model: 'Camry',
+    year: 2011,
+    engine: '2.5L 2AR-FE',
+    transmission: 'Автомат',
+    bodyType: 'Седан',
+    compatibleParts: [
+      { category: 'Масло моторное', recommendation: '5W-30, 5W-40', popular: ['Castrol Edge', 'Mobil 1'] },
+      { category: 'Воздушный фильтр', recommendation: 'Оригинал 17801-0H050', popular: ['Mann C32005', 'Bosch S0129'] },
+      { category: 'Масляный фильтр', recommendation: 'Оригинал 04152-31090', popular: ['Mann HU6002x', 'Bosch F026407183'] },
+      { category: 'Тормозные колодки передние', recommendation: 'Оригинал 04465-33471', popular: ['Brembo P83066', 'TRW GDB3428'] }
+    ]
+  },
+  'Z94CT41DBMR123456': {
+    brand: 'Kia',
+    model: 'Sportage',
+    year: 2021,
+    engine: '2.0L G4NA',
+    transmission: 'Автомат',
+    bodyType: 'SUV',
+    compatibleParts: [
+      { category: 'Масло моторное', recommendation: '0W-20, 5W-30', popular: ['Mobil 1', 'Shell Helix'] },
+      { category: 'Воздушный фильтр', recommendation: 'Оригинал 28113-D3300', popular: ['Mann C27024', 'Bosch S3867'] },
+      { category: 'Масляный фильтр', recommendation: 'Оригинал 26300-35505', popular: ['Mann W811/80', 'Bosch F026407124'] }
+    ]
+  }
+};
+
+export const VinSearch = () => {
+  const [vin, setVin] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (vin.length < 17) {
+      setError('VIN-код должен содержать 17 символов');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setResult(null);
+
+    // Имитация API-запроса
+    setTimeout(() => {
+      const data = mockVinDatabase[vin.toUpperCase()];
+      if (data) {
+        setResult(data);
+      } else {
+        // Генерация случайного результата для демо
+        setResult({
+          brand: 'Неизвестно',
+          model: 'Требуется уточнение',
+          year: '-',
+          engine: '-',
+          transmission: '-',
+          bodyType: '-',
+          compatibleParts: [],
+          isDemo: true
+        });
+      }
+      setLoading(false);
+    }, 1500);
+  };
+
+  return (
+    <div className="w-full max-w-4xl mx-auto">
+      <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-6 md:p-10 text-white mb-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-3 bg-white/20 rounded-xl">
+            <Car className="w-8 h-8" />
+          </div>
+          <div>
+            <h2 className="text-2xl md:text-3xl font-bold">Подбор по VIN-коду</h2>
+            <p className="text-blue-100">Точный подбор запчастей по уникальному коду автомобиля</p>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="relative">
+          <input
+            type="text"
+            value={vin}
+            onChange={(e) => setVin(e.target.value.toUpperCase())}
+            placeholder="Введите VIN-код (17 символов)"
+            className="w-full px-6 py-4 pr-36 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-white/30 text-lg uppercase tracking-wider"
+            maxLength={17}
+          />
+          <button
+            type="submit"
+            disabled={loading || vin.length < 17}
+            className="absolute right-2 top-2 bottom-2 px-6 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+          >
+            {loading ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <>
+                <Search className="w-5 h-5" />
+                <span className="hidden sm:inline">Найти</span>
+              </>
+            )}
+          </button>
+        </form>
+
+        {error && (
+          <div className="mt-4 flex items-center gap-2 text-red-200 bg-red-500/20 px-4 py-2 rounded-lg">
+            <AlertCircle className="w-5 h-5" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        <div className="mt-4 flex flex-wrap gap-2 text-sm text-blue-200">
+          <span>Примеры:</span>
+          {['JTDBU4EE3B9123456', 'Z94CT41DBMR123456'].map((example) => (
+            <button
+              key={example}
+              onClick={() => setVin(example)}
+              className="underline hover:text-white transition-colors"
+            >
+              {example}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {result && (
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="p-6 border-b border-gray-100">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-green-100 rounded-lg">
+                <CheckCircle className="w-6 h-6 text-green-600" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">
+                  {result.brand} {result.model}
+                </h3>
+                <p className="text-gray-500">
+                  {result.year} год • {result.engine} • {result.transmission}
+                </p>
+              </div>
+            </div>
+
+            {result.isDemo && (
+              <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="font-medium text-yellow-800">Автомобиль не найден в базе</p>
+                  <p className="text-sm text-yellow-700 mt-1">
+                    Попробуйте один из тестовых VIN-кодов выше или свяжитесь с менеджером для ручного подбора.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {result.compatibleParts.length > 0 && (
+            <div className="p-6">
+              <h4 className="font-semibold text-gray-900 mb-4">Рекомендуемые запчасти</h4>
+              <div className="space-y-4">
+                {result.compatibleParts.map((part, index) => (
+                  <div key={index} className="p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div className="flex-1">
+                        <h5 className="font-semibold text-gray-900 mb-1">{part.category}</h5>
+                        <p className="text-sm text-gray-600 mb-2">Рекомендация: {part.recommendation}</p>
+                        <div className="flex flex-wrap gap-2">
+                          {part.popular.map((brand, idx) => (
+                            <span key={idx} className="px-2 py-1 bg-white rounded text-xs text-gray-600 border border-gray-200">
+                              {brand}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <a
+                        href={`/catalog?category=${encodeURIComponent(part.category)}&vin=${vin}`}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors whitespace-nowrap"
+                      >
+                        Подобрать
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
