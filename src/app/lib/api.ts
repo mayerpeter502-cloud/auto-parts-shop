@@ -1,314 +1,252 @@
-// API для работы с localStorage
-
 export interface Product {
   id: string;
   name: string;
-  sku: string;
+  brand: string;
+  category: string;
   price: number;
   oldPrice?: number;
-  image: string;
-  category: string;
-  brand: string;
-  description: string;
-  specifications: Record<string, string>;
-  compatibility: Array<{
+  image?: string;
+  inStock: boolean;
+  description?: string;
+  compatibility?: {
     brand: string;
     model: string;
     yearFrom: number;
     yearTo: number;
-    engine?: string;
-  }>;
-  stock: number;
-  rating: number;
-  reviews: number;
-  type?: string;
-  volume?: string;
+  }[];
+  specifications?: Record<string, string>;
 }
 
-export interface Order {
-  id: string;
-  userId: string;
-  items: Array<{
-    productId: string;
-    name: string;
-    price: number;
-    quantity: number;
-    image: string;
-  }>;
-  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
-  total: number;
-  contactInfo: {
-    name: string;
-    phone: string;
-    email: string;
-  };
-  delivery: {
-    method: "pickup" | "courier" | "post";
-    address?: string;
-    city: string;
-  };
-  payment: {
-    method: "card" | "cash" | "kaspi";
-  };
-  createdAt: string;
-  updatedAt: string;
+const products: Product[] = [
+  {
+    id: "1",
+    name: "Моторное масло Castrol EDGE 5W-30 4L",
+    brand: "Castrol",
+    category: "oil",
+    price: 18500,
+    oldPrice: 22000,
+    inStock: true,
+    image: "https://via.placeholder.com/300x300/2563eb/ffffff?text=Castrol+5W30",
+    description: "Синтетическое моторное масло премиум класса",
+    compatibility: [
+      { brand: "Toyota", model: "Camry", yearFrom: 2010, yearTo: 2024 },
+      { brand: "BMW", model: "X5", yearFrom: 2015, yearTo: 2024 }
+    ],
+    specifications: {
+      "Вязкость": "5W-30",
+      "Объем": "4 литра",
+      "Тип": "Синтетическое"
+    }
+  },
+  {
+    id: "2",
+    name: "Моторное масло Mobil 1 0W-40 4L",
+    brand: "Mobil",
+    category: "oil",
+    price: 21000,
+    inStock: true,
+    image: "https://via.placeholder.com/300x300/dc2626/ffffff?text=Mobil+0W40",
+    compatibility: [
+      { brand: "Mercedes", model: "E-Class", yearFrom: 2012, yearTo: 2024 },
+      { brand: "Audi", model: "A6", yearFrom: 2015, yearTo: 2024 }
+    ],
+    specifications: {
+      "Вязкость": "0W-40",
+      "Объем": "4 литра",
+      "Тип": "Синтетическое"
+    }
+  },
+  {
+    id: "3",
+    name: "Фильтр масляный Bosch F026407183",
+    brand: "Bosch",
+    category: "filter",
+    price: 2500,
+    inStock: true,
+    image: "https://via.placeholder.com/300x300/059669/ffffff?text=Bosch+Filter",
+    compatibility: [
+      { brand: "Volkswagen", model: "Golf", yearFrom: 2010, yearTo: 2020 },
+      { brand: "Audi", model: "A3", yearFrom: 2012, yearTo: 2020 }
+    ],
+    specifications: {
+      "Тип": "Масляный",
+      "Высота": "76 мм"
+    }
+  },
+  {
+    id: "4",
+    name: "Фильтр воздушный Mann C30130",
+    brand: "Mann",
+    category: "filter",
+    price: 3200,
+    oldPrice: 3800,
+    inStock: true,
+    image: "https://via.placeholder.com/300x300/7c3aed/ffffff?text=Mann+Air",
+    compatibility: [
+      { brand: "Toyota", model: "Corolla", yearFrom: 2008, yearTo: 2018 },
+      { brand: "Toyota", model: "RAV4", yearFrom: 2006, yearTo: 2012 }
+    ],
+    specifications: {
+      "Тип": "Воздушный",
+      "Длина": "280 мм"
+    }
+  },
+  {
+    id: "5",
+    name: "Тормозные колодки Brembo P85020",
+    brand: "Brembo",
+    category: "brake",
+    price: 15800,
+    inStock: true,
+    image: "https://via.placeholder.com/300x300/dc2626/ffffff?text=Brembo+Brake",
+    compatibility: [
+      { brand: "BMW", model: "3 Series", yearFrom: 2012, yearTo: 2019 },
+      { brand: "BMW", model: "5 Series", yearFrom: 2010, yearTo: 2017 }
+    ],
+    specifications: {
+      "Ось": "Передняя",
+      "Тип": "Дисковые"
+    }
+  },
+  {
+    id: "6",
+    name: "Тормозной диск ATE 24.0122-0150.1",
+    brand: "ATE",
+    category: "brake",
+    price: 12500,
+    inStock: false,
+    image: "https://via.placeholder.com/300x300/4b5563/ffffff?text=ATE+Disc",
+    compatibility: [
+      { brand: "Mercedes", model: "C-Class", yearFrom: 2014, yearTo: 2021 }
+    ],
+    specifications: {
+      "Диаметр": "300 мм",
+      "Толщина": "28 мм"
+    }
+  },
+  {
+    id: "7",
+    name: "Амортизатор KYB 341346",
+    brand: "KYB",
+    category: "suspension",
+    price: 18900,
+    inStock: true,
+    image: "https://via.placeholder.com/300x300/2563eb/ffffff?text=KYB+Shock",
+    compatibility: [
+      { brand: "Honda", model: "Civic", yearFrom: 2006, yearTo: 2011 },
+      { brand: "Honda", model: "Accord", yearFrom: 2008, yearTo: 2012 }
+    ],
+    specifications: {
+      "Ось": "Задняя",
+      "Тип": "Газомасляный"
+    }
+  },
+  {
+    id: "8",
+    name: "Свеча зажигания NGK BKR6E",
+    brand: "NGK",
+    category: "electrical",
+    price: 1200,
+    inStock: true,
+    image: "https://via.placeholder.com/300x300/f59e0b/ffffff?text=NGK+Spark",
+    compatibility: [
+      { brand: "Toyota", model: "Avensis", yearFrom: 2003, yearTo: 2008 },
+      { brand: "Mazda", model: "6", yearFrom: 2002, yearTo: 2008 }
+    ],
+    specifications: {
+      "Тип": "Nickel",
+      "Количество": "1 шт"
+    }
+  },
+  {
+    id: "9",
+    name: "Аккумулятор Varta Blue Dynamic 60Ah",
+    brand: "Varta",
+    category: "electrical",
+    price: 45000,
+    oldPrice: 52000,
+    inStock: true,
+    image: "https://via.placeholder.com/300x300/1e40af/ffffff?text=Varta+60Ah",
+    compatibility: [
+      { brand: "Universal", model: "All", yearFrom: 2000, yearTo: 2024 }
+    ],
+    specifications: {
+      "Емкость": "60 Ah",
+      "Пусковой ток": "540 A",
+      "Полярность": "Прямая"
+    }
+  },
+  {
+    id: "10",
+    name: "Ремень ГРМ Gates 5669XS",
+    brand: "Gates",
+    category: "engine",
+    price: 8900,
+    inStock: true,
+    image: "https://via.placeholder.com/300x300/374151/ffffff?text=Gates+Belt",
+    compatibility: [
+      { brand: "Volkswagen", model: "Polo", yearFrom: 2010, yearTo: 2020 },
+      { brand: "Skoda", model: "Fabia", yearFrom: 2010, yearTo: 2014 }
+    ],
+    specifications: {
+      "Длина": "1049 мм",
+      "Ширина": "30 мм"
+    }
+  },
+  {
+    id: "11",
+    name: "Масло Shell Helix Ultra 5W-40 4L",
+    brand: "Shell",
+    category: "oil",
+    price: 19500,
+    inStock: true,
+    image: "https://via.placeholder.com/300x300/fbbf24/ffffff?text=Shell+5W40",
+    compatibility: [
+      { brand: "Hyundai", model: "Solaris", yearFrom: 2010, yearTo: 2024 },
+      { brand: "Kia", model: "Rio", yearFrom: 2011, yearTo: 2024 }
+    ],
+    specifications: {
+      "Вязкость": "5W-40",
+      "Объем": "4 литра",
+      "Тип": "Синтетическое"
+    }
+  },
+  {
+    id: "12",
+    name: "Фильтр топливный Delphi HDF924",
+    brand: "Delphi",
+    category: "filter",
+    price: 4500,
+    inStock: true,
+    image: "https://via.placeholder.com/300x300/0891b2/ffffff?text=Delphi+Fuel",
+    compatibility: [
+      { brand: "Ford", model: "Focus", yearFrom: 2008, yearTo: 2011 },
+      { brand: "Ford", model: "Mondeo", yearFrom: 2007, yearTo: 2014 }
+    ],
+    specifications: {
+      "Тип": "Топливный",
+      "Топливо": "Бензин"
+    }
+  }
+];
+
+export function getProducts(): Product[] {
+  return products;
 }
 
-// Products API
-export const productsApi = {
-  getAll: (): Product[] => {
-    if (typeof window === "undefined") return [];
-    return JSON.parse(localStorage.getItem("products") || "[]");
-  },
+export function getProductById(id: string): Product | undefined {
+  return products.find(p => p.id === id);
+}
 
-  getById: (id: string): Product | null => {
-    const products = productsApi.getAll();
-    return products.find((p) => p.id === id) || null;
-  },
+export function getProductsByCategory(category: string): Product[] {
+  return products.filter(p => p.category === category);
+}
 
-  getByCategory: (category: string): Product[] => {
-    const products = productsApi.getAll();
-    return products.filter((p) => p.category === category);
-  },
-
-  search: (query: string): Product[] => {
-    const products = productsApi.getAll();
-    const lowerQuery = query.toLowerCase();
-    return products.filter(
-      (p) =>
-        p.name.toLowerCase().includes(lowerQuery) ||
-        p.sku.toLowerCase().includes(lowerQuery) ||
-        p.brand.toLowerCase().includes(lowerQuery)
-    );
-  },
-
-  filter: (filters: {
-    brand?: string;
-    category?: string;
-    minPrice?: number;
-    maxPrice?: number;
-    inStock?: boolean;
-    carBrand?: string;
-    carModel?: string;
-    year?: number;
-  }): Product[] => {
-    let products = productsApi.getAll();
-
-    if (filters.brand) {
-      products = products.filter((p) => p.brand === filters.brand);
-    }
-    if (filters.category) {
-      products = products.filter((p) => p.category === filters.category);
-    }
-    if (filters.minPrice !== undefined) {
-      products = products.filter((p) => p.price >= filters.minPrice!);
-    }
-    if (filters.maxPrice !== undefined) {
-      products = products.filter((p) => p.price <= filters.maxPrice!);
-    }
-    if (filters.inStock) {
-      products = products.filter((p) => p.stock > 0);
-    }
-    if (filters.carBrand && filters.carModel) {
-      products = products.filter((p) =>
-        p.compatibility.some(
-          (c) =>
-            c.brand.toLowerCase() === filters.carBrand!.toLowerCase() &&
-            c.model.toLowerCase() === filters.carModel!.toLowerCase() &&
-            (!filters.year || (c.yearFrom <= filters.year && c.yearTo >= filters.year))
-        )
-      );
-    }
-
-    return products;
-  },
-
-  create: (product: Omit<Product, "id">): Product => {
-    const products = productsApi.getAll();
-    const newProduct = { ...product, id: crypto.randomUUID() };
-    products.push(newProduct);
-    localStorage.setItem("products", JSON.stringify(products));
-    return newProduct;
-  },
-
-  update: (id: string, updates: Partial<Product>): Product | null => {
-    const products = productsApi.getAll();
-    const index = products.findIndex((p) => p.id === id);
-    if (index === -1) return null;
-    
-    products[index] = { ...products[index], ...updates };
-    localStorage.setItem("products", JSON.stringify(products));
-    return products[index];
-  },
-
-  delete: (id: string): boolean => {
-    const products = productsApi.getAll();
-    const filtered = products.filter((p) => p.id !== id);
-    if (filtered.length === products.length) return false;
-    
-    localStorage.setItem("products", JSON.stringify(filtered));
-    return true;
-  },
-
-  // Seed demo data
-  seed: () => {
-    const existing = localStorage.getItem("products");
-    if (existing && JSON.parse(existing).length > 0) return;
-
-    const demoProducts: Omit<Product, "id">[] = [
-      {
-        name: "Моторное масло Shell Helix Ultra 5W-40",
-        sku: "SHELL-5W40-4L",
-        price: 12500,
-        oldPrice: 14900,
-        image: "/images/oil-shell.jpg",
-        category: "Масла",
-        brand: "Shell",
-        description: "Синтетическое моторное масло премиум класса",
-        specifications: {
-          "Вязкость": "5W-40",
-          "Объем": "4л",
-          "Тип": "Синтетическое",
-          "Допуск": "API SN/CF, ACEA A3/B4"
-        },
-        compatibility: [
-          { brand: "Toyota", model: "Camry", yearFrom: 2010, yearTo: 2024 },
-          { brand: "BMW", model: "X5", yearFrom: 2015, yearTo: 2024 }
-        ],
-        stock: 25,
-        rating: 4.8,
-        reviews: 128,
-        type: "Моторное",
-        volume: "4л"
-      },
-      {
-        name: "Воздушный фильтр Bosch S0097",
-        sku: "BOSCH-AIR-0097",
-        price: 3200,
-        image: "/images/filter-bosch.jpg",
-        category: "Фильтры",
-        brand: "Bosch",
-        description: "Высококачественный воздушный фильтр",
-        specifications: {
-          "Тип": "Воздушный",
-          "Материал": "Целлюлоза"
-        },
-        compatibility: [
-          { brand: "Toyota", model: "Corolla", yearFrom: 2013, yearTo: 2019 }
-        ],
-        stock: 50,
-        rating: 4.6,
-        reviews: 89
-      },
-      {
-        name: "Тормозные колодки Brembo P85098",
-        sku: "BREMBO-BRAKE-85098",
-        price: 18900,
-        oldPrice: 22000,
-        image: "/images/brakes-brembo.jpg",
-        category: "Тормозная система",
-        brand: "Brembo",
-        description: "Спортивные тормозные колодки",
-        specifications: {
-          "Тип": "Передние",
-          "Материал": "Керамика"
-        },
-        compatibility: [
-          { brand: "BMW", model: "3 Series", yearFrom: 2012, yearTo: 2019 }
-        ],
-        stock: 12,
-        rating: 4.9,
-        reviews: 245
-      }
-    ];
-
-    demoProducts.forEach((p) => productsApi.create(p));
-  }
-};
-
-// Orders API
-export const ordersApi = {
-  getAll: (): Order[] => {
-    if (typeof window === "undefined") return [];
-    return JSON.parse(localStorage.getItem("orders") || "[]");
-  },
-
-  getByUser: (userId: string): Order[] => {
-    const orders = ordersApi.getAll();
-    return orders.filter((o) => o.userId === userId);
-  },
-
-  getById: (id: string): Order | null => {
-    const orders = ordersApi.getAll();
-    return orders.find((o) => o.id === id) || null;
-  },
-
-  create: (order: Omit<Order, "id" | "createdAt" | "updatedAt">): Order => {
-    const orders = ordersApi.getAll();
-    const newOrder: Order = {
-      ...order,
-      id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    orders.push(newOrder);
-    localStorage.setItem("orders", JSON.stringify(orders));
-    return newOrder;
-  },
-
-  updateStatus: (id: string, status: Order["status"]): Order | null => {
-    const orders = ordersApi.getAll();
-    const index = orders.findIndex((o) => o.id === id);
-    if (index === -1) return null;
-    
-    orders[index] = { 
-      ...orders[index], 
-      status,
-      updatedAt: new Date().toISOString()
-    };
-    localStorage.setItem("orders", JSON.stringify(orders));
-    return orders[index];
-  },
-
-  delete: (id: string): boolean => {
-    const orders = ordersApi.getAll();
-    const filtered = orders.filter((o) => o.id !== id);
-    if (filtered.length === orders.length) return false;
-    
-    localStorage.setItem("orders", JSON.stringify(filtered));
-    return true;
-  }
-};
-
-// Categories
-export const categories = [
-  "Масла",
-  "Фильтры",
-  "Тормозная система",
-  "Подвеска",
-  "Двигатель",
-  "Трансмиссия",
-  "Электрика",
-  "Кузовные детали"
-];
-
-// Car brands for selector
-export const carBrands = [
-  "Toyota",
-  "BMW",
-  "Mercedes-Benz",
-  "Audi",
-  "Volkswagen",
-  "Hyundai",
-  "Kia",
-  "Nissan",
-  "Honda",
-  "Mazda",
-  "Lexus",
-  "Ford"
-];
-
-// Initialize
-export const initStorage = () => {
-  productsApi.seed();
-};
+export function getRelatedProducts(productId: string, limit: number = 4): Product[] {
+  const product = getProductById(productId);
+  if (!product) return [];
+  
+  return products
+    .filter(p => p.category === product.category && p.id !== productId)
+    .slice(0, limit);
+}
