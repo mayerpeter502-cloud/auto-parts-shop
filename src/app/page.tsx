@@ -1,85 +1,58 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Search, ChevronLeft, ChevronRight, ShoppingCart, Car, FileText, X } from "lucide-react";
-import { productsApi, initStorage, categories } from "./lib/api";
-import { useCart } from "../contexts/CartContext";
+import { useState, useEffect } from "react";
+import { Search, ChevronLeft, ChevronRight, Car, Wrench, Battery, Droplets, Cog, Shield } from "lucide-react";
+import { getProducts, Product } from "./lib/api";
 
-// Данные для подбора авто
-const carBrands = [
-  "Toyota", "BMW", "Mercedes-Benz", "Audi", "Volkswagen",
-  "Hyundai", "Kia", "Nissan", "Honda", "Mazda", "Lexus", "Ford"
+const categories = [
+  "Моторные масла",
+  "Фильтры",
+  "Тормозные системы",
+  "Подвеска",
+  "Электрика",
+  "Двигатель",
+  "Кузовные детали",
+  "Аксессуары"
 ];
 
-const carModels: Record<string, string[]> = {
-  "Toyota": ["Camry", "Corolla", "RAV4", "Land Cruiser", "Prado"],
-  "BMW": ["X5", "X3", "3 Series", "5 Series", "7 Series"],
-  "Mercedes-Benz": ["C-Class", "E-Class", "S-Class", "GLC", "GLE"],
-  "Audi": ["A4", "A6", "Q5", "Q7", "A3"],
-  "Volkswagen": ["Passat", "Tiguan", "Polo", "Golf", "Touareg"],
-  "Hyundai": ["Solaris", "Creta", "Tucson", "Santa Fe", "Elantra"],
-  "Kia": ["Rio", "Sportage", "Seltos", "K5", "Sorento"],
-  "Nissan": ["Qashqai", "X-Trail", "Teana", "Almera", "Patrol"],
-  "Honda": ["Civic", "Accord", "CR-V", "Pilot", "HR-V"],
-  "Mazda": ["CX-5", "CX-9", "Mazda3", "Mazda6", "CX-30"],
-  "Lexus": ["RX", "NX", "ES", "LX", "IS"],
-  "Ford": ["Focus", "Mondeo", "Kuga", "Explorer", "Mustang"]
+const categoryIcons: Record<string, string> = {
+  "Моторные масла": "🛢️",
+  "Фильтры": "🔄",
+  "Тормозные системы": "🛑",
+  "Подвеска": "🔧",
+  "Электрика": "⚡",
+  "Двигатель": "⚙️",
+  "Кузовные детали": "🚗",
+  "Аксессуары": "🔌"
 };
 
-const years = Array.from({ length: 25 }, (_, i) => 2024 - i);
+const banners = [
+  { id: 1, title: "Скидка 20% на масла", subtitle: "При покупке от 10 000 ₸", color: "bg-blue-600" },
+  { id: 2, title: "Новые фильтры", subtitle: "Большой выбор Mann и Bosch", color: "bg-green-600" },
+  { id: 3, title: "Тормозные колодки", subtitle: "Безопасность превыше всего", color: "bg-red-600" }
+];
 
 export default function HomePage() {
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [showCarSelector, setShowCarSelector] = useState(false);
-  const [carBrand, setCarBrand] = useState("");
-  const [carModel, setCarModel] = useState("");
-  const [carYear, setCarYear] = useState(2024);
-  const [brandSearch, setBrandSearch] = useState("");
-  const [showBrandSuggestions, setShowBrandSuggestions] = useState(false);
-  const { addItem } = useCart();
 
   useEffect(() => {
-    initStorage();
-    const allProducts = productsApi.getAll();
+    const allProducts = getProducts();
     setProducts(allProducts.slice(0, 8));
   }, []);
 
-  const banners = [
-    {
-      id: "banner-1",
-      title: "Тормозные системы Brembo",
-      subtitle: "Премиум качество",
-      color: "bg-gradient-to-r from-red-600 to-red-500",
-      link: "/catalog?brand=Brembo"
-    },
-    {
-      id: "banner-2",
-      title: "Моторные масла Shell",
-      subtitle: "Скидки до 30%",
-      color: "bg-gradient-to-r from-yellow-500 to-yellow-400",
-      link: "/catalog?category=Масла"
-    },
-    {
-      id: "banner-3",
-      title: "Фильтры Bosch",
-      subtitle: "Надежность проверена временем",
-      color: "bg-gradient-to-r from-blue-600 to-blue-500",
-      link: "/catalog?brand=Bosch"
-    }
-  ];
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % banners.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
 
-  const filteredBrands = carBrands.filter(b => 
-    b.toLowerCase().includes(brandSearch.toLowerCase())
-  );
-
-  const handleCarSelect = () => {
-    if (carBrand && carModel) {
-      window.location.href = `/catalog?carBrand=${encodeURIComponent(carBrand)}&carModel=${encodeURIComponent(carModel)}&year=${carYear}`;
-    }
-  };
+  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % banners.length);
+  const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + banners.length) % banners.length);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,212 +61,120 @@ export default function HomePage() {
     }
   };
 
-  const categoryIcons: Record<string, string> = {
-    "Масла": "🛢️",
-    "Фильтры": "🔄",
-    "Тормозная система": "🛑",
-    "Подвеска": "🔧",
-    "Двигатель": "⚙️",
-    "Трансмиссия": "⚡",
-    "Электрика": "🔌",
-    "Кузовные детали": "🚗"
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Car Selector Modal */}
-      {showCarSelector && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b flex justify-between items-center">
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                <Car className="w-6 h-6 text-blue-600" />
-                Подбор по автомобилю
-              </h2>
-              <button 
-                onClick={() => setShowCarSelector(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <div className="p-6 space-y-4">
-              {/* Brand with autocomplete */}
+      {/* Header */}
+      <header className="bg-white shadow-sm sticky top-0 z-50">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16 gap-4">
+            <Link href="/" className="flex items-center gap-2 flex-shrink-0">
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <Car className="w-5 h-5 text-white" />
+              </div>
+              <span className="font-bold text-xl hidden sm:block">AutoParts.kz</span>
+            </Link>
+
+            <form onSubmit={handleSearch} className="flex-1 max-w-2xl hidden md:block">
               <div className="relative">
-                <label className="block text-sm font-medium mb-2">Марка автомобиля *</label>
                 <input
                   type="text"
-                  value={brandSearch || carBrand}
-                  onChange={(e) => {
-                    setBrandSearch(e.target.value);
-                    setShowBrandSuggestions(true);
-                    setCarBrand("");
-                    setCarModel("");
-                  }}
-                  onFocus={() => setShowBrandSuggestions(true)}
-                  placeholder="Начните вводить марку..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                  placeholder="Поиск по номеру, названию или VIN..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg pl-4 pr-10 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
-                {showBrandSuggestions && filteredBrands.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
-                    {filteredBrands.map(brand => (
-                      <button
-                        key={brand}
-                        onClick={() => {
-                          setCarBrand(brand);
-                          setBrandSearch(brand);
-                          setShowBrandSuggestions(false);
-                          setCarModel("");
-                        }}
-                        className="w-full text-left px-4 py-2 hover:bg-blue-50 first:rounded-t-lg last:rounded-b-lg"
-                      >
-                        {brand}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-blue-600">
+                  <Search className="w-5 h-5" />
+                </button>
               </div>
+            </form>
 
-              {/* Model */}
-              <div>
-                <label className="block text-sm font-medium mb-2">Модель *</label>
-                <select
-                  value={carModel}
-                  onChange={(e) => setCarModel(e.target.value)}
-                  disabled={!carBrand}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 disabled:bg-gray-100"
-                >
-                  <option value="">Выберите модель</option>
-                  {carBrand && carModels[carBrand]?.map(model => (
-                    <option key={model} value={model}>{model}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Year */}
-              <div>
-                <label className="block text-sm font-medium mb-2">Год выпуска</label>
-                <select
-                  value={carYear}
-                  onChange={(e) => setCarYear(Number(e.target.value))}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-                >
-                  {years.map(year => (
-                    <option key={year} value={year}>{year}</option>
-                  ))}
-                </select>
-              </div>
-
-              <button
-                onClick={handleCarSelect}
-                disabled={!carBrand || !carModel}
-                className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 font-semibold mt-4"
-              >
-                Показать запчасти
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Hero Section */}
-      <section className="bg-white py-6">
-        <div className="container mx-auto px-4">
-          {/* Search Block */}
-          <div className="max-w-4xl mx-auto mb-8">
-            <div className="flex flex-col md:flex-row gap-4 mb-6">
-              <button
+            <div className="flex items-center gap-2 sm:gap-4">
+              <button 
                 onClick={() => setShowCarSelector(true)}
-                className="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl"
+                className="hidden sm:flex items-center gap-1 text-sm text-gray-600 hover:text-blue-600"
               >
-                <Car className="w-6 h-6" />
-                <div className="text-left">
-                  <div className="font-semibold">Подбор по автомобилю</div>
-                  <div className="text-sm text-blue-100">Выберите марку и модель</div>
-                </div>
+                <Car className="w-4 h-4" />
+                <span>Подбор по авто</span>
               </button>
-              <Link
-                href="/vin-check"
-                className="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-white text-blue-600 border-2 border-blue-600 rounded-xl hover:bg-blue-50 transition-all"
-              >
-                <FileText className="w-6 h-6" />
-                <div className="text-left">
-                  <div className="font-semibold">Подбор по VIN</div>
-                  <div className="text-sm text-gray-500">Проверьте по номеру кузова</div>
-                </div>
+              
+              <Link href="/cart" className="relative p-2 text-gray-600 hover:text-blue-600">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </Link>
+
+              <Link href="/login" className="p-2 text-gray-600 hover:text-blue-600">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
               </Link>
             </div>
+          </div>
 
-            {/* Main Search */}
+          <div className="md:hidden pb-3">
             <form onSubmit={handleSearch} className="relative">
               <input
                 type="text"
-                placeholder="Поиск по названию, артикулу или VIN..."
+                placeholder="Поиск..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-6 pr-16 py-4 text-lg border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-colors"
+                className="w-full border border-gray-300 rounded-lg pl-4 pr-10 py-2 text-sm"
               />
-              <button
-                type="submit"
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                <Search className="w-5 h-5" />
+              <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2">
+                <Search className="w-4 h-4 text-gray-400" />
               </button>
             </form>
           </div>
+        </div>
+      </header>
 
-          {/* Banner Carousel */}
-          <div className="relative max-w-5xl mx-auto rounded-2xl overflow-hidden shadow-xl">
-            <div className="relative h-64 md:h-80">
-              {banners.map((banner, index) => (
-                <div
-                  key={banner.id}
-                  className={`absolute inset-0 transition-opacity duration-500 ${
-                    index === currentSlide ? "opacity-100" : "opacity-0"
-                  }`}
-                >
-                  <div className={`${banner.color} h-full flex items-center px-8 md:px-16`}>
-                    <div className="text-white">
-                      <h2 className="text-3xl md:text-5xl font-bold mb-2">{banner.title}</h2>
-                      <p className="text-lg md:text-xl mb-6 opacity-90">{banner.subtitle}</p>
-                      <Link
-                        href={banner.link}
-                        className="inline-block px-6 py-3 bg-white text-gray-900 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
-                      >
-                        Подробнее
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            
-            <button
-              onClick={() => setCurrentSlide((prev) => (prev - 1 + banners.length) % banners.length)}
-              className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/20 backdrop-blur text-white rounded-full hover:bg-white/30 transition-colors"
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </button>
-            <button
-              onClick={() => setCurrentSlide((prev) => (prev + 1) % banners.length)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/20 backdrop-blur text-white rounded-full hover:bg-white/30 transition-colors"
-            >
-              <ChevronRight className="w-6 h-6" />
-            </button>
-
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-              {banners.map((banner, index) => (
-                <button
-                  key={`dot-${banner.id}`}
-                  onClick={() => setCurrentSlide(index)}
-                  className={`w-2 h-2 rounded-full transition-colors ${
-                    index === currentSlide ? "bg-white" : "bg-white/50"
-                  }`}
-                />
-              ))}
+      {/* Hero Banner */}
+      <section className="relative bg-gray-900 h-64 md:h-96 overflow-hidden">
+        {banners.map((banner, index) => (
+          <div
+            key={banner.id}
+            className={`absolute inset-0 transition-opacity duration-500 ${
+              index === currentSlide ? "opacity-100" : "opacity-0"
+            } ${banner.color} flex items-center justify-center`}
+          >
+            <div className="text-center text-white px-4">
+              <h2 className="text-3xl md:text-5xl font-bold mb-4">{banner.title}</h2>
+              <p className="text-lg md:text-xl opacity-90">{banner.subtitle}</p>
+              <Link
+                href="/catalog"
+                className="inline-block mt-6 px-6 py-3 bg-white text-gray-900 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+              >
+                Перейти в каталог
+              </Link>
             </div>
           </div>
+        ))}
+        
+        <button
+          onClick={prevSlide}
+          className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/20 hover:bg-white/30 rounded-full text-white transition-colors"
+        >
+          <ChevronLeft className="w-6 h-6" />
+        </button>
+        
+        <button
+          onClick={nextSlide}
+          className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/20 hover:bg-white/30 rounded-full text-white transition-colors"
+        >
+          <ChevronRight className="w-6 h-6" />
+        </button>
+
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+          {banners.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentSlide(index)}
+              className={`w-2 h-2 rounded-full transition-colors ${
+                index === currentSlide ? "bg-white" : "bg-white/50"
+              }`}
+            />
+          ))}
         </div>
       </section>
 
@@ -338,7 +219,7 @@ export default function HomePage() {
               >
                 <Link href={`/product/${product.id}`} className="block">
                   <div className="relative h-48 bg-gray-100 flex items-center justify-center">
-                    <div className="text-6xl">📦</div>
+                    <div className="text-6xl">🔧</div>
                     {product.oldPrice && (
                       <span className="absolute top-3 left-3 px-2 py-1 bg-red-500 text-white text-xs font-bold rounded">
                         -{Math.round((1 - product.price / product.oldPrice) * 100)}%
@@ -346,7 +227,7 @@ export default function HomePage() {
                     )}
                   </div>
                 </Link>
-                
+
                 <div className="p-4">
                   <div className="text-xs text-gray-500 mb-1">{product.brand}</div>
                   <Link href={`/product/${product.id}`}>
@@ -354,12 +235,10 @@ export default function HomePage() {
                       {product.name}
                     </h3>
                   </Link>
-                  
+
                   <div className="flex items-center gap-1 mb-3">
                     <span className="text-yellow-400">★</span>
-                    <span className="text-sm text-gray-600">
-                      {product.rating} ({product.reviews})
-                    </span>
+                    <span className="text-sm text-gray-600">4.8 (12)</span>
                   </div>
 
                   <div className="flex items-center justify-between">
@@ -374,16 +253,22 @@ export default function HomePage() {
                       )}
                     </div>
                     <button
-                      onClick={() => addItem({
-                        id: product.id,
-                        name: product.name,
-                        price: product.price,
-                        image: product.image,
-                        sku: product.sku
-                      })}
-                      className="p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                      onClick={() => {
+                        const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+                        const existing = cart.find((item: any) => item.id === product.id);
+                        if (existing) {
+                          existing.quantity += 1;
+                        } else {
+                          cart.push({ ...product, quantity: 1 });
+                        }
+                        localStorage.setItem("cart", JSON.stringify(cart));
+                        window.dispatchEvent(new Event("storage"));
+                      }}
+                      className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                     >
-                      <ShoppingCart className="w-5 h-5" />
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
                     </button>
                   </div>
                 </div>
@@ -393,25 +278,36 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Features */}
-      <section className="py-12 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {[
-              { icon: "🚚", title: "Быстрая доставка", desc: "По всему Казахстану" },
-              { icon: "✅", title: "Гарантия качества", desc: "Оригинальные запчасти" },
-              { icon: "🔍", title: "Подбор по VIN", desc: "Точная совместимость" },
-              { icon: "🎧", title: "Поддержка 24/7", desc: "Всегда на связи" }
-            ].map((feature, index) => (
-              <div key={`feature-${index}`} className="text-center">
-                <div className="text-4xl mb-3">{feature.icon}</div>
-                <h3 className="font-semibold text-gray-900 mb-1">{feature.title}</h3>
-                <p className="text-sm text-gray-500">{feature.desc}</p>
-              </div>
-            ))}
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white mt-auto">
+        <div className="container mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+              <h3 className="font-bold text-lg mb-4">AutoParts.kz</h3>
+              <p className="text-gray-400 text-sm mb-4">Интернет-магазин автозапчастей в Казахстане.</p>
+            </div>
+            <div>
+              <h4 className="font-medium mb-4">Информация</h4>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li><Link href="/about" className="hover:text-white">О нас</Link></li>
+                <li><Link href="/delivery" className="hover:text-white">Доставка</Link></li>
+                <li><Link href="/contacts" className="hover:text-white">Контакты</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-medium mb-4">Контакты</h4>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li>+7 (777) 123-45-67</li>
+                <li>info@autoparts.kz</li>
+                <li>Алматы</li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 mt-8 pt-4 text-center text-sm text-gray-500">
+            © 2024 AutoParts.kz
           </div>
         </div>
-      </section>
+      </footer>
     </div>
   );
 }
