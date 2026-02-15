@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ordersApi } from "../../lib/api";
+import { ordersApi } from "../../lib/orders";
 
 const statusLabels: Record<string, string> = {
   pending: "Ожидает",
