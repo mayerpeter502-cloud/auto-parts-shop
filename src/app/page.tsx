@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Search, ChevronLeft, ChevronRight, Car, Wrench, Battery, Droplets, Cog, Shield } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, Car } from "lucide-react";
 import { getProducts, Product } from "./lib/api";
 
 const categories = [
@@ -37,7 +37,6 @@ export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
-  const [showCarSelector, setShowCarSelector] = useState(false);
 
   useEffect(() => {
     const allProducts = getProducts();
@@ -63,72 +62,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16 gap-4">
-            <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <Car className="w-5 h-5 text-white" />
-              </div>
-              <span className="font-bold text-xl hidden sm:block">AutoParts.kz</span>
-            </Link>
-
-            <form onSubmit={handleSearch} className="flex-1 max-w-2xl hidden md:block">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Поиск по номеру, названию или VIN..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg pl-4 pr-10 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-                <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-blue-600">
-                  <Search className="w-5 h-5" />
-                </button>
-              </div>
-            </form>
-
-            <div className="flex items-center gap-2 sm:gap-4">
-              <button 
-                onClick={() => setShowCarSelector(true)}
-                className="hidden sm:flex items-center gap-1 text-sm text-gray-600 hover:text-blue-600"
-              >
-                <Car className="w-4 h-4" />
-                <span>Подбор по авто</span>
-              </button>
-              
-              <Link href="/cart" className="relative p-2 text-gray-600 hover:text-blue-600">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-              </Link>
-
-              <Link href="/login" className="p-2 text-gray-600 hover:text-blue-600">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              </Link>
-            </div>
-          </div>
-
-          <div className="md:hidden pb-3">
-            <form onSubmit={handleSearch} className="relative">
-              <input
-                type="text"
-                placeholder="Поиск..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg pl-4 pr-10 py-2 text-sm"
-              />
-              <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2">
-                <Search className="w-4 h-4 text-gray-400" />
-              </button>
-            </form>
-          </div>
-        </div>
-      </header>
-
       {/* Hero Banner */}
       <section className="relative bg-gray-900 h-64 md:h-96 overflow-hidden">
         {banners.map((banner, index) => (
@@ -277,37 +210,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white mt-auto">
-        <div className="container mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <h3 className="font-bold text-lg mb-4">AutoParts.kz</h3>
-              <p className="text-gray-400 text-sm mb-4">Интернет-магазин автозапчастей в Казахстане.</p>
-            </div>
-            <div>
-              <h4 className="font-medium mb-4">Информация</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><Link href="/about" className="hover:text-white">О нас</Link></li>
-                <li><Link href="/delivery" className="hover:text-white">Доставка</Link></li>
-                <li><Link href="/contacts" className="hover:text-white">Контакты</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-medium mb-4">Контакты</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li>+7 (777) 123-45-67</li>
-                <li>info@autoparts.kz</li>
-                <li>Алматы</li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 mt-8 pt-4 text-center text-sm text-gray-500">
-            © 2024 AutoParts.kz
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

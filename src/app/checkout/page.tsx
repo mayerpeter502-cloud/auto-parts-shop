@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, Truck, CreditCard, User, MapPin, Check } from "lucide-react";
 import { useCart } from "../../contexts/CartContext";
-import { ordersApi } from "../lib/api";
+import { ordersApi } from "../lib/orders";
 import { useAuth } from "../../contexts/AuthContext";
 
 export default function CheckoutPage() {
