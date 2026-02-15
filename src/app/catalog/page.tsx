@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { Header } from "../../components/Header";
 import { Footer } from "../../components/Footer";
 import { ProductCard } from "../../components/ProductCard";
-import { FilterSidebar } from "../../components/FilterSidebar";
+import { SearchAutocomplete } from "../../components/SearchAutocomplete";
+import { CarSelector } from "../../components/CarSelector";
 import { getProducts, Product } from "../lib/api";
 import { SlidersHorizontal } from "lucide-react";
 
@@ -12,6 +13,7 @@ export default function CatalogPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({
     category: "",
     brand: "",
@@ -34,6 +36,12 @@ export default function CatalogPage() {
   useEffect(() => {
     let result = products;
 
+    if (searchQuery) {
+      result = result.filter((p) => 
+        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.brand.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
     if (filters.category) {
       result = result.filter((p) => p.category === filters.category);
     }
@@ -67,14 +75,19 @@ export default function CatalogPage() {
 
     setFilteredProducts(result);
     setCurrentPage(1);
-  }, [filters, products]);
+  }, [filters, products, searchQuery]);
 
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedProducts = filteredProducts.slice(startIndex, startIndex + itemsPerPage);
 
-  const handleLoadMore = () => {
-    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  const handleCarSelect = (brand: string, model: string, year: string) => {
+    setFilters(prev => ({
+      ...prev,
+      carBrand: brand,
+      carModel: model,
+      year: year
+    }));
   };
 
   return (
@@ -82,8 +95,19 @@ export default function CatalogPage() {
       <Header />
       
       <main className="flex-1 container mx-auto px-4 py-6">
+        {/* Search Bar */}
+        <div className="mb-6">
+          <SearchAutocomplete
+            value={searchQuery}
+            onChange={setSearchQuery}
+            onSelect={(product) => {
+              window.location.href = `/product/${product.id}`;
+            }}
+            placeholder="Поиск по номеру, названию..."
+          />
+        </div>
+
         <div className="flex flex-col lg:flex-row gap-6">
-          {/* Mobile Filter Toggle */}
           <button
             onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
             className="lg:hidden flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 w-fit"
@@ -92,18 +116,114 @@ export default function CatalogPage() {
             <span>Фильтры</span>
           </button>
 
-          {/* Sidebar */}
           <aside className={`lg:w-64 flex-shrink-0 ${isMobileFilterOpen ? 'block' : 'hidden lg:block'}`}>
-            <FilterSidebar filters={filters} setFilters={setFilters} />
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 lg:p-6 space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="font-bold text-gray-900">Фильтры</h2>
+                <button
+                  onClick={() => {
+                    setFilters({
+                      category: "",
+                      brand: "",
+                      minPrice: "",
+                      maxPrice: "",
+                      inStock: false,
+                      carBrand: "",
+                      carModel: "",
+                      year: "",
+                    });
+                    setSearchQuery("");
+                  }}
+                  className="text-sm text-red-600 hover:text-red-700"
+                >
+                  Сбросить
+                </button>
+              </div>
+
+              <div>
+                <h3 className="font-medium text-gray-900 mb-3">Подбор по авто</h3>
+                <CarSelector onSelect={handleCarSelect} />
+                {(filters.carBrand || filters.carModel || filters.year) && (
+                  <div className="mt-3 p-3 bg-blue-50 rounded-lg text-sm">
+                    <div className="font-medium text-blue-900">Выбрано:</div>
+                    <div className="text-blue-700">
+                      {filters.carBrand} {filters.carModel} {filters.year}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="border-t pt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Категория</label>
+                <select
+                  value={filters.category}
+                  onChange={(e) => setFilters(prev => ({ ...prev, category: e.target.value }))}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                >
+                  <option value="">Все категории</option>
+                  <option value="oil">Моторные масла</option>
+                  <option value="filter">Фильтры</option>
+                  <option value="brake">Тормозные системы</option>
+                  <option value="suspension">Подвеска</option>
+                  <option value="electrical">Электрика</option>
+                  <option value="engine">Двигатель</option>
+                </select>
+              </div>
+
+              <div className="border-t pt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Бренд</label>
+                <select
+                  value={filters.brand}
+                  onChange={(e) => setFilters(prev => ({ ...prev, brand: e.target.value }))}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                >
+                  <option value="">Все бренды</option>
+                  <option value="Castrol">Castrol</option>
+                  <option value="Mobil">Mobil</option>
+                  <option value="Shell">Shell</option>
+                  <option value="Bosch">Bosch</option>
+                  <option value="Mann">Mann-Filter</option>
+                </select>
+              </div>
+
+              <div className="border-t pt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Цена, ₸</label>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    placeholder="От"
+                    value={filters.minPrice}
+                    onChange={(e) => setFilters(prev => ({ ...prev, minPrice: e.target.value }))}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  />
+                  <input
+                    type="number"
+                    placeholder="До"
+                    value={filters.maxPrice}
+                    onChange={(e) => setFilters(prev => ({ ...prev, maxPrice: e.target.value }))}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="border-t pt-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={filters.inStock}
+                    onChange={(e) => setFilters(prev => ({ ...prev, inStock: e.target.checked }))}
+                    className="w-4 h-4 text-blue-600 rounded"
+                  />
+                  <span className="text-sm text-gray-700">В наличии</span>
+                </label>
+              </div>
+            </div>
           </aside>
 
-          {/* Content */}
           <div className="flex-1">
             <div className="flex items-center justify-between mb-4">
               <h1 className="text-xl font-bold text-gray-900">Каталог</h1>
-              <span className="text-sm text-gray-500">
-                {filteredProducts.length} товаров
-              </span>
+              <span className="text-sm text-gray-500">{filteredProducts.length} товаров</span>
             </div>
 
             {paginatedProducts.length === 0 ? (
@@ -118,7 +238,6 @@ export default function CatalogPage() {
                   ))}
                 </div>
 
-                {/* Pagination */}
                 {filteredProducts.length > itemsPerPage && (
                   <div className="mt-8 flex flex-col items-center gap-4">
                     <div className="flex items-center gap-2">
@@ -136,16 +255,6 @@ export default function CatalogPage() {
                         </button>
                       ))}
                     </div>
-                    
-                    {currentPage < totalPages && (
-                      <button
-                        onClick={handleLoadMore}
-                        className="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors"
-                      >
-                        Показать еще
-                      </button>
-                    )}
-                    
                     <p className="text-sm text-gray-500">
                       Показано {Math.min(currentPage * itemsPerPage, filteredProducts.length)} из {filteredProducts.length}
                     </p>
