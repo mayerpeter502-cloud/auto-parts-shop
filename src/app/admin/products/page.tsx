@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { Plus, Search, Edit, Trash2, X } from "lucide-react";
-import { productsApi, categories } from "../../lib/api";
+import { productsApi } from "../../lib/api";
+
+const categories = ["Моторные масла", "Фильтры", "Тормозные системы", "Подвеска", "Электрика", "Двигатель", "Кузовные детали", "Аксессуары"];
 
 export default function AdminProducts() {
   const [products, setProducts] = useState<any[]>([]);
@@ -17,7 +19,7 @@ export default function AdminProducts() {
     price: "",
     oldPrice: "",
     brand: "",
-    category: categories[0],
+    category: "Моторные масла",
     stock: "",
     description: "",
     rating: "4.5",

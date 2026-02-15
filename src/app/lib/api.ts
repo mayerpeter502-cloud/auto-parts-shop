@@ -250,3 +250,39 @@ export function getRelatedProducts(productId: string, limit: number = 4): Produc
     .filter(p => p.category === product.category && p.id !== productId)
     .slice(0, limit);
 }
+export const productsApi = {
+  getAll: (): Product[] => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("products");
+      if (stored) return JSON.parse(stored);
+    }
+    return products;
+  },
+
+  getById: (id: string): Product | undefined => {
+    return productsApi.getAll().find(p => p.id === id);
+  },
+
+  create: (product: Omit<Product, "id">): Product => {
+    const newProduct = { ...product, id: Date.now().toString() };
+    const all = productsApi.getAll();
+    all.push(newProduct);
+    localStorage.setItem("products", JSON.stringify(all));
+    return newProduct;
+  },
+
+  update: (id: string, updates: Partial<Product>): void => {
+    const all = productsApi.getAll();
+    const index = all.findIndex(p => p.id === id);
+    if (index > -1) {
+      all[index] = { ...all[index], ...updates };
+      localStorage.setItem("products", JSON.stringify(all));
+    }
+  },
+
+  delete: (id: string): void => {
+    const all = productsApi.getAll();
+    const filtered = all.filter(p => p.id !== id);
+    localStorage.setItem("products", JSON.stringify(filtered));
+  }
+};

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Package, ShoppingCart, Users, TrendingUp } from "lucide-react";
-import { productsApi, ordersApi } from "../lib/api";
+import { productsApi } from "../lib/api";
+import { ordersApi } from "../lib/orders";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
