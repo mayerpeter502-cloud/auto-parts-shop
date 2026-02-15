@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Header } from "../../components/Header";
+
 import { Footer } from "../../components/Footer";
 import { ProductCard } from "../../components/ProductCard";
 import { SearchAutocomplete } from "../../components/SearchAutocomplete";
@@ -92,7 +92,7 @@ export default function CatalogPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Header />
+      
       
       <main className="flex-1 container mx-auto px-4 py-6">
         {/* Search Bar */}

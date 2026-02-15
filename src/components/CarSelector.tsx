@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 const carDatabase = {
   "Toyota": ["Camry", "Corolla", "RAV4", "Land Cruiser", "Hilux"],
@@ -27,6 +27,27 @@ export function CarSelector({ onSelect }: CarSelectorProps) {
   const [showBrandSuggestions, setShowBrandSuggestions] = useState(false);
   const [showModelSuggestions, setShowModelSuggestions] = useState(false);
   const [showYearSuggestions, setShowYearSuggestions] = useState(false);
+
+  const brandRef = useRef<HTMLDivElement>(null);
+  const modelRef = useRef<HTMLDivElement>(null);
+  const yearRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (brandRef.current && !brandRef.current.contains(event.target as Node)) {
+        setShowBrandSuggestions(false);
+      }
+      if (modelRef.current && !modelRef.current.contains(event.target as Node)) {
+        setShowModelSuggestions(false);
+      }
+      if (yearRef.current && !yearRef.current.contains(event.target as Node)) {
+        setShowYearSuggestions(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const brands = Object.keys(carDatabase);
   const models = brand ? carDatabase[brand as keyof typeof carDatabase] || [] : [];
@@ -55,7 +76,7 @@ export function CarSelector({ onSelect }: CarSelectorProps) {
 
   return (
     <div className="space-y-3">
-      <div className="relative">
+      <div className="relative" ref={brandRef}>
         <label className="block text-sm font-medium text-gray-700 mb-1">Марка</label>
         <input
           type="text"
@@ -83,7 +104,7 @@ export function CarSelector({ onSelect }: CarSelectorProps) {
         )}
       </div>
 
-      <div className="relative">
+      <div className="relative" ref={modelRef}>
         <label className="block text-sm font-medium text-gray-700 mb-1">Модель</label>
         <input
           type="text"
@@ -112,7 +133,7 @@ export function CarSelector({ onSelect }: CarSelectorProps) {
         )}
       </div>
 
-      <div className="relative">
+      <div className="relative" ref={yearRef}>
         <label className="block text-sm font-medium text-gray-700 mb-1">Год выпуска</label>
         <input
           type="text"
