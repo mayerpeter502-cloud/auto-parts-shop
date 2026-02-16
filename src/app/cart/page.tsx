@@ -1,41 +1,34 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
+import { useState, useEffect } from "react";
 import { Trash2, Plus, Minus, ShoppingCart, ArrowRight } from "lucide-react";
 import { useCart } from "../../contexts/CartContext";
-import { Header } from "../../components/Header";
-import { Footer } from "../../components/Footer";
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, total, count } = useCart();
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col">
-        <Header />
-        <main className="flex-1 flex items-center justify-center py-12">
-          <div className="container mx-auto px-4 max-w-2xl text-center">
-            <ShoppingCart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Корзина пуста</h1>
-            <p className="text-gray-500 mb-6">Добавьте товары для оформления заказа</p>
-            <Link
-              href="/catalog"
-              className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
-            >
-              Перейти в каталог
-            </Link>
-          </div>
-        </main>
-        <Footer />
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12">
+        <div className="container mx-auto px-4 max-w-2xl text-center">
+          <ShoppingCart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Корзина пуста</h1>
+          <p className="text-gray-500 mb-6">Добавьте товары для оформления заказа</p>
+          <Link
+            href="/catalog"
+            className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+          >
+            Перейти в каталог
+          </Link>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Header />
-      <main className="flex-1 container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="container mx-auto px-4">
         <h1 className="text-2xl font-bold text-gray-900 mb-8">Корзина ({count})</h1>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -48,7 +41,7 @@ export default function CartPage() {
                 
                 <div className="flex-1">
                   <h3 className="font-medium text-gray-900 mb-1">{item.name}</h3>
-                  <p className="text-sm text-gray-500 mb-2">{item.brand}</p>
+                  <p className="text-sm text-gray-500 mb-2">{item.sku}</p>
                   <div className="text-lg font-bold text-gray-900">
                     {item.price.toLocaleString()} ₸
                   </div>
@@ -107,8 +100,7 @@ export default function CartPage() {
             </Link>
           </div>
         </div>
-      </main>
-      <Footer />
+      </div>
     </div>
   );
 }

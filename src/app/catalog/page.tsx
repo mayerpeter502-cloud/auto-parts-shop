@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-
-import { Footer } from "../../components/Footer";
 import { ProductCard } from "../../components/ProductCard";
 import { SearchAutocomplete } from "../../components/SearchAutocomplete";
 import { CarSelector } from "../../components/CarSelector";
@@ -92,8 +90,6 @@ export default function CatalogPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      
-      
       <main className="flex-1 container mx-auto px-4 py-6">
         {/* Search Bar */}
         <div className="mb-6">
@@ -265,8 +261,6 @@ export default function CatalogPage() {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

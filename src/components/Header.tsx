@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Search, ShoppingCart, User, Menu, X, Car, LogOut, Scale } from "lucide-react";
+import { Search, ShoppingCart, User, Menu, X, Car, LogOut, Scale, Heart } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 
 export function Header() {
   const { user, logout } = useAuth();
   const [cartCount, setCartCount] = useState(0);
   const [compareCount, setCompareCount] = useState(0);
+  const [favoritesCount, setFavoritesCount] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -16,8 +17,10 @@ export function Header() {
     const updateCounts = () => {
       const cart = JSON.parse(localStorage.getItem("cart") || "[]");
       const compare = JSON.parse(localStorage.getItem("compare") || "[]");
+      const favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
       setCartCount(cart.reduce((sum: number, item: any) => sum + item.quantity, 0));
       setCompareCount(compare.length);
+      setFavoritesCount(favorites.length);
     };
     
     updateCounts();
@@ -65,6 +68,15 @@ export function Header() {
             >
               <Car className="w-4 h-4" />
               <span>Подбор по VIN</span>
+            </Link>
+
+            <Link href="/favorites" className="relative p-2 text-gray-600 hover:text-blue-600">
+              <Heart className="w-6 h-6" />
+              {favoritesCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-pink-500 text-white text-xs rounded-full flex items-center justify-center">
+                  {favoritesCount}
+                </span>
+              )}
             </Link>
 
             <Link href="/compare" className="relative p-2 text-gray-600 hover:text-blue-600">
@@ -134,6 +146,9 @@ export function Header() {
             </Link>
             <Link href="/vin-check" className="block py-2 text-gray-700 hover:text-blue-600">
               Подбор по VIN
+            </Link>
+            <Link href="/favorites" className="block py-2 text-gray-700 hover:text-blue-600">
+              Избранное ({favoritesCount})
             </Link>
             <Link href="/compare" className="block py-2 text-gray-700 hover:text-blue-600">
               Сравнение ({compareCount})

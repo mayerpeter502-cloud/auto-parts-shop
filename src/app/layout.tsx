@@ -30,10 +30,6 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
-  icons: {
-    icon: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
-  },
 };
 
 export default function RootLayout({
@@ -43,15 +39,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ru">
-      
       <body className={inter.className}>
         <AuthProvider>
-  <CartProvider>
-    <Header />
-    {children}
-    <Footer />
-  </CartProvider>
-</AuthProvider>
+          <CartProvider>
+            <Header />
+            {children}
+            <Footer />
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );
