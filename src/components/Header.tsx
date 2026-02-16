@@ -2,24 +2,27 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Search, ShoppingCart, User, Menu, X, Car, LogOut } from "lucide-react";
+import { Search, ShoppingCart, User, Menu, X, Car, LogOut, Scale } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 
 export function Header() {
   const { user, logout } = useAuth();
   const [cartCount, setCartCount] = useState(0);
+  const [compareCount, setCompareCount] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    const updateCartCount = () => {
+    const updateCounts = () => {
       const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      const compare = JSON.parse(localStorage.getItem("compare") || "[]");
       setCartCount(cart.reduce((sum: number, item: any) => sum + item.quantity, 0));
+      setCompareCount(compare.length);
     };
     
-    updateCartCount();
-    window.addEventListener("storage", updateCartCount);
-    return () => window.removeEventListener("storage", updateCartCount);
+    updateCounts();
+    window.addEventListener("storage", updateCounts);
+    return () => window.removeEventListener("storage", updateCounts);
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -62,6 +65,15 @@ export function Header() {
             >
               <Car className="w-4 h-4" />
               <span>Подбор по VIN</span>
+            </Link>
+
+            <Link href="/compare" className="relative p-2 text-gray-600 hover:text-blue-600">
+              <Scale className="w-6 h-6" />
+              {compareCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 text-white text-xs rounded-full flex items-center justify-center">
+                  {compareCount}
+                </span>
+              )}
             </Link>
             
             <Link href="/cart" className="relative p-2 text-gray-600 hover:text-blue-600">
@@ -122,6 +134,9 @@ export function Header() {
             </Link>
             <Link href="/vin-check" className="block py-2 text-gray-700 hover:text-blue-600">
               Подбор по VIN
+            </Link>
+            <Link href="/compare" className="block py-2 text-gray-700 hover:text-blue-600">
+              Сравнение ({compareCount})
             </Link>
             {user && (
               <Link href="/orders" className="block py-2 text-gray-700 hover:text-blue-600">
