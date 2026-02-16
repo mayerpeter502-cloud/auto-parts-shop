@@ -1,5 +1,6 @@
 export interface Order {
   id: string;
+  userId?: string;
   customerName: string;
   phone: string;
   email?: string;
@@ -32,6 +33,11 @@ export const ordersApi = {
   getById: (id: string): Order | undefined => {
     const orders = ordersApi.getAll();
     return orders.find(o => o.id === id);
+  },
+
+  getByUser: (userId: string): Order[] => {
+    const orders = ordersApi.getAll();
+    return orders.filter(o => o.userId === userId);
   },
 
   create: (order: Omit<Order, "id" | "createdAt">): Order => {
