@@ -3,21 +3,27 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { ShoppingCart, Check, ChevronLeft, Star } from "lucide-react";
 import { productsApi } from "../../lib/api";
 import { useCart } from "../../../contexts/CartContext";
+import { RelatedProducts } from "../../../components/RelatedProducts";
+import { ProductReviews } from "../../../components/ProductReviews";
+import { getProducts, Product } from "../../lib/api";
 
 export default function ProductPage() {
   const params = useParams();
-  const [product, setProduct] = useState<any>(null);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const { addItem } = useCart();
 
   useEffect(() => {
+    const products = getProducts();
+    setAllProducts(products);
+    
     if (params.id) {
       const found = productsApi.getById(params.id as string);
-      setProduct(found);
+      setProduct(found || null);
       setLoading(false);
     }
   }, [params.id]);
@@ -54,7 +60,7 @@ export default function ProductPage() {
           </Link>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 md:p-8">
             {/* Image */}
             <div className="bg-gray-100 rounded-lg flex items-center justify-center h-64 md:h-96">
@@ -69,9 +75,9 @@ export default function ProductPage() {
               <div className="flex items-center gap-2 mb-4">
                 <div className="flex items-center gap-1">
                   <Star className="w-5 h-5 text-yellow-400 fill-current" />
-                  <span className="font-medium">{product.rating}</span>
+                  <span className="font-medium">4.8</span>
                 </div>
-                <span className="text-gray-400">({product.reviews} отзывов)</span>
+                <span className="text-gray-400">(12 отзывов)</span>
               </div>
 
               <div className="mb-6">
@@ -86,9 +92,9 @@ export default function ProductPage() {
               </div>
 
               <div className="flex items-center gap-2 mb-6">
-                <Check className={`w-5 h-5 ${product.stock > 0 ? 'text-green-500' : 'text-red-500'}`} />
-                <span className={product.stock > 0 ? 'text-green-600' : 'text-red-600'}>
-                  {product.stock > 0 ? `В наличии (${product.stock} шт)` : 'Нет в наличии'}
+                <Check className={`w-5 h-5 ${product.inStock ? 'text-green-500' : 'text-red-500'}`} />
+                <span className={product.inStock ? 'text-green-600' : 'text-red-600'}>
+                  {product.inStock ? 'В наличии' : 'Нет в наличии'}
                 </span>
               </div>
 
@@ -98,9 +104,9 @@ export default function ProductPage() {
                   name: product.name,
                   price: product.price,
                   image: product.image,
-                  sku: product.sku
+                  sku: product.id
                 })}
-                disabled={product.stock === 0}
+                disabled={!product.inStock}
                 className="w-full md:w-auto px-8 py-4 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 <ShoppingCart className="w-5 h-5" />
@@ -110,32 +116,34 @@ export default function ProductPage() {
               {/* Description */}
               <div className="mt-8 pt-8 border-t">
                 <h2 className="text-lg font-semibold mb-4">Описание</h2>
-                <p className="text-gray-600 leading-relaxed">{product.description}</p>
+                <p className="text-gray-600 leading-relaxed">{product.description || "Описание отсутствует"}</p>
               </div>
 
               {/* Specifications */}
-              <div className="mt-8 pt-8 border-t">
-                <h2 className="text-lg font-semibold mb-4">Характеристики</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {Object.entries(product.specifications).map(([key, value]) => (
-                    <div key={key} className="flex justify-between py-2 border-b border-gray-100">
-                      <span className="text-gray-500">{key}</span>
-                      <span className="font-medium">{value as string}</span>
-                    </div>
-                  ))}
+              {product.specifications && Object.keys(product.specifications).length > 0 && (
+                <div className="mt-8 pt-8 border-t">
+                  <h2 className="text-lg font-semibold mb-4">Характеристики</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {Object.entries(product.specifications).map(([key, value]) => (
+                      <div key={key} className="flex justify-between py-2 border-b border-gray-100">
+                        <span className="text-gray-500">{key}</span>
+                        <span className="font-medium">{value as string}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Compatibility */}
               {product.compatibility && product.compatibility.length > 0 && (
                 <div className="mt-8 pt-8 border-t">
                   <h2 className="text-lg font-semibold mb-4">Совместимость</h2>
                   <div className="space-y-2">
-                    {product.compatibility.map((compat: any, index: number) => (
+                    {product.compatibility.map((compat, index) => (
                       <div key={index} className="bg-gray-50 p-3 rounded-lg">
                         <div className="font-medium">{compat.brand} {compat.model}</div>
                         <div className="text-sm text-gray-500">
-                          {compat.yearFrom}-{compat.yearTo} {compat.engine && `• ${compat.engine}`}
+                          {compat.yearFrom}-{compat.yearTo}
                         </div>
                       </div>
                     ))}
@@ -145,6 +153,14 @@ export default function ProductPage() {
             </div>
           </div>
         </div>
+
+        {/* Reviews */}
+        <div className="mb-8">
+          <ProductReviews productId={product.id} />
+        </div>
+
+        {/* Related Products */}
+        <RelatedProducts products={allProducts} currentProductId={product.id} />
       </div>
     </div>
   );
