@@ -4,12 +4,36 @@ import "./globals.css";
 import { AuthProvider } from "../contexts/AuthContext";
 import { CartProvider } from "../contexts/CartContext";
 import { Header } from "../components/Header";
+import { Footer } from "../components/Footer";
 
 const inter = Inter({ subsets: ["latin", "cyrillic"] });
 
 export const metadata: Metadata = {
-  title: "AutoParts.kz - Интернет-магазин автозапчастей",
-  description: "Широкий выбор автозапчастей с доставкой по Казахстану",
+  title: {
+    default: "AutoParts.kz - Интернет-магазин автозапчастей",
+    template: "%s | AutoParts.kz"
+  },
+  description: "Широкий выбор автозапчастей с доставкой по Казахстану. Моторные масла, фильтры, тормозные системы и многое другое.",
+  keywords: ["автозапчасти", "моторное масло", "фильтры", "тормоза", "доставка", "Казахстан", "Алматы"],
+  authors: [{ name: "AutoParts.kz" }],
+  creator: "AutoParts.kz",
+  metadataBase: new URL("https://autoparts.kz"),
+  openGraph: {
+    type: "website",
+    locale: "ru_RU",
+    url: "https://autoparts.kz",
+    siteName: "AutoParts.kz",
+    title: "AutoParts.kz - Интернет-магазин автозапчастей",
+    description: "Широкий выбор автозапчастей с доставкой по Казахстану",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({
@@ -19,13 +43,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ru">
+      
       <body className={inter.className}>
         <AuthProvider>
-          <CartProvider>
-            <Header />
-            {children}
-          </CartProvider>
-        </AuthProvider>
+  <CartProvider>
+    <Header />
+    {children}
+    <Footer />
+  </CartProvider>
+</AuthProvider>
       </body>
     </html>
   );

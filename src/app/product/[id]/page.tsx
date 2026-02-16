@@ -159,7 +159,7 @@ export default function ProductPage() {
           <ProductReviews productId={product.id} />
         </div>
 
-        {/* Related Products */}
+                {/* Related Products */}
         <RelatedProducts products={allProducts} currentProductId={product.id} />
       </div>
     </div>

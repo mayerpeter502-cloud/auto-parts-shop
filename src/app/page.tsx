@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Search, ChevronLeft, ChevronRight, Car } from "lucide-react";
 import { getProducts, Product } from "./lib/api";
+import { Footer } from "../components/Footer";
 
 const categories = [
   "Моторные масла",
@@ -210,6 +211,12 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      {/* Popular Products */}
+      <section className="py-12 bg-gray-50">
+        {/* ... содержимое ... */}
+      </section>
+
+      <Footer />
     </div>
   );
 }
