@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ProductCard } from "../../components/ProductCard";
+import ProductCard from '../../components/ProductCard'
 import { SearchAutocomplete } from "../../components/SearchAutocomplete";
 import { CarSelector } from "../../components/CarSelector";
 import { getProducts, Product } from "../lib/api";
 import { SlidersHorizontal } from "lucide-react";
+import { Header } from '../../components/Header';
+import { Footer } from '../../components/Footer';
 
 export default function CatalogPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -90,6 +92,7 @@ export default function CatalogPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
+      <Header />
       <main className="flex-1 container mx-auto px-4 py-6">
         {/* Search Bar */}
         <div className="mb-6">
@@ -261,6 +264,7 @@ export default function CatalogPage() {
           </div>
         </div>
       </main>
+      <Footer />
     </div>
   );
 }
