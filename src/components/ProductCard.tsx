@@ -14,16 +14,16 @@ interface Product {
   brand: string;
   category: string;
   inStock: boolean;
+  sku?: string;
   rating?: number;
   reviewsCount?: number;
 }
 
 interface ProductCardProps {
   product: Product;
-  showAddToCart?: boolean;
 }
 
-export default function ProductCard({ product, showAddToCart = true }: ProductCardProps) {
+export default function ProductCard({ product }: ProductCardProps) {
   const discount = product.oldPrice 
     ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100) 
     : 0;
@@ -91,16 +91,9 @@ export default function ProductCard({ product, showAddToCart = true }: ProductCa
             )}
           </div>
 
-          {showAddToCart && product.inStock && (
-            <AddToCartButton
-              productId={product.id}
-              productName={product.name}
-              productPrice={product.price}
-              productImage={product.image}
-            />
-          )}
-          
-          {!product.inStock && (
+          {product.inStock ? (
+            <AddToCartButton product={product} />
+          ) : (
             <button disabled className="w-full py-2 px-4 rounded-lg font-medium bg-gray-100 text-gray-400 cursor-not-allowed">
               Нет в наличии
             </button>

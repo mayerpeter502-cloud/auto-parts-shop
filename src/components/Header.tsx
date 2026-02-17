@@ -4,10 +4,11 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Search, ShoppingCart, User, Menu, X, Car, LogOut, Scale, Heart } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
+import { useCart } from "../contexts/CartContext";
 
 export function Header() {
   const { user, logout } = useAuth();
-  const [cartCount, setCartCount] = useState(0);
+  const { count: cartCount } = useCart();
   const [compareCount, setCompareCount] = useState(0);
   const [favoritesCount, setFavoritesCount] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -15,10 +16,8 @@ export function Header() {
 
   useEffect(() => {
     const updateCounts = () => {
-      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
       const compare = JSON.parse(localStorage.getItem("compare") || "[]");
       const favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
-      setCartCount(cart.reduce((sum: number, item: any) => sum + item.quantity, 0));
       setCompareCount(compare.length);
       setFavoritesCount(favorites.length);
     };
@@ -91,8 +90,8 @@ export function Header() {
             <Link href="/cart" className="relative p-2 text-gray-600 hover:text-blue-600">
               <ShoppingCart className="w-6 h-6" />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                  {cartCount}
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center animate-in zoom-in duration-200">
+                  {cartCount > 99 ? '99+' : cartCount}
                 </span>
               )}
             </Link>
@@ -152,6 +151,9 @@ export function Header() {
             </Link>
             <Link href="/compare" className="block py-2 text-gray-700 hover:text-blue-600">
               Сравнение ({compareCount})
+            </Link>
+            <Link href="/cart" className="block py-2 text-gray-700 hover:text-blue-600">
+              Корзина ({cartCount})
             </Link>
             {user && (
               <Link href="/orders" className="block py-2 text-gray-700 hover:text-blue-600">
