@@ -31,6 +31,9 @@ function CatalogContent() {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const itemsPerPage = 12;
 
+  // Получаем уникальные бренды из товаров
+  const availableBrands = Array.from(new Set(products.map(p => p.brand))).sort();
+
   useEffect(() => {
     const allProducts = getProducts();
     setProducts(allProducts);
@@ -179,18 +182,18 @@ function CatalogContent() {
               </div>
 
               <div className="border-t pt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Бренд</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Бренд ({availableBrands.length})
+                </label>
                 <select
                   value={filters.brand}
                   onChange={(e) => setFilters(prev => ({ ...prev, brand: e.target.value }))}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                 >
                   <option value="">Все бренды</option>
-                  <option value="Castrol">Castrol</option>
-                  <option value="Mobil">Mobil</option>
-                  <option value="Shell">Shell</option>
-                  <option value="Bosch">Bosch</option>
-                  <option value="Mann">Mann-Filter</option>
+                  {availableBrands.map(brand => (
+                    <option key={brand} value={brand}>{brand}</option>
+                  ))}
                 </select>
               </div>
 
