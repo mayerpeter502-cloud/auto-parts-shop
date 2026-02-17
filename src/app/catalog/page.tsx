@@ -1,21 +1,25 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import ProductCard from '../../components/ProductCard'
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import ProductCard from '../../components/ProductCard';
 import { SearchAutocomplete } from "../../components/SearchAutocomplete";
 import { CarSelector } from "../../components/CarSelector";
 import { getProducts, Product } from "../lib/api";
 import { SlidersHorizontal } from "lucide-react";
-import { Header } from '../../components/Header';
-import { Footer } from '../../components/Footer';
+import { Header } from "../../components/Header";
+import { Footer } from "../../components/Footer";
 
-export default function CatalogPage() {
+function CatalogContent() {
+  const searchParams = useSearchParams();
+  const categoryFromUrl = searchParams.get('category');
+  
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({
-    category: "",
+    category: categoryFromUrl || "",
     brand: "",
     minPrice: "",
     maxPrice: "",
@@ -32,6 +36,12 @@ export default function CatalogPage() {
     setProducts(allProducts);
     setFilteredProducts(allProducts);
   }, []);
+
+  useEffect(() => {
+    if (categoryFromUrl) {
+      setFilters(prev => ({ ...prev, category: categoryFromUrl }));
+    }
+  }, [categoryFromUrl]);
 
   useEffect(() => {
     let result = products;
@@ -94,7 +104,6 @@ export default function CatalogPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
       <main className="flex-1 container mx-auto px-4 py-6">
-        {/* Search Bar */}
         <div className="mb-6">
           <SearchAutocomplete
             value={searchQuery}
@@ -221,7 +230,19 @@ export default function CatalogPage() {
 
           <div className="flex-1">
             <div className="flex items-center justify-between mb-4">
-              <h1 className="text-xl font-bold text-gray-900">Каталог</h1>
+              <h1 className="text-xl font-bold text-gray-900">
+                {filters.category ? 
+                  {
+                    oil: "Моторные масла",
+                    filter: "Фильтры", 
+                    brake: "Тормозные системы",
+                    suspension: "Подвеска",
+                    electrical: "Электрика",
+                    engine: "Двигатель"
+                  }[filters.category] || "Каталог" 
+                  : "Каталог"
+                }
+              </h1>
               <span className="text-sm text-gray-500">{filteredProducts.length} товаров</span>
             </div>
 
@@ -266,5 +287,13 @@ export default function CatalogPage() {
       </main>
       <Footer />
     </div>
+  );
+}
+
+export default function CatalogPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Загрузка...</div>}>
+      <CatalogContent />
+    </Suspense>
   );
 }
