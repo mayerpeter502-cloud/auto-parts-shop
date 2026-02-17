@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Plus, Edit, Trash2, Search, Upload, X } from "lucide-react";
 import Image from "next/image";
-import { getProducts, Product } from "../../lib/api";
+import { productsApi, Product } from "../../lib/api";
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -17,49 +17,61 @@ export default function AdminProductsPage() {
     brand: "",
     category: "oil",
     inStock: true,
-    image: "",
+    images: [] as string[],
     description: ""
   });
-  const [previewImage, setPreviewImage] = useState("");
 
   useEffect(() => {
-    setProducts(getProducts());
+    setProducts(productsApi.getAll());
   }, []);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const result = reader.result as string;
-        setPreviewImage(result);
-        setFormData(prev => ({ ...prev, image: result }));
-      };
-      reader.readAsDataURL(file);
+    const files = e.target.files;
+    if (files) {
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const result = reader.result as string;
+          setFormData(prev => ({
+            ...prev,
+            images: [...prev.images, result]
+          }));
+        };
+        reader.readAsDataURL(file);
+      });
     }
+  };
+
+  const removeImage = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const newProduct: Product = {
-      id: editingProduct?.id || Date.now().toString(),
+    const productData = {
       name: formData.name,
       price: Number(formData.price),
       oldPrice: formData.oldPrice ? Number(formData.oldPrice) : undefined,
       brand: formData.brand,
       category: formData.category,
       inStock: formData.inStock,
-      image: formData.image || "https://via.placeholder.com/300x300?text=No+Image",
+      image: formData.images[0] || "https://via.placeholder.com/300x300?text=No+Image",
+      images: formData.images,
+      description: formData.description,
       rating: 0,
       reviewsCount: 0
     };
 
     if (editingProduct) {
-      setProducts(products.map(p => p.id === editingProduct.id ? newProduct : p));
+      productsApi.update(editingProduct.id, productData);
     } else {
-      setProducts([...products, newProduct]);
+      productsApi.create(productData);
     }
 
+    setProducts(productsApi.getAll());
     setIsModalOpen(false);
     setEditingProduct(null);
     setFormData({
@@ -69,10 +81,9 @@ export default function AdminProductsPage() {
       brand: "",
       category: "oil",
       inStock: true,
-      image: "",
+      images: [],
       description: ""
     });
-    setPreviewImage("");
   };
 
   const handleEdit = (product: Product) => {
@@ -84,16 +95,16 @@ export default function AdminProductsPage() {
       brand: product.brand,
       category: product.category,
       inStock: product.inStock,
-      image: product.image,
-      description: ""
+      images: product.images || [product.image],
+      description: product.description || ""
     });
-    setPreviewImage(product.image);
     setIsModalOpen(true);
   };
 
   const handleDelete = (id: string) => {
     if (confirm("Удалить товар?")) {
-      setProducts(products.filter(p => p.id !== id));
+      productsApi.delete(id);
+      setProducts(productsApi.getAll());
     }
   };
 
@@ -116,10 +127,9 @@ export default function AdminProductsPage() {
               brand: "",
               category: "oil",
               inStock: true,
-              image: "",
+              images: [],
               description: ""
             });
-            setPreviewImage("");
             setIsModalOpen(true);
           }}
           className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -216,29 +226,49 @@ export default function AdminProductsPage() {
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Фото товара</label>
-                <div className="flex items-center gap-4">
-                  {previewImage && (
-                    <div className="w-24 h-24 bg-gray-100 rounded-lg relative overflow-hidden">
-                      <Image
-                        src={previewImage}
-                        alt="Preview"
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  )}
-                  <label className="flex items-center gap-2 px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 cursor-pointer transition-colors">
-                    <Upload className="w-5 h-5 text-gray-400" />
-                    <span className="text-sm text-gray-600">Загрузить фото</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Фото товара ({formData.images.length})
+                </label>
+                
+                {formData.images.length > 0 && (
+                  <div className="flex flex-wrap gap-3 mb-3">
+                    {formData.images.map((img, index) => (
+                      <div key={index} className="relative w-20 h-20 bg-gray-100 rounded-lg overflow-hidden group">
+                        <Image
+                          src={img}
+                          alt={`Фото ${index + 1}`}
+                          fill
+                          className="object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                        {index === 0 && (
+                          <span className="absolute bottom-0 left-0 right-0 bg-blue-600 text-white text-xs text-center py-0.5">
+                            Главное
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <label className="flex items-center gap-2 px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 cursor-pointer transition-colors w-fit">
+                  <Upload className="w-5 h-5 text-gray-400" />
+                  <span className="text-sm text-gray-600">Добавить фото</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                </label>
+                <p className="text-xs text-gray-500 mt-1">Первое фото будет главным</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -276,7 +306,7 @@ export default function AdminProductsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Старая цена (необязательно)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Старая цена</label>
                   <input
                     type="number"
                     value={formData.oldPrice}
