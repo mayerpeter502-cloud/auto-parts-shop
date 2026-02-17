@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { Heart, Scale } from 'lucide-react';
@@ -28,7 +30,6 @@ export default function ProductCard({ product, showAddToCart = true }: ProductCa
 
   return (
     <div className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col">
-      {/* Изображение */}
       <Link href={`/product/${product.id}`} className="relative block aspect-square bg-gray-50">
         <Image
           src={product.image}
@@ -49,7 +50,6 @@ export default function ProductCard({ product, showAddToCart = true }: ProductCa
           </div>
         )}
         
-        {/* Кнопки избранного и сравнения */}
         <div className="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <button className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50 text-gray-400 hover:text-red-500 transition-colors">
             <Heart size={16} />
@@ -60,7 +60,6 @@ export default function ProductCard({ product, showAddToCart = true }: ProductCa
         </div>
       </Link>
 
-      {/* Контент */}
       <div className="p-4 flex flex-col flex-grow">
         <span className="text-xs text-gray-500 mb-1">{product.brand}</span>
         <Link href={`/product/${product.id}`}>
@@ -69,7 +68,6 @@ export default function ProductCard({ product, showAddToCart = true }: ProductCa
           </h3>
         </Link>
         
-        {/* Рейтинг */}
         {product.rating && (
           <div className="flex items-center gap-1 mb-2">
             <div className="flex text-yellow-400 text-xs">
@@ -81,7 +79,6 @@ export default function ProductCard({ product, showAddToCart = true }: ProductCa
           </div>
         )}
 
-        {/* Цена */}
         <div className="mt-auto">
           <div className="flex items-baseline gap-2 mb-3">
             <span className="text-lg sm:text-xl font-bold text-gray-900">
