@@ -4,11 +4,10 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Search, ShoppingCart, User, Menu, X, Car, LogOut, Scale, Heart } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
-import { useCart } from "../contexts/CartContext";
 
 export function Header() {
   const { user, logout } = useAuth();
-  const { count: cartCount } = useCart();
+  const [cartCount, setCartCount] = useState(0);
   const [compareCount, setCompareCount] = useState(0);
   const [favoritesCount, setFavoritesCount] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -16,15 +15,26 @@ export function Header() {
 
   useEffect(() => {
     const updateCounts = () => {
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
       const compare = JSON.parse(localStorage.getItem("compare") || "[]");
       const favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
+      setCartCount(cart.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0));
       setCompareCount(compare.length);
       setFavoritesCount(favorites.length);
     };
     
     updateCounts();
     window.addEventListener("storage", updateCounts);
-    return () => window.removeEventListener("storage", updateCounts);
+    window.addEventListener("cartUpdated", updateCounts);
+    window.addEventListener("compareUpdated", updateCounts);
+    window.addEventListener("favoritesUpdated", updateCounts);
+    
+    return () => {
+      window.removeEventListener("storage", updateCounts);
+      window.removeEventListener("cartUpdated", updateCounts);
+      window.removeEventListener("compareUpdated", updateCounts);
+      window.removeEventListener("favoritesUpdated", updateCounts);
+    };
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -90,22 +100,19 @@ export function Header() {
             <Link href="/cart" className="relative p-2 text-gray-600 hover:text-blue-600">
               <ShoppingCart className="w-6 h-6" />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center animate-in zoom-in duration-200">
-                  {cartCount > 99 ? '99+' : cartCount}
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                  {cartCount}
                 </span>
               )}
             </Link>
 
             {user ? (
-              <div className="flex items-center gap-2">
-                <span className="text-sm hidden md:block text-gray-700">{user.name}</span>
-                <button 
-                  onClick={logout}
-                  className="p-2 text-gray-600 hover:text-red-600 flex items-center gap-1"
-                >
-                  <LogOut className="w-5 h-5" />
-                </button>
-              </div>
+              <Link href="/orders" className="flex items-center gap-2 p-2 text-gray-600 hover:text-blue-600">
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                  <User className="w-5 h-5 text-blue-600" />
+                </div>
+                <span className="hidden md:block text-sm font-medium">{user.name}</span>
+              </Link>
             ) : (
               <Link href="/login" className="p-2 text-gray-600 hover:text-blue-600">
                 <User className="w-6 h-6" />
@@ -152,12 +159,21 @@ export function Header() {
             <Link href="/compare" className="block py-2 text-gray-700 hover:text-blue-600">
               Сравнение ({compareCount})
             </Link>
-            <Link href="/cart" className="block py-2 text-gray-700 hover:text-blue-600">
-              Корзина ({cartCount})
-            </Link>
-            {user && (
-              <Link href="/orders" className="block py-2 text-gray-700 hover:text-blue-600">
-                Мои заказы
+            {user ? (
+              <>
+                <Link href="/orders" className="block py-2 text-gray-700 hover:text-blue-600">
+                  Мои заказы
+                </Link>
+                <button 
+                  onClick={logout}
+                  className="block w-full text-left py-2 text-red-600 hover:text-red-700"
+                >
+                  Выйти
+                </button>
+              </>
+            ) : (
+              <Link href="/login" className="block py-2 text-gray-700 hover:text-blue-600">
+                Войти
               </Link>
             )}
             {user?.isAdmin && (

@@ -2,7 +2,8 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Heart, Scale } from 'lucide-react';
+import { Heart, Scale, Check } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import AddToCartButton from './AddToCartButton';
 
 interface Product {
@@ -24,6 +25,70 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
+  const [isInCompare, setIsInCompare] = useState(false);
+  const [isInFavorites, setIsInFavorites] = useState(false);
+
+  useEffect(() => {
+    const compare = JSON.parse(localStorage.getItem('compare') || '[]');
+    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    setIsInCompare(compare.some((item: any) => item.id === product.id));
+    setIsInFavorites(favorites.some((item: any) => item.id === product.id));
+  }, [product.id]);
+
+  const toggleCompare = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const compare = JSON.parse(localStorage.getItem('compare') || '[]');
+    const existingIndex = compare.findIndex((item: any) => item.id === product.id);
+    
+    if (existingIndex > -1) {
+      compare.splice(existingIndex, 1);
+      setIsInCompare(false);
+    } else {
+      if (compare.length >= 4) {
+        alert('Максимум 4 товара для сравнения');
+        return;
+      }
+      compare.push({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        brand: product.brand
+      });
+      setIsInCompare(true);
+    }
+    
+    localStorage.setItem('compare', JSON.stringify(compare));
+    window.dispatchEvent(new CustomEvent('compareUpdated'));
+  };
+
+  const toggleFavorite = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    const existingIndex = favorites.findIndex((item: any) => item.id === product.id);
+    
+    if (existingIndex > -1) {
+      favorites.splice(existingIndex, 1);
+      setIsInFavorites(false);
+    } else {
+      favorites.push({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        brand: product.brand
+      });
+      setIsInFavorites(true);
+    }
+    
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+    window.dispatchEvent(new CustomEvent('favoritesUpdated'));
+  };
+
   const discount = product.oldPrice 
     ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100) 
     : 0;
@@ -50,12 +115,28 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
         )}
         
-        <div className="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-          <button className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50 text-gray-400 hover:text-red-500 transition-colors">
-            <Heart size={16} />
+        <div className="absolute top-2 right-2 flex flex-col gap-2">
+          <button
+            onClick={toggleFavorite}
+            className={`p-2 rounded-full shadow-md transition-all duration-200 ${
+              isInFavorites 
+                ? 'bg-red-500 text-white' 
+                : 'bg-white text-gray-400 hover:text-red-500'
+            }`}
+            title={isInFavorites ? 'В избранном' : 'В избранное'}
+          >
+            <Heart size={16} className={isInFavorites ? 'fill-current' : ''} />
           </button>
-          <button className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50 text-gray-400 hover:text-blue-500 transition-colors">
-            <Scale size={16} />
+          <button
+            onClick={toggleCompare}
+            className={`p-2 rounded-full shadow-md transition-all duration-200 ${
+              isInCompare 
+                ? 'bg-blue-500 text-white' 
+                : 'bg-white text-gray-400 hover:text-blue-500'
+            }`}
+            title={isInCompare ? 'В сравнении' : 'Сравнить'}
+          >
+            {isInCompare ? <Check size={16} /> : <Scale size={16} />}
           </button>
         </div>
       </Link>
