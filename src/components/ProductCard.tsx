@@ -28,6 +28,9 @@ export default function ProductCard({ product }: ProductCardProps) {
   const [isInCompare, setIsInCompare] = useState(false);
   const [isInFavorites, setIsInFavorites] = useState(false);
 
+  // Проверка что приходит в product
+  console.log('ProductCard product:', product.id, product.name, product.image?.substring(0, 50));
+
   useEffect(() => {
     const compare = JSON.parse(localStorage.getItem('compare') || '[]');
     const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
@@ -93,11 +96,14 @@ export default function ProductCard({ product }: ProductCardProps) {
     ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100) 
     : 0;
 
+  // Если нет image, показываем заглушку
+  const imageUrl = product.image || 'https://via.placeholder.com/300x300?text=No+Image';
+
   return (
     <div className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col">
       <Link href={`/product/${product.id}`} className="relative block aspect-square bg-gray-50">
         <Image
-          src={product.image}
+          src={imageUrl}
           alt={product.name}
           fill
           className="object-contain p-4 group-hover:scale-105 transition-transform duration-300"
@@ -173,7 +179,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
 
           {product.inStock ? (
-            <AddToCartButton product={product} />
+            <AddToCartButton product={{...product, image: imageUrl}} />
           ) : (
             <button disabled className="w-full py-2 px-4 rounded-lg font-medium bg-gray-100 text-gray-400 cursor-not-allowed">
               Нет в наличии

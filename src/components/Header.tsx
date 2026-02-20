@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Search, ShoppingCart, User, Menu, X, Car, LogOut, Scale, Heart } from "lucide-react";
+import { Search, ShoppingCart, User, Menu, X, Car, Scale, Heart } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 
 export function Header() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [cartCount, setCartCount] = useState(0);
   const [compareCount, setCompareCount] = useState(0);
   const [favoritesCount, setFavoritesCount] = useState(0);
@@ -160,17 +160,9 @@ export function Header() {
               Сравнение ({compareCount})
             </Link>
             {user ? (
-              <>
-                <Link href="/orders" className="block py-2 text-gray-700 hover:text-blue-600">
-                  Мои заказы
-                </Link>
-                <button 
-                  onClick={logout}
-                  className="block w-full text-left py-2 text-red-600 hover:text-red-700"
-                >
-                  Выйти
-                </button>
-              </>
+              <Link href="/orders" className="block py-2 text-gray-700 hover:text-blue-600">
+                Мои заказы
+              </Link>
             ) : (
               <Link href="/login" className="block py-2 text-gray-700 hover:text-blue-600">
                 Войти

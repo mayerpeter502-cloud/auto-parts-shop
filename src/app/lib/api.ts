@@ -29,8 +29,8 @@ const defaultProducts: Product[] = [
     price: 18500,
     oldPrice: 22000,
     inStock: true,
-    image: "https://via.placeholder.com/300x300/2563eb/ffffff?text=Castrol+5W30",
-    images: ["https://via.placeholder.com/300x300/2563eb/ffffff?text=Castrol+5W30"],
+    image: "https://dummyimage.com/300x300/2563eb/ffffff&text=Castrol+5W30",
+    images: ["https://dummyimage.com/300x300/2563eb/ffffff&text=Castrol+5W30"],
     description: "Синтетическое моторное масло премиум класса",
     compatibility: [
       { brand: "Toyota", model: "Camry", yearFrom: 2010, yearTo: 2024 },
@@ -51,8 +51,8 @@ const defaultProducts: Product[] = [
     category: "oil",
     price: 21000,
     inStock: true,
-    image: "https://via.placeholder.com/300x300/dc2626/ffffff?text=Mobil+0W40",
-    images: ["https://via.placeholder.com/300x300/dc2626/ffffff?text=Mobil+0W40"],
+    image: "https://dummyimage.com/300x300/dc2626/ffffff&text=Mobil+0W40",
+    images: ["https://dummyimage.com/300x300/dc2626/ffffff&text=Mobil+0W40"],
     compatibility: [
       { brand: "Mercedes", model: "E-Class", yearFrom: 2012, yearTo: 2024 },
       { brand: "Audi", model: "A6", yearFrom: 2015, yearTo: 2024 }
@@ -72,8 +72,8 @@ const defaultProducts: Product[] = [
     category: "filter",
     price: 2500,
     inStock: true,
-    image: "https://via.placeholder.com/300x300/059669/ffffff?text=Bosch+Filter",
-    images: ["https://via.placeholder.com/300x300/059669/ffffff?text=Bosch+Filter"],
+    image: "https://dummyimage.com/300x300/059669/ffffff&text=Bosch+Filter",
+    images: ["https://dummyimage.com/300x300/059669/ffffff&text=Bosch+Filter"],
     compatibility: [
       { brand: "Volkswagen", model: "Golf", yearFrom: 2010, yearTo: 2020 },
       { brand: "Audi", model: "A3", yearFrom: 2012, yearTo: 2020 }
@@ -93,8 +93,8 @@ const defaultProducts: Product[] = [
     price: 3200,
     oldPrice: 3800,
     inStock: true,
-    image: "https://via.placeholder.com/300x300/7c3aed/ffffff?text=Mann+Air",
-    images: ["https://via.placeholder.com/300x300/7c3aed/ffffff?text=Mann+Air"],
+    image: "https://dummyimage.com/300x300/7c3aed/ffffff&text=Mann+Air",
+    images: ["https://dummyimage.com/300x300/7c3aed/ffffff&text=Mann+Air"],
     compatibility: [
       { brand: "Toyota", model: "Corolla", yearFrom: 2008, yearTo: 2018 },
       { brand: "Toyota", model: "RAV4", yearFrom: 2006, yearTo: 2012 }
@@ -113,8 +113,8 @@ const defaultProducts: Product[] = [
     category: "brake",
     price: 15800,
     inStock: true,
-    image: "https://via.placeholder.com/300x300/dc2626/ffffff?text=Brembo+Brake",
-    images: ["https://via.placeholder.com/300x300/dc2626/ffffff?text=Brembo+Brake"],
+    image: "https://dummyimage.com/300x300/dc2626/ffffff&text=Brembo+Brake",
+    images: ["https://dummyimage.com/300x300/dc2626/ffffff&text=Brembo+Brake"],
     compatibility: [
       { brand: "BMW", model: "3 Series", yearFrom: 2012, yearTo: 2019 },
       { brand: "BMW", model: "5 Series", yearFrom: 2010, yearTo: 2017 }
@@ -133,8 +133,8 @@ const defaultProducts: Product[] = [
     category: "brake",
     price: 12500,
     inStock: false,
-    image: "https://via.placeholder.com/300x300/4b5563/ffffff?text=ATE+Disc",
-    images: ["https://via.placeholder.com/300x300/4b5563/ffffff?text=ATE+Disc"],
+    image: "https://dummyimage.com/300x300/4b5563/ffffff&text=ATE+Disc",
+    images: ["https://dummyimage.com/300x300/4b5563/ffffff&text=ATE+Disc"],
     compatibility: [
       { brand: "Mercedes", model: "C-Class", yearFrom: 2014, yearTo: 2021 }
     ],
@@ -152,8 +152,8 @@ const defaultProducts: Product[] = [
     category: "suspension",
     price: 18900,
     inStock: true,
-    image: "https://via.placeholder.com/300x300/2563eb/ffffff?text=KYB+Shock",
-    images: ["https://via.placeholder.com/300x300/2563eb/ffffff?text=KYB+Shock"],
+    image: "https://dummyimage.com/300x300/2563eb/ffffff&text=KYB+Shock",
+    images: ["https://dummyimage.com/300x300/2563eb/ffffff&text=KYB+Shock"],
     compatibility: [
       { brand: "Honda", model: "Civic", yearFrom: 2006, yearTo: 2011 },
       { brand: "Honda", model: "Accord", yearFrom: 2008, yearTo: 2012 }
@@ -172,8 +172,8 @@ const defaultProducts: Product[] = [
     category: "electrical",
     price: 1200,
     inStock: true,
-    image: "https://via.placeholder.com/300x300/f59e0b/ffffff?text=NGK+Spark",
-    images: ["https://via.placeholder.com/300x300/f59e0b/ffffff?text=NGK+Spark"],
+    image: "https://dummyimage.com/300x300/f59e0b/ffffff&text=NGK+Spark",
+    images: ["https://dummyimage.com/300x300/f59e0b/ffffff&text=NGK+Spark"],
     compatibility: [
       { brand: "Toyota", model: "Avensis", yearFrom: 2003, yearTo: 2008 },
       { brand: "Mazda", model: "6", yearFrom: 2002, yearTo: 2008 }
@@ -193,8 +193,8 @@ const defaultProducts: Product[] = [
     price: 45000,
     oldPrice: 52000,
     inStock: true,
-    image: "https://via.placeholder.com/300x300/1e40af/ffffff?text=Varta+60Ah",
-    images: ["https://via.placeholder.com/300x300/1e40af/ffffff?text=Varta+60Ah"],
+    image: "https://dummyimage.com/300x300/1e40af/ffffff&text=Varta+60Ah",
+    images: ["https://dummyimage.com/300x300/1e40af/ffffff&text=Varta+60Ah"],
     compatibility: [
       { brand: "Universal", model: "All", yearFrom: 2000, yearTo: 2024 }
     ],
@@ -213,8 +213,8 @@ const defaultProducts: Product[] = [
     category: "engine",
     price: 8900,
     inStock: true,
-    image: "https://via.placeholder.com/300x300/374151/ffffff?text=Gates+Belt",
-    images: ["https://via.placeholder.com/300x300/374151/ffffff?text=Gates+Belt"],
+    image: "https://dummyimage.com/300x300/374151/ffffff&text=Gates+Belt",
+    images: ["https://dummyimage.com/300x300/374151/ffffff&text=Gates+Belt"],
     compatibility: [
       { brand: "Volkswagen", model: "Polo", yearFrom: 2010, yearTo: 2020 },
       { brand: "Skoda", model: "Fabia", yearFrom: 2010, yearTo: 2014 }
@@ -233,8 +233,8 @@ const defaultProducts: Product[] = [
     category: "oil",
     price: 19500,
     inStock: true,
-    image: "https://via.placeholder.com/300x300/fbbf24/ffffff?text=Shell+5W40",
-    images: ["https://via.placeholder.com/300x300/fbbf24/ffffff?text=Shell+5W40"],
+    image: "https://dummyimage.com/300x300/fbbf24/ffffff&text=Shell+5W40",
+    images: ["https://dummyimage.com/300x300/fbbf24/ffffff&text=Shell+5W40"],
     compatibility: [
       { brand: "Hyundai", model: "Solaris", yearFrom: 2010, yearTo: 2024 },
       { brand: "Kia", model: "Rio", yearFrom: 2011, yearTo: 2024 }
@@ -254,8 +254,8 @@ const defaultProducts: Product[] = [
     category: "filter",
     price: 4500,
     inStock: true,
-    image: "https://via.placeholder.com/300x300/0891b2/ffffff?text=Delphi+Fuel",
-    images: ["https://via.placeholder.com/300x300/0891b2/ffffff?text=Delphi+Fuel"],
+    image: "https://dummyimage.com/300x300/0891b2/ffffff&text=Delphi+Fuel",
+    images: ["https://dummyimage.com/300x300/0891b2/ffffff&text=Delphi+Fuel"],
     compatibility: [
       { brand: "Ford", model: "Focus", yearFrom: 2008, yearTo: 2011 },
       { brand: "Ford", model: "Mondeo", yearFrom: 2007, yearTo: 2014 }
@@ -269,7 +269,7 @@ const defaultProducts: Product[] = [
   }
 ];
 
-const PRODUCTS_KEY = 'autoparts_products';
+const PRODUCTS_KEY = 'autoparts_products_v2';
 
 // Инициализация localStorage при первом запуске
 const initStorage = () => {

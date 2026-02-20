@@ -4,14 +4,16 @@ import { useState } from 'react';
 import { ShoppingCart, Check } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  sku?: string;
+}
+
 interface AddToCartButtonProps {
-  product: {
-    id: string;
-    name: string;
-    price: number;
-    image?: string;
-    sku?: string;
-  };
+  product: Product;
   compact?: boolean;
 }
 
@@ -27,7 +29,7 @@ export default function AddToCartButton({ product, compact = false }: AddToCartB
       id: product.id,
       name: product.name,
       price: product.price,
-      image: product.image || '',
+      image: product.image || 'https://via.placeholder.com/300x300?text=No+Image',
       sku: product.sku || '',
       quantity: 1
     });

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Package, Truck, CheckCircle, Clock, ChevronRight, RotateCcw, X } from "lucide-react";
+import { Package, Truck, CheckCircle, Clock, ChevronRight, RotateCcw, X, LogOut, User } from "lucide-react";
 import { Header } from "../../components/Header";
 import { Footer } from "../../components/Footer";
 import { ordersApi } from "../lib/orders";
@@ -13,7 +13,7 @@ import { useCart } from "../../contexts/CartContext";
 export default function OrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { addItem } = useCart();
 
   useEffect(() => {
@@ -57,6 +57,11 @@ export default function OrdersPage() {
     window.location.href = '/cart';
   };
 
+  const handleLogout = () => {
+    logout();
+    window.location.href = '/';
+  };
+
   if (!user) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -77,7 +82,29 @@ export default function OrdersPage() {
       <Header />
       <main className="flex-1 py-8">
         <div className="container mx-auto px-4 max-w-4xl">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">Мои заказы</h1>
+          {/* Профиль пользователя с выходом */}
+          <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                  <User className="w-8 h-8 text-blue-600" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">{user.name}</h1>
+                  <p className="text-gray-500">{user.email}</p>
+                </div>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+              >
+                <LogOut className="w-5 h-5" />
+                <span className="hidden sm:inline">Выйти</span>
+              </button>
+            </div>
+          </div>
+
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Мои заказы</h2>
           
           {orders.length === 0 ? (
             <div className="bg-white rounded-xl shadow-sm p-12 text-center">
