@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { ChevronRight, Car, Search, CheckCircle2 } from 'lucide-react';
-import { productApi } from '@/app/lib/api';
+import { productsApi } from '@/app/lib/api';
 import Image from 'next/image';
 
 const carDatabase = {
@@ -196,13 +196,13 @@ export default function CarSelectorPage() {
               
               <div className="flex items-center gap-2 text-green-600 bg-green-50 p-3 rounded-lg">
                 <CheckCircle2 className="w-5 h-5" />
-                <span>Найдено {productApi.getAll().length} совместимых запчастей</span>
+                <span>Найдено {productsApi.getAll().length} совместимых запчастей</span>
               </div>
             </div>
 
             {/* Список товаров */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {productApi.getAll().map((part) => (
+              {productsApi.getAll().map((part) => (
                 <Link
                   key={part.id}
                   href={`/product/${part.id}`}

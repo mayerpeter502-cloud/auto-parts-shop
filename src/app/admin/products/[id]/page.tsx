@@ -10,14 +10,14 @@ import { useAdmin } from '@/hooks/useAdmin';
 export default function EditProductPage() {
   const params = useParams();
   const router = useRouter();
-  const { isAdmin, loading: adminLoading } = useAdmin();
+  const { isAdmin } = useAdmin();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [product, setProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState<Partial<Product>>({});
 
   useEffect(() => {
-    if (!adminLoading && !isAdmin) {
+    if (!isAdmin) {
       router.push('/login');
       return;
     }
@@ -29,7 +29,7 @@ export default function EditProductPage() {
       setFormData(found);
     }
     setLoading(false);
-  }, [params.id, isAdmin, adminLoading, router]);
+  }, [params.id, isAdmin, router]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -57,7 +57,7 @@ export default function EditProductPage() {
     }
   };
 
-  if (adminLoading || loading) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>

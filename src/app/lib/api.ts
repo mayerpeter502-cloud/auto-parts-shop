@@ -348,3 +348,5 @@ export const productsApi = {
   update: updateProduct,
   delete: deleteProduct
 };
+// Для обратной совместимости
+export const productApi = productsApi;
