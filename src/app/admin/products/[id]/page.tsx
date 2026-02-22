@@ -174,13 +174,13 @@ export default function EditProductPage() {
                   Наличие
                 </label>
                 <select
-                  value={formData.inStock ? 'true' : 'false'}
-                  onChange={(e) => setFormData(prev => ({ ...prev, inStock: e.target.value === 'true' }))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="true">В наличии</option>
-                  <option value="false">Нет в наличии</option>
-                </select>
+  value={formData.inStock !== false ? 'true' : 'false'}  // ✅ Исправлено
+  onChange={(e) => setFormData(prev => ({ ...prev, inStock: e.target.value === 'true' }))}
+  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+>
+  <option value="true">В наличии</option>
+  <option value="false">Нет в наличии</option>
+</select>
               </div>
 
               <div>
