@@ -95,7 +95,7 @@ export default function AdminProductsPage() {
       brand: product.brand,
       category: product.category,
       inStock: product.inStock,
-      images: product.images || [product.image],
+      images: product.images?.length ? product.images : product.image ? [product.image] : [],
       description: product.description || ""
     });
     setIsModalOpen(true);
@@ -170,13 +170,19 @@ export default function AdminProductsPage() {
                 <tr key={product.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3">
                     <div className="w-12 h-12 bg-gray-100 rounded relative overflow-hidden">
-                      <Image
-                        src={product.image}
-                        alt={product.name}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
+  {product.image ? (
+    <Image
+      src={product.image}
+      alt={product.name}
+      fill
+      className="object-cover"
+    />
+  ) : (
+    <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+      Нет фото
+    </div>
+  )}
+</div>
                   </td>
                   <td className="px-4 py-3 font-medium">{product.name}</td>
                   <td className="px-4 py-3 text-gray-600">{product.brand}</td>

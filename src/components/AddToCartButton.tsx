@@ -1,5 +1,4 @@
 'use client';
-
 import { useState } from 'react';
 import { ShoppingCart, Check } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
@@ -31,9 +30,8 @@ export default function AddToCartButton({ product, compact = false }: AddToCartB
       price: product.price,
       image: product.image || 'https://via.placeholder.com/300x300?text=No+Image',
       sku: product.sku || '',
-      quantity: 1
+      // quantity автоматически устанавливается в 1 функцией addItem
     });
-    
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 1500);
   };
@@ -56,20 +54,18 @@ export default function AddToCartButton({ product, compact = false }: AddToCartB
     <button
       onClick={handleAdd}
       className={`w-full py-2 px-4 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
-        isAdded
-          ? 'bg-green-500 text-white'
-          : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95'
+        isAdded ? 'bg-green-500 text-white' : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95'
       }`}
     >
       {isAdded ? (
         <>
           <Check size={18} />
-          <span>Добавлено ({quantity + 1})</span>
+          Добавлено ({quantity + 1})
         </>
       ) : (
         <>
           <ShoppingCart size={18} />
-          <span>{quantity > 0 ? `В корзине (${quantity})` : 'В корзину'}</span>
+          {quantity > 0 ? `В корзине (${quantity})` : 'В корзину'}
         </>
       )}
     </button>

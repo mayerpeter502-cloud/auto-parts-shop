@@ -1,11 +1,11 @@
 'use client';
-
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Save, Upload, X } from 'lucide-react';
 import { Product } from '@/types';
 import { productApi } from '@/lib/api/products';
 import { useAdmin } from '@/hooks/useAdmin';
+import Image from 'next/image';
 
 export default function EditProductPage() {
   const params = useParams();
@@ -14,14 +14,15 @@ export default function EditProductPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [product, setProduct] = useState<Product | null>(null);
-  const [formData, setFormData] = useState<Partial<Product>>({});
+  const [formData, setFormData] = useState<Partial<Product>>({
+    stock: 0
+  });
 
   useEffect(() => {
     if (!isAdmin) {
       router.push('/login');
       return;
     }
-    
     const id = params.id as string;
     const found = productApi.getById(id);
     if (found) {
@@ -45,7 +46,6 @@ export default function EditProductPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!product) return;
-    
     setSaving(true);
     try {
       const updated = productApi.update(product.id, formData);
@@ -60,7 +60,7 @@ export default function EditProductPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="text-gray-500">Загрузка...</div>
       </div>
     );
   }
@@ -70,8 +70,8 @@ export default function EditProductPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 py-6">
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-4xl mx-auto px-4">
         <button
           onClick={() => router.push('/admin')}
           className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
@@ -84,6 +84,43 @@ export default function EditProductPage() {
           <h1 className="text-2xl font-bold text-gray-900 mb-6">Редактирование товара</h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Изображение */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Изображение
+              </label>
+              <div className="flex items-center gap-4">
+                {formData.image && (
+                  <div className="relative">
+                    <Image 
+                      src={formData.image}
+                      alt="Preview"
+                      width={128}
+                      height={128}
+                      className="w-32 h-32 object-cover rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, image: undefined }))}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+                <label className="flex items-center gap-2 px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+                  <Upload className="w-5 h-5 text-gray-400" />
+                  <span className="text-sm text-gray-600">Загрузить фото</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -171,16 +208,16 @@ export default function EditProductPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Наличие
+                  Количество на складе *
                 </label>
-                <select
-  value={formData.inStock !== false ? 'true' : 'false'}  // ✅ Исправлено
-  onChange={(e) => setFormData(prev => ({ ...prev, inStock: e.target.value === 'true' }))}
-  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
->
-  <option value="true">В наличии</option>
-  <option value="false">Нет в наличии</option>
-</select>
+                <input
+                  type="number"
+                  min="0"
+                  value={formData.stock || 0}
+                  onChange={(e) => setFormData(prev => ({ ...prev, stock: Number(e.target.value) }))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                />
               </div>
 
               <div>
@@ -208,74 +245,6 @@ export default function EditProductPage() {
                 rows={4}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Характеристики (JSON)
-              </label>
-              <textarea
-                value={JSON.stringify(formData.specifications || {}, null, 2)}
-                onChange={(e) => {
-                  try {
-                    const specs = JSON.parse(e.target.value);
-                    setFormData(prev => ({ ...prev, specifications: specs }));
-                  } catch {}
-                }}
-                rows={4}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
-                placeholder='{"Объем": "4L", "Вязкость": "5W-30"}'
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Совместимость (марки авто)
-              </label>
-              <input
-                type="text"
-                value={(formData.compatibility || []).join(', ')}
-                onChange={(e) => setFormData(prev => ({ 
-                  ...prev, 
-                  compatibility: e.target.value.split(',').map(s => s.trim()).filter(Boolean) 
-                }))}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Toyota, Lexus, Kia"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Изображение
-              </label>
-              <div className="flex items-center gap-4">
-                {formData.image && (
-                  <div className="relative">
-                    <img
-                      src={formData.image}
-                      alt="Preview"
-                      className="w-32 h-32 object-cover rounded-lg"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, image: undefined }))}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                )}
-                <label className="flex items-center gap-2 px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
-                  <Upload className="w-5 h-5 text-gray-400" />
-                  <span className="text-sm text-gray-600">Загрузить фото</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                  />
-                </label>
-              </div>
             </div>
 
             <div className="flex gap-4 pt-4">

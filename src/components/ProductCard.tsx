@@ -1,5 +1,4 @@
 'use client';
-
 import Image from 'next/image';
 import Link from 'next/link';
 import { Heart, Scale, Check } from 'lucide-react';
@@ -14,7 +13,7 @@ interface Product {
   image: string;
   brand: string;
   category: string;
-  inStock: boolean;
+  stock?: number;
   sku?: string;
   rating?: number;
   reviewsCount?: number;
@@ -28,9 +27,6 @@ export default function ProductCard({ product }: ProductCardProps) {
   const [isInCompare, setIsInCompare] = useState(false);
   const [isInFavorites, setIsInFavorites] = useState(false);
 
-  // Проверка что приходит в product
-  console.log('ProductCard product:', product.id, product.name, product.image?.substring(0, 50));
-
   useEffect(() => {
     const compare = JSON.parse(localStorage.getItem('compare') || '[]');
     const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
@@ -41,10 +37,9 @@ export default function ProductCard({ product }: ProductCardProps) {
   const toggleCompare = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
     const compare = JSON.parse(localStorage.getItem('compare') || '[]');
     const existingIndex = compare.findIndex((item: any) => item.id === product.id);
-    
+
     if (existingIndex > -1) {
       compare.splice(existingIndex, 1);
       setIsInCompare(false);
@@ -62,7 +57,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       });
       setIsInCompare(true);
     }
-    
+
     localStorage.setItem('compare', JSON.stringify(compare));
     window.dispatchEvent(new CustomEvent('compareUpdated'));
   };
@@ -70,10 +65,9 @@ export default function ProductCard({ product }: ProductCardProps) {
   const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
     const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
     const existingIndex = favorites.findIndex((item: any) => item.id === product.id);
-    
+
     if (existingIndex > -1) {
       favorites.splice(existingIndex, 1);
       setIsInFavorites(false);
@@ -87,20 +81,20 @@ export default function ProductCard({ product }: ProductCardProps) {
       });
       setIsInFavorites(true);
     }
-    
+
     localStorage.setItem('favorites', JSON.stringify(favorites));
     window.dispatchEvent(new CustomEvent('favoritesUpdated'));
   };
 
-  const discount = product.oldPrice 
-    ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100) 
+  const discount = product.oldPrice
+    ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
     : 0;
 
-  // Если нет image, показываем заглушку
   const imageUrl = product.image || 'https://via.placeholder.com/300x300?text=No+Image';
+  const inStock = product.stock !== undefined && product.stock > 0;
 
   return (
-    <div className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
       <Link href={`/product/${product.id}`} className="relative block aspect-square bg-gray-50">
         <Image
           src={imageUrl}
@@ -113,14 +107,11 @@ export default function ProductCard({ product }: ProductCardProps) {
             -{discount}%
           </span>
         )}
-        {!product.inStock && (
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-            <span className="bg-gray-800 text-white px-3 py-1 rounded text-sm font-medium">
-              Нет в наличии
-            </span>
-          </div>
+        {!inStock && (
+          <span className="absolute top-2 left-2 bg-gray-500 text-white text-xs font-bold px-2 py-1 rounded">
+            Нет в наличии
+          </span>
         )}
-        
         <div className="absolute top-2 right-2 flex flex-col gap-2">
           <button
             onClick={toggleFavorite}
@@ -137,7 +128,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             onClick={toggleCompare}
             className={`p-2 rounded-full shadow-md transition-all duration-200 ${
               isInCompare 
-                ? 'bg-blue-500 text-white' 
+                ? 'bg-blue-500 text-white'  
                 : 'bg-white text-gray-400 hover:text-blue-500'
             }`}
             title={isInCompare ? 'В сравнении' : 'Сравнить'}
@@ -167,7 +158,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         )}
 
         <div className="mt-auto">
-          <div className="flex items-baseline gap-2 mb-3">
+          <div className="flex items-baseline gap-2 mb-2">
             <span className="text-lg sm:text-xl font-bold text-gray-900">
               {product.price.toLocaleString('ru-RU')} ₸
             </span>
@@ -178,7 +169,18 @@ export default function ProductCard({ product }: ProductCardProps) {
             )}
           </div>
 
-          {product.inStock ? (
+          {/* ← ДОБАВЛЕНО: Отображение количества на складе */}
+          {inStock ? (
+            <div className="text-sm text-green-600 mb-3">
+              В наличии: {product.stock} шт.
+            </div>
+          ) : (
+            <div className="text-sm text-red-600 mb-3">
+              Нет в наличии
+            </div>
+          )}
+
+          {inStock ? (
             <AddToCartButton product={{...product, image: imageUrl}} />
           ) : (
             <button disabled className="w-full py-2 px-4 rounded-lg font-medium bg-gray-100 text-gray-400 cursor-not-allowed">

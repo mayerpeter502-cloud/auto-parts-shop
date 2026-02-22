@@ -31,7 +31,7 @@ export default function HomePage() {
   const products = getProducts().slice(0, 8);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen flex flex-col">
       <Header />
       
       <main className="flex-1">
@@ -79,12 +79,20 @@ export default function HomePage() {
           <div className="container mx-auto px-4">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-2xl font-bold text-gray-900">Популярные товары</h2>
-              <Link href="/catalog" className="text-blue-600 hover:text-blue-700">Все товары →</Link>
+              <Link href="/catalog" className="text-blue-600 hover:text-blue-700">
+                Все товары →
+              </Link>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard 
+                  key={product.id} 
+                  product={{
+                    ...product,
+                    image: product.image || '/placeholder.jpg'  // ← ИСПРАВЛЕНО: добавляем дефолтное значение
+                  }} 
+                />
               ))}
             </div>
           </div>

@@ -1,10 +1,11 @@
+// Файл: src/types/index.ts
 export interface Product {
   id: string;
   name: string;
   sku: string;
   price: number;
   oldPrice?: number;
-  image: string;
+  image?: string;  // ← ИЗМЕНИТЕ: добавьте ? (сделайте опциональным)
   images?: string[];
   category: string;
   brand: string;
@@ -15,6 +16,7 @@ export interface Product {
   rating: number;
   reviewsCount: number;
   createdAt: Date;
+  isPopular?: boolean;  // ← Добавьте это поле
 }
 
 export interface CarCompatibility {

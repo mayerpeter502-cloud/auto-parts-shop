@@ -1,5 +1,25 @@
+'use client';
 import React, { useState } from 'react';
 import { Star, ThumbsUp, CheckCircle } from 'lucide-react';
+
+interface Product {
+  id: string;
+  name: string;
+  brand: string;
+  price: number;
+  description?: string;
+  specifications?: Record<string, string>;
+  compatibility?: {
+    brand: string;
+    model: string;
+    yearFrom: number;
+    yearTo: number;
+  }[];
+}
+
+interface ProductTabsProps {
+  product?: Product;
+}
 
 const reviews = [
   {
@@ -47,11 +67,11 @@ const compatibility = [
   { brand: 'BMW', models: ['3 Series', '5 Series', 'X3'], years: '2008-2020' }
 ];
 
-export const ProductTabs = ({ product }) => {
+export const ProductTabs: React.FC<ProductTabsProps> = ({ product }) => {
   const [activeTab, setActiveTab] = useState('description');
-  const [helpfulReviews, setHelpfulReviews] = useState(new Set());
+  const [helpfulReviews, setHelpfulReviews] = useState<Set<number>>(new Set());
 
-  const handleHelpful = (reviewId) => {
+  const handleHelpful = (reviewId: number) => {
     setHelpfulReviews(prev => {
       const newSet = new Set(prev);
       if (newSet.has(reviewId)) {
@@ -63,7 +83,7 @@ export const ProductTabs = ({ product }) => {
     });
   };
 
-  const renderStars = (rating) => {
+  const renderStars = (rating: number) => {
     return (
       <div className="flex gap-1">
         {[1, 2, 3, 4, 5].map((star) => (
@@ -77,8 +97,9 @@ export const ProductTabs = ({ product }) => {
   };
 
   return (
-    <div className="mt-8 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-      <div className="flex border-b border-gray-200 overflow-x-auto">
+    <div className="bg-white rounded-xl shadow-sm">
+      {/* Tabs */}
+      <div className="border-b border-gray-200">
         {[
           { id: 'description', label: 'Описание' },
           { id: 'specs', label: 'Характеристики' },
@@ -89,9 +110,7 @@ export const ProductTabs = ({ product }) => {
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`px-6 py-4 font-medium text-sm whitespace-nowrap transition-colors relative ${
-              activeTab === tab.id 
-                ? 'text-blue-600' 
-                : 'text-gray-600 hover:text-gray-900'
+              activeTab === tab.id ? 'text-blue-600' : 'text-gray-600 hover:text-gray-900'
             }`}
           >
             {tab.label}
@@ -102,6 +121,7 @@ export const ProductTabs = ({ product }) => {
         ))}
       </div>
 
+      {/* Tab Content */}
       <div className="p-6">
         {activeTab === 'description' && (
           <div className="prose max-w-none">

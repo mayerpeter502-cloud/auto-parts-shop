@@ -1,7 +1,21 @@
+'use client';
 import React, { useState } from 'react';
 import { Plus, ShoppingCart, Check } from 'lucide-react';
 
-const suggestions = [
+interface Product {
+  id: string | number;
+  name: string;
+  price: number;
+  originalPrice?: number;
+  image?: string;
+  compatible?: boolean;
+}
+
+interface FrequentlyBoughtTogetherProps {
+  mainProduct?: Product;
+}
+
+const suggestions: Product[] = [
   {
     id: 101,
     name: 'Масляный фильтр Bosch',
@@ -28,11 +42,11 @@ const suggestions = [
   }
 ];
 
-export const FrequentlyBoughtTogether = ({ mainProduct }) => {
-  const [selected, setSelected] = useState(new Set([101, 102]));
+export const FrequentlyBoughtTogether: React.FC<FrequentlyBoughtTogetherProps> = ({ mainProduct }) => {
+  const [selected, setSelected] = useState<Set<string | number>>(new Set([101, 102]));
   const [added, setAdded] = useState(false);
 
-  const toggleSelection = (id) => {
+  const toggleSelection = (id: string | number) => {
     setSelected(prev => {
       const newSet = new Set(prev);
       if (newSet.has(id)) {
@@ -54,8 +68,8 @@ export const FrequentlyBoughtTogether = ({ mainProduct }) => {
   };
 
   return (
-    <div className="mt-8 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-      <h3 className="text-lg font-semibold mb-6">С этим товаром покупают</h3>
+    <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
+      <h3 className="text-lg font-bold text-gray-900 mb-6">С этим товаром покупают</h3>
       
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="flex-1 space-y-4">
@@ -97,7 +111,7 @@ export const FrequentlyBoughtTogether = ({ mainProduct }) => {
                 <p className="font-medium text-gray-900">{item.name}</p>
                 <div className="flex items-center gap-2 mt-1">
                   <span className="font-bold text-gray-900">{item.price.toLocaleString()} ₸</span>
-                  <span className="text-sm text-gray-400 line-through">{item.originalPrice.toLocaleString()} ₸</span>
+                  <span className="text-sm text-gray-400 line-through">{item.originalPrice?.toLocaleString()} ₸</span>
                 </div>
                 {item.compatible && (
                   <span className="inline-block mt-1 text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
@@ -116,7 +130,7 @@ export const FrequentlyBoughtTogether = ({ mainProduct }) => {
             {totalPrice.toLocaleString()} ₸
           </div>
           <div className="text-sm text-green-600 mb-6">
-            Экономия {(suggestions.filter(i => selected.has(i.id)).reduce((s, i) => s + (i.originalPrice - i.price), 0)).toLocaleString()} ₸
+            Экономия {suggestions.filter(i => selected.has(i.id)).reduce((s, i) => s + ((i.originalPrice || 0) - i.price), 0).toLocaleString()} ₸
           </div>
           
           <button

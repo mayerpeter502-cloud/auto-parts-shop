@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import ProductCard from '../../components/ProductCard';
@@ -13,7 +12,6 @@ import { Footer } from "../../components/Footer";
 function CatalogContent() {
   const searchParams = useSearchParams();
   const categoryFromUrl = searchParams.get('category');
-  
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -31,7 +29,6 @@ function CatalogContent() {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const itemsPerPage = 12;
 
-  // Получаем уникальные бренды из товаров
   const availableBrands = Array.from(new Set(products.map(p => p.brand))).sort();
 
   useEffect(() => {
@@ -48,7 +45,6 @@ function CatalogContent() {
 
   useEffect(() => {
     let result = products;
-
     if (searchQuery) {
       result = result.filter((p) => 
         p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -68,7 +64,8 @@ function CatalogContent() {
       result = result.filter((p) => p.price <= Number(filters.maxPrice));
     }
     if (filters.inStock) {
-      result = result.filter((p) => p.inStock);
+      // ← ИСПРАВЛЕНО: проверяем stock вместо inStock
+      result = result.filter((p) => p.stock && p.stock > 0);
     }
     if (filters.carBrand) {
       result = result.filter((p) => 
@@ -103,22 +100,33 @@ function CatalogContent() {
     }));
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Header />
-      <main className="flex-1 container mx-auto px-4 py-6">
-        <div className="mb-6">
-          <SearchAutocomplete
-            value={searchQuery}
-            onChange={setSearchQuery}
-            onSelect={(product) => {
-              window.location.href = `/product/${product.id}`;
-            }}
-            placeholder="Поиск по номеру, названию..."
-          />
-        </div>
+  const getCategoryName = (category: string) => {
+    const names: Record<string, string> = {
+      oil: "Моторные масла",
+      filter: "Фильтры",
+      brake: "Тормозные системы",
+      suspension: "Подвеска",
+      electrical: "Электрика",
+      engine: "Двигатель"
+    };
+    return names[category] || "Каталог";
+  };
 
-        <div className="flex flex-col lg:flex-row gap-6">
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      
+      <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
+        <SearchAutocomplete
+          value={searchQuery}
+          onChange={setSearchQuery}
+          onSelect={(product) => {
+            window.location.href = `/product/${product.id}`;
+          }}
+          placeholder="Поиск по номеру, названию..."
+        />
+
+        <div className="flex flex-col lg:flex-row gap-6 mt-6">
           <button
             onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
             className="lg:hidden flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 w-fit"
@@ -172,12 +180,12 @@ function CatalogContent() {
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                 >
                   <option value="">Все категории</option>
-                  <option value="oil">Моторные масла</option>
-                  <option value="filter">Фильтры</option>
-                  <option value="brake">Тормозные системы</option>
-                  <option value="suspension">Подвеска</option>
-                  <option value="electrical">Электрика</option>
-                  <option value="engine">Двигатель</option>
+                  <option value="Масла и жидкости">Масла и жидкости</option>
+                  <option value="Фильтры">Фильтры</option>
+                  <option value="Тормозная система">Тормозная система</option>
+                  <option value="Двигатель">Двигатель</option>
+                  <option value="Подвеска">Подвеска</option>
+                  <option value="Электрика">Электрика</option>
                 </select>
               </div>
 
@@ -234,17 +242,7 @@ function CatalogContent() {
           <div className="flex-1">
             <div className="flex items-center justify-between mb-4">
               <h1 className="text-xl font-bold text-gray-900">
-                {filters.category ? 
-                  {
-                    oil: "Моторные масла",
-                    filter: "Фильтры", 
-                    brake: "Тормозные системы",
-                    suspension: "Подвеска",
-                    electrical: "Электрика",
-                    engine: "Двигатель"
-                  }[filters.category] || "Каталог" 
-                  : "Каталог"
-                }
+                {filters.category ? getCategoryName(filters.category) : "Каталог"}
               </h1>
               <span className="text-sm text-gray-500">{filteredProducts.length} товаров</span>
             </div>
@@ -257,7 +255,13 @@ function CatalogContent() {
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {paginatedProducts.map((product) => (
-                    <ProductCard key={product.id} product={product} />
+                    <ProductCard
+                      key={product.id}
+                      product={{
+                        ...product,
+                        image: product.image || '/placeholder.jpg'
+                      }}
+                    />
                   ))}
                 </div>
 
@@ -288,6 +292,7 @@ function CatalogContent() {
           </div>
         </div>
       </main>
+      
       <Footer />
     </div>
   );
@@ -295,7 +300,11 @@ function CatalogContent() {
 
 export default function CatalogPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Загрузка...</div>}>
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-gray-500">Загрузка...</div>
+      </div>
+    }>
       <CatalogContent />
     </Suspense>
   );

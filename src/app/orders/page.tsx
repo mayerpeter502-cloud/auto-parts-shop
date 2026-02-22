@@ -44,18 +44,18 @@ export default function OrdersPage() {
   };
 
   const repeatOrder = (order: any) => {
-    order.items.forEach((item: any) => {
-      addItem({
-        id: item.productId,
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity,
-        image: item.image || '',
-        sku: item.sku || ''
-      });
+  order.items.forEach((item: any) => {
+    addItem({
+      id: item.productId,
+      name: item.name,
+      price: item.price,
+      image: item.image || '',
+      sku: item.sku || ''
+      // quantity автоматически устанавливается в 1
     });
-    window.location.href = '/cart';
-  };
+  });
+  window.location.href = '/cart';
+};
 
   const handleLogout = () => {
     logout();

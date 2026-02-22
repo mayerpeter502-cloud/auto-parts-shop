@@ -1,9 +1,8 @@
 "use client";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft, Truck, CreditCard, User, MapPin, Check } from "lucide-react";
+import { ChevronLeft, Truck, CreditCard, User, Check } from "lucide-react";
 import { useCart } from "../../contexts/CartContext";
 import { ordersApi } from "../lib/orders";
 import { useAuth } from "../../contexts/AuthContext";
@@ -12,7 +11,6 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { items, total, clearCart } = useCart();
   const { user } = useAuth();
-  
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: user?.name || "",
@@ -26,13 +24,19 @@ export default function CheckoutPage() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12">
-        <div className="container mx-auto px-4 max-w-2xl text-center">
-          <h1 className="text-2xl font-bold mb-4">Корзина пуста</h1>
-          <p className="text-gray-500 mb-6">Добавьте товары для оформления заказа</p>
-          <Link href="/catalog" className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-            Перейти в каталог
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-4xl mx-auto px-4">
+          <Link href="/cart" className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6">
+            <ChevronLeft className="w-5 h-5" />
+            Назад в корзину
           </Link>
+          <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+            <h1 className="text-2xl font-bold mb-4">Корзина пуста</h1>
+            <p className="text-gray-500 mb-6">Добавьте товары для оформления заказа</p>
+            <Link href="/catalog" className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+              Перейти в каталог
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -41,30 +45,22 @@ export default function CheckoutPage() {
   const handleSubmit = () => {
     const order = ordersApi.create({
       userId: user?.id || "guest",
+      customerName: formData.name,
+      phone: formData.phone,
+      email: formData.email || undefined,
+      address: formData.deliveryMethod === "pickup" ? "" : formData.address,
+      city: formData.deliveryMethod === "pickup" ? "" : formData.city,
       items: items.map(item => ({
-        productId: item.id,
+        id: item.id,
         name: item.name,
         price: item.price,
-        quantity: item.quantity,
-        image: item.image
+        quantity: item.quantity
       })),
-      status: "pending",
       total: total,
-      contactInfo: {
-        name: formData.name,
-        phone: formData.phone,
-        email: formData.email
-      },
-      delivery: {
-        method: formData.deliveryMethod,
-        city: formData.city,
-        address: formData.deliveryMethod === "pickup" ? undefined : formData.address
-      },
-      payment: {
-        method: formData.paymentMethod
-      }
+      status: "pending",
+      deliveryMethod: formData.deliveryMethod,
+      paymentMethod: formData.paymentMethod
     });
-
     clearCart();
     router.push(`/order-success?id=${order.id}`);
   };
@@ -77,16 +73,14 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4 max-w-4xl">
-        {/* Back link */}
-        <Link href="/cart" className="flex items-center gap-1 text-gray-600 hover:text-blue-600 mb-6">
-          <ChevronLeft className="w-4 h-4" />
+      <div className="max-w-6xl mx-auto px-4">
+        <Link href="/cart" className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6">
+          <ChevronLeft className="w-5 h-5" />
           Назад в корзину
         </Link>
 
         <h1 className="text-2xl font-bold mb-6">Оформление заказа</h1>
 
-        {/* Progress */}
         <div className="flex items-center gap-2 mb-8 overflow-x-auto">
           {steps.map((s, index) => (
             <div key={s.num} className="flex items-center gap-2 shrink-0">
@@ -104,9 +98,7 @@ export default function CheckoutPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main form */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Step 1: Contacts */}
             {step === 1 && (
               <div className="bg-white rounded-xl shadow-sm p-6">
                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
@@ -157,7 +149,6 @@ export default function CheckoutPage() {
               </div>
             )}
 
-            {/* Step 2: Delivery */}
             {step === 2 && (
               <div className="bg-white rounded-xl shadow-sm p-6">
                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
@@ -240,7 +231,6 @@ export default function CheckoutPage() {
               </div>
             )}
 
-            {/* Step 3: Payment */}
             {step === 3 && (
               <div className="bg-white rounded-xl shadow-sm p-6">
                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
@@ -297,7 +287,6 @@ export default function CheckoutPage() {
             )}
           </div>
 
-          {/* Order summary */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-xl shadow-sm p-6 sticky top-4">
               <h3 className="font-semibold mb-4">Ваш заказ</h3>

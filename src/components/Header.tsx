@@ -1,5 +1,4 @@
 "use client";
-
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Search, ShoppingCart, User, Menu, X, Car, Scale, Heart } from "lucide-react";
@@ -22,13 +21,12 @@ export function Header() {
       setCompareCount(compare.length);
       setFavoritesCount(favorites.length);
     };
-    
     updateCounts();
     window.addEventListener("storage", updateCounts);
     window.addEventListener("cartUpdated", updateCounts);
     window.addEventListener("compareUpdated", updateCounts);
     window.addEventListener("favoritesUpdated", updateCounts);
-    
+
     return () => {
       window.removeEventListener("storage", updateCounts);
       window.removeEventListener("cartUpdated", updateCounts);
@@ -45,16 +43,15 @@ export function Header() {
   };
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
+    <header className="bg-white border-b sticky top-0 z-50">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16 gap-4">
-          <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <Car className="w-5 h-5 text-white" />
-            </div>
-            <span className="font-bold text-xl hidden sm:block">AutoParts.kz</span>
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <Link href="/" className="text-xl font-bold text-blue-600">
+            AutoParts.kz
           </Link>
 
+          {/* Search */}
           <form onSubmit={handleSearch} className="flex-1 max-w-2xl hidden md:block">
             <div className="relative">
               <input
@@ -70,7 +67,18 @@ export function Header() {
             </div>
           </form>
 
+          {/* Navigation */}
           <div className="flex items-center gap-2 sm:gap-4">
+            {/* Подбор по авто */}
+            <Link 
+              href="/car-selector" 
+              className="hidden sm:flex items-center gap-1 text-sm text-gray-600 hover:text-blue-600"
+            >
+              <Car className="w-4 h-4" />
+              <span>Подбор по авто</span>
+            </Link>
+
+            {/* Подбор по VIN */}
             <Link 
               href="/vin-check" 
               className="hidden sm:flex items-center gap-1 text-sm text-gray-600 hover:text-blue-600"
@@ -79,6 +87,7 @@ export function Header() {
               <span>Подбор по VIN</span>
             </Link>
 
+            {/* Избранное */}
             <Link href="/favorites" className="relative p-2 text-gray-600 hover:text-blue-600">
               <Heart className="w-6 h-6" />
               {favoritesCount > 0 && (
@@ -88,6 +97,7 @@ export function Header() {
               )}
             </Link>
 
+            {/* Сравнение */}
             <Link href="/compare" className="relative p-2 text-gray-600 hover:text-blue-600">
               <Scale className="w-6 h-6" />
               {compareCount > 0 && (
@@ -97,6 +107,7 @@ export function Header() {
               )}
             </Link>
             
+            {/* Корзина */}
             <Link href="/cart" className="relative p-2 text-gray-600 hover:text-blue-600">
               <ShoppingCart className="w-6 h-6" />
               {cartCount > 0 && (
@@ -106,6 +117,7 @@ export function Header() {
               )}
             </Link>
 
+            {/* Профиль */}
             {user ? (
               <Link href="/orders" className="flex items-center gap-2 p-2 text-gray-600 hover:text-blue-600">
                 <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
@@ -119,6 +131,7 @@ export function Header() {
               </Link>
             )}
 
+            {/* Mobile Menu */}
             <button 
               className="md:hidden p-2 text-gray-600"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -128,6 +141,7 @@ export function Header() {
           </div>
         </div>
 
+        {/* Mobile Search */}
         <div className="md:hidden pb-3">
           <form onSubmit={handleSearch} className="relative">
             <input
@@ -144,11 +158,15 @@ export function Header() {
         </div>
       </div>
 
+      {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden border-t bg-white">
           <nav className="container mx-auto px-4 py-4 space-y-2">
             <Link href="/catalog" className="block py-2 text-gray-700 hover:text-blue-600">
               Каталог
+            </Link>
+            <Link href="/car-selector" className="block py-2 text-gray-700 hover:text-blue-600">
+              Подбор по авто
             </Link>
             <Link href="/vin-check" className="block py-2 text-gray-700 hover:text-blue-600">
               Подбор по VIN

@@ -1,7 +1,11 @@
+'use client';
 import React, { useState } from 'react';
-import { Search, Car, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { Search, Car, CheckCircle, AlertCircle, Loader2, Home } from 'lucide-react';
+import Link from 'next/link';
+import { Header } from './Header';
+import { Footer } from './Footer';
 
-const mockVinDatabase = {
+const mockVinDatabase: Record<string, any> = {
   'JTDBU4EE3B9123456': {
     brand: 'Toyota',
     model: 'Camry',
@@ -31,14 +35,30 @@ const mockVinDatabase = {
   }
 };
 
-export const VinSearch = () => {
-  const [vin, setVin] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState(null);
+interface VinResult {
+  brand: string;
+  model: string;
+  year: number | string;
+  engine: string;
+  transmission: string;
+  bodyType: string;
+  compatibleParts: Array<{
+    category: string;
+    recommendation: string;
+    popular: string[];
+  }>;
+  isDemo?: boolean;
+}
 
-  const handleSubmit = async (e) => {
+export const VinSearch: React.FC = () => {
+  const [vin, setVin] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [result, setResult] = useState<VinResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
     if (vin.length < 17) {
       setError('VIN-код должен содержать 17 символов');
       return;
@@ -48,13 +68,11 @@ export const VinSearch = () => {
     setError(null);
     setResult(null);
 
-    // Имитация API-запроса
     setTimeout(() => {
       const data = mockVinDatabase[vin.toUpperCase()];
       if (data) {
         setResult(data);
       } else {
-        // Генерация случайного результата для демо
         setResult({
           brand: 'Неизвестно',
           model: 'Требуется уточнение',
@@ -71,126 +89,149 @@ export const VinSearch = () => {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-6 md:p-10 text-white mb-6">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-3 bg-white/20 rounded-xl">
-            <Car className="w-8 h-8" />
-          </div>
-          <div>
-            <h2 className="text-2xl md:text-3xl font-bold">Подбор по VIN-коду</h2>
-            <p className="text-blue-100">Точный подбор запчастей по уникальному коду автомобиля</p>
-          </div>
-        </div>
-
-        <form onSubmit={handleSubmit} className="relative">
-          <input
-            type="text"
-            value={vin}
-            onChange={(e) => setVin(e.target.value.toUpperCase())}
-            placeholder="Введите VIN-код (17 символов)"
-            className="w-full px-6 py-4 pr-36 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-white/30 text-lg uppercase tracking-wider"
-            maxLength={17}
-          />
-          <button
-            type="submit"
-            disabled={loading || vin.length < 17}
-            className="absolute right-2 top-2 bottom-2 px-6 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-          >
-            {loading ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : (
-              <>
-                <Search className="w-5 h-5" />
-                <span className="hidden sm:inline">Найти</span>
-              </>
-            )}
-          </button>
-        </form>
-
-        {error && (
-          <div className="mt-4 flex items-center gap-2 text-red-200 bg-red-500/20 px-4 py-2 rounded-lg">
-            <AlertCircle className="w-5 h-5" />
-            <span>{error}</span>
-          </div>
-        )}
-
-        <div className="mt-4 flex flex-wrap gap-2 text-sm text-blue-200">
-          <span>Примеры:</span>
-          {['JTDBU4EE3B9123456', 'Z94CT41DBMR123456'].map((example) => (
-            <button
-              key={example}
-              onClick={() => setVin(example)}
-              className="underline hover:text-white transition-colors"
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      
+      <main className="flex-1">
+        {/* Кнопка на главную */}
+        <div className="bg-gray-50 border-b">
+          <div className="max-w-7xl mx-auto px-4 py-3">
+            <Link 
+              href="/" 
+              className="inline-flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors"
             >
-              {example}
-            </button>
-          ))}
+              <Home className="w-4 h-4" />
+              <span>На главную</span>
+            </Link>
+          </div>
         </div>
-      </div>
 
-      {result && (
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="p-6 border-b border-gray-100">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <CheckCircle className="w-6 h-6 text-green-600" />
+        <div className="bg-gradient-to-br from-blue-600 to-blue-800 m-4 rounded-2xl p-8 md:p-12 text-white">
+          <div className="max-w-3xl mx-auto">
+            <div className="text-center mb-8">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <Car className="w-10 h-10" />
+                <h1 className="text-2xl md:text-3xl font-bold">Подбор по VIN-коду</h1>
               </div>
-              <div>
-                <h3 className="text-xl font-bold text-gray-900">
-                  {result.brand} {result.model}
-                </h3>
-                <p className="text-gray-500">
-                  {result.year} год • {result.engine} • {result.transmission}
-                </p>
-              </div>
+              <p className="text-blue-100 text-lg">
+                Точный подбор запчастей по уникальному коду автомобиля
+              </p>
             </div>
 
-            {result.isDemo && (
-              <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="font-medium text-yellow-800">Автомобиль не найден в базе</p>
-                  <p className="text-sm text-yellow-700 mt-1">
-                    Попробуйте один из тестовых VIN-кодов выше или свяжитесь с менеджером для ручного подбора.
-                  </p>
-                </div>
+            <form onSubmit={handleSubmit} className="relative mb-6">
+              <input
+                type="text"
+                value={vin}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setVin(e.target.value.toUpperCase())}
+                placeholder="Введите VIN-код (17 символов)"
+                className="w-full px-6 py-4 pr-36 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-white/30 text-lg uppercase tracking-wider"
+                maxLength={17}
+              />
+              <button
+                type="submit"
+                disabled={loading || vin.length < 17}
+                className="absolute right-2 top-2 bottom-2 px-6 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+              >
+                {loading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <>
+                    <Search className="w-5 h-5" />
+                    <span className="hidden sm:inline">Найти</span>
+                  </>
+                )}
+              </button>
+            </form>
+
+            {error && (
+              <div className="mb-4 flex items-center gap-2 text-red-200 bg-red-500/20 px-4 py-2 rounded-lg">
+                <AlertCircle className="w-5 h-5" />
+                <span>{error}</span>
               </div>
             )}
-          </div>
 
-          {result.compatibleParts.length > 0 && (
-            <div className="p-6">
-              <h4 className="font-semibold text-gray-900 mb-4">Рекомендуемые запчасти</h4>
-              <div className="space-y-4">
-                {result.compatibleParts.map((part, index) => (
-                  <div key={index} className="p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                      <div className="flex-1">
-                        <h5 className="font-semibold text-gray-900 mb-1">{part.category}</h5>
-                        <p className="text-sm text-gray-600 mb-2">Рекомендация: {part.recommendation}</p>
-                        <div className="flex flex-wrap gap-2">
-                          {part.popular.map((brand, idx) => (
-                            <span key={idx} className="px-2 py-1 bg-white rounded text-xs text-gray-600 border border-gray-200">
-                              {brand}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                      <a
-                        href={`/catalog?category=${encodeURIComponent(part.category)}&vin=${vin}`}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors whitespace-nowrap"
-                      >
-                        Подобрать
-                      </a>
+            <div className="flex flex-wrap gap-2 text-sm text-blue-200">
+              <span>Примеры:</span>
+              {['JTDBU4EE3B9123456', 'Z94CT41DBMR123456'].map((example) => (
+                <button
+                  key={example}
+                  onClick={() => setVin(example)}
+                  className="underline hover:text-white transition-colors"
+                >
+                  {example}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {result && (
+          <div className="max-w-3xl mx-auto px-4 pb-12">
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="p-6 border-b border-gray-100">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-green-100 rounded-lg">
+                    <CheckCircle className="w-6 h-6 text-green-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-900">
+                      {result.brand} {result.model}
+                    </h2>
+                    <p className="text-gray-500">
+                      {result.year} год • {result.engine} • {result.transmission}
+                    </p>
+                  </div>
+                </div>
+
+                {result.isDemo && (
+                  <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-medium text-yellow-800">Автомобиль не найден в базе</p>
+                      <p className="text-sm text-yellow-700 mt-1">
+                        Попробуйте один из тестовых VIN-кодов выше или свяжитесь с менеджером для ручного подбора.
+                      </p>
                     </div>
                   </div>
-                ))}
+                )}
               </div>
+
+              {result.compatibleParts.length > 0 && (
+                <div className="p-6">
+                  <h3 className="font-semibold text-gray-900 mb-4">Рекомендуемые запчасти</h3>
+                  <div className="space-y-4">
+                    {result.compatibleParts.map((part, index) => (
+                      <div key={index} className="p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-gray-900 mb-1">{part.category}</h4>
+                            <p className="text-sm text-gray-600 mb-2">Рекомендация: {part.recommendation}</p>
+                            <div className="flex flex-wrap gap-2">
+                              {part.popular.map((brand, idx) => (
+                                <span key={idx} className="px-2 py-1 bg-white rounded text-xs text-gray-600 border border-gray-200">
+                                  {brand}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                          <Link
+                            href={`/catalog?category=${encodeURIComponent(part.category)}&vin=${vin}`}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors whitespace-nowrap"
+                          >
+                            Подобрать
+                          </Link>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      )}
+          </div>
+        )}
+      </main>
+      
+      <Footer />
     </div>
   );
 };
