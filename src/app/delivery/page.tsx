@@ -10,7 +10,7 @@ export default function DeliveryPage() {
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="container mx-auto px-4 max-w-4xl">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Доставка и оплата</h1>
-        
+
         <div className="bg-white rounded-lg shadow-sm p-8 space-y-8">
           <section>
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Способы доставки</h2>

@@ -108,7 +108,7 @@ export default function AdminProductsPage() {
     }
   };
 
-  const filteredProducts = products.filter(p => 
+  const filteredProducts = products.filter(p =>
     p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     p.brand.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -235,7 +235,7 @@ export default function AdminProductsPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Фото товара ({formData.images.length})
                 </label>
-                
+
                 {formData.images.length > 0 && (
                   <div className="flex flex-wrap gap-3 mb-3">
                     {formData.images.map((img, index) => (

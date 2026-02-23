@@ -105,7 +105,7 @@ export function FilterSidebar({ filters, setFilters }: FilterSidebarProps) {
         {/* Car Selection */}
         <div className="border-t pt-4">
           <h3 className="font-medium text-gray-900 mb-3">Подбор по авто</h3>
-          
+
           <div className="space-y-3">
             <select
               value={filters.carBrand}

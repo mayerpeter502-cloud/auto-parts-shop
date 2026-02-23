@@ -92,7 +92,7 @@ export default function EditProductPage() {
               <div className="flex items-center gap-4">
                 {formData.image && (
                   <div className="relative">
-                    <Image 
+                    <Image
                       src={formData.image}
                       alt="Preview"
                       width={128}

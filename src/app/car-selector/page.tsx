@@ -48,7 +48,7 @@ export default function CarSelectorPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      
+
       <main className="flex-1">
         {/* Хлебные крошки */}
         <div className="bg-white border-b">
@@ -199,7 +199,7 @@ export default function CarSelectorPage() {
                     Изменить
                   </button>
                 </div>
-                
+
                 <div className="flex items-center gap-2 text-green-600 bg-green-50 p-3 rounded-lg">
                   <CheckCircle2 className="w-5 h-5" />
                   <span>Найдено {productsApi.getAll().length} совместимых запчастей</span>
@@ -244,7 +244,7 @@ export default function CarSelectorPage() {
           )}
         </div>
       </main>
-      
+
       <Footer />
     </div>
   );

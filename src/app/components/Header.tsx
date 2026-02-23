@@ -3,12 +3,12 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { 
-  Search, 
-  ShoppingCart, 
-  User, 
-  Menu, 
-  X, 
+import {
+  Search,
+  ShoppingCart,
+  User,
+  Menu,
+  X,
   Phone,
   Heart,
   Car
@@ -79,16 +79,16 @@ export default function Header() {
 
           {/* Иконки действий */}
           <div className="flex items-center gap-2 md:gap-4">
-            <Link 
-              href="/favorites" 
+            <Link
+              href="/favorites"
               className="hidden md:flex flex-col items-center gap-0.5 text-gray-600 hover:text-blue-600"
             >
               <Heart className="w-6 h-6" />
               <span className="text-xs">Избранное</span>
             </Link>
-            
-            <Link 
-              href="/cart" 
+
+            <Link
+              href="/cart"
               className="flex flex-col items-center gap-0.5 text-gray-600 hover:text-blue-600 relative"
             >
               <div className="relative">
@@ -101,9 +101,9 @@ export default function Header() {
               </div>
               <span className="text-xs hidden md:block">Корзина</span>
             </Link>
-            
-            <Link 
-              href="/profile" 
+
+            <Link
+              href="/profile"
               className="hidden md:flex flex-col items-center gap-0.5 text-gray-600 hover:text-blue-600"
             >
               <User className="w-6 h-6" />
@@ -111,7 +111,7 @@ export default function Header() {
             </Link>
 
             {/* Мобильное меню */}
-            <button 
+            <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="md:hidden p-2"
             >

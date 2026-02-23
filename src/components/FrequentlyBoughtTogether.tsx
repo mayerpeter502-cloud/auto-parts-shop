@@ -70,7 +70,7 @@ export const FrequentlyBoughtTogether: React.FC<FrequentlyBoughtTogetherProps> =
   return (
     <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
       <h3 className="text-lg font-bold text-gray-900 mb-6">С этим товаром покупают</h3>
-      
+
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="flex-1 space-y-4">
           {/* Main Product */}
@@ -132,7 +132,7 @@ export const FrequentlyBoughtTogether: React.FC<FrequentlyBoughtTogetherProps> =
           <div className="text-sm text-green-600 mb-6">
             Экономия {suggestions.filter(i => selected.has(i.id)).reduce((s, i) => s + ((i.originalPrice || 0) - i.price), 0).toLocaleString()} ₸
           </div>
-          
+
           <button
             onClick={handleAddAll}
             className={`w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${
@@ -153,7 +153,7 @@ export const FrequentlyBoughtTogether: React.FC<FrequentlyBoughtTogetherProps> =
               </>
             )}
           </button>
-          
+
           <p className="text-xs text-gray-500 mt-4 text-center">
             {selected.size + 1} товара в комплекте
           </p>

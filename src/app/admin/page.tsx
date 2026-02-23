@@ -16,9 +16,9 @@ export default function AdminDashboard() {
   useEffect(() => {
     const products = productsApi.getAll();
     const orders = ordersApi.getAll();
-    
+
     const revenue = orders.reduce((sum, order) => sum + order.total, 0);
-    
+
     setStats({
       products: products.length,
       orders: orders.length,
@@ -37,7 +37,7 @@ export default function AdminDashboard() {
   return (
     <div>
       <h1 className="text-3xl font-bold text-gray-900 mb-8">Дашборд</h1>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {cards.map((card, index) => (
           <div key={index} className="bg-white rounded-xl shadow-sm p-6">

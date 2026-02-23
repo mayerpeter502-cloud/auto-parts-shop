@@ -18,7 +18,7 @@ export default function Footer() {
               <span className="text-xl font-bold text-white">AutoParts.kz</span>
             </div>
             <p className="text-sm text-gray-400 mb-4">
-              Интернет-магазин автозапчастей в Казахстане. 
+              Интернет-магазин автозапчастей в Казахстане.
               Оригинальные и качественные аналоги по доступным ценам.
             </p>
             <div className="space-y-2 text-sm">
@@ -106,22 +106,22 @@ export default function Footer() {
           <div>
             <h3 className="text-white font-bold mb-4">Свяжитесь с нами</h3>
             <div className="space-y-3">
-              <a 
-                href="tel:+77001234567" 
+              <a
+                href="tel:+77001234567"
                 className="flex items-center gap-2 text-lg font-medium text-white hover:text-blue-400 transition-colors"
               >
                 <Phone className="w-5 h-5" />
                 +7 (700) 123-45-67
               </a>
-              <a 
-                href="tel:+77007654321" 
+              <a
+                href="tel:+77007654321"
                 className="flex items-center gap-2 text-white hover:text-blue-400 transition-colors"
               >
                 <Phone className="w-4 h-4" />
                 +7 (700) 765-43-21
               </a>
-              <a 
-                href="mailto:info@autoparts.kz" 
+              <a
+                href="mailto:info@autoparts.kz"
                 className="flex items-center gap-2 hover:text-blue-400 transition-colors"
               >
                 <Mail className="w-4 h-4" />

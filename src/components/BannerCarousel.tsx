@@ -59,7 +59,7 @@ export const BannerCarousel = () => {
   }, [isAutoPlaying, next]);
 
   return (
-    <div 
+    <div
       className="relative w-full h-[300px] md:h-[400px] lg:h-[450px] overflow-hidden rounded-2xl"
       onMouseEnter={() => setIsAutoPlaying(false)}
       onMouseLeave={() => setIsAutoPlaying(true)}
@@ -68,13 +68,13 @@ export const BannerCarousel = () => {
         <div
           key={banner.id}
           className={`absolute inset-0 transition-transform duration-500 ease-out ${
-            index === current ? 'translate-x-0' : 
+            index === current ? 'translate-x-0' :
             index < current ? '-translate-x-full' : 'translate-x-full'
           }`}
         >
           <div className={`absolute inset-0 bg-gradient-to-r ${banner.color} opacity-90`} />
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20" />
-          
+
           <div className="relative h-full flex items-center px-6 md:px-12 lg:px-20">
             <div className="max-w-xl text-white">
               <span className="inline-block px-3 py-1 bg-white/20 rounded-full text-sm mb-4 backdrop-blur-sm">

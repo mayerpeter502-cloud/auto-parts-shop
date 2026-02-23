@@ -222,8 +222,8 @@ export const ProductTabs: React.FC<ProductTabsProps> = ({ product }) => {
                   <button
                     onClick={() => handleHelpful(review.id)}
                     className={`flex items-center gap-1 text-sm transition-colors ${
-                      helpfulReviews.has(review.id) 
-                        ? 'text-blue-600' 
+                      helpfulReviews.has(review.id)
+                        ? 'text-blue-600'
                         : 'text-gray-400 hover:text-gray-600'
                     }`}
                   >

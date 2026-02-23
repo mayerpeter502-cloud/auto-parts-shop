@@ -105,7 +105,7 @@ export default function OrdersPage() {
           </div>
 
           <h2 className="text-xl font-bold text-gray-900 mb-6">Мои заказы</h2>
-          
+
           {orders.length === 0 ? (
             <div className="bg-white rounded-xl shadow-sm p-12 text-center">
               <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
@@ -131,7 +131,7 @@ export default function OrdersPage() {
                       <span className="font-medium">{getStatusText(order.status)}</span>
                     </div>
                   </div>
-                  
+
                   <div className="border-t pt-4">
                     {order.items.slice(0, selectedOrder === order.id ? undefined : 2).map((item: any) => (
                       <div key={item.productId} className="flex items-center gap-4 py-3">
@@ -153,21 +153,21 @@ export default function OrdersPage() {
                       <div className="text-sm text-gray-500 py-2 text-center">+{order.items.length - 2} товаров</div>
                     )}
                   </div>
-                  
+
                   <div className="border-t pt-4 flex justify-between items-center">
                     <div className="text-lg font-bold">Итого: {order.total.toLocaleString()} ₸</div>
-                    <button 
+                    <button
                       onClick={() => setSelectedOrder(selectedOrder === order.id ? null : order.id)}
                       className="flex items-center gap-1 text-blue-600 hover:underline"
                     >
-                      {selectedOrder === order.id ? 'Свернуть' : 'Подробнее'} 
+                      {selectedOrder === order.id ? 'Свернуть' : 'Подробнее'}
                       <ChevronRight className={`w-4 h-4 transition-transform ${selectedOrder === order.id ? 'rotate-90' : ''}`} />
                     </button>
                   </div>
 
                   {selectedOrder === order.id && (
                     <div className="mt-4 pt-4 border-t flex gap-3">
-                      <button 
+                      <button
                         onClick={() => repeatOrder(order)}
                         className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
                       >
@@ -175,7 +175,7 @@ export default function OrdersPage() {
                         Повторить заказ
                       </button>
                       {['pending', 'processing'].includes(order.status) && (
-                        <button 
+                        <button
                           className="flex items-center gap-2 px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 text-sm"
                         >
                           <X className="w-4 h-4" />

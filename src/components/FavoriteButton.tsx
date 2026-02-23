@@ -8,10 +8,10 @@ interface FavoriteButtonProps {
   className?: string;
 }
 
-export const FavoriteButton: React.FC<FavoriteButtonProps> = ({ 
-  isFavorite, 
-  onClick, 
-  className = '' 
+export const FavoriteButton: React.FC<FavoriteButtonProps> = ({
+  isFavorite,
+  onClick,
+  className = ''
 }) => {
   return (
     <button

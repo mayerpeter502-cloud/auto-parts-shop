@@ -33,7 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string): Promise<boolean> => {
     const users = JSON.parse(localStorage.getItem("users") || "[]");
     const foundUser = users.find((u: any) => u.email === email && u.password === password);
-    
+
     if (foundUser) {
       const { password, ...userWithoutPassword } = foundUser;
       setUser(userWithoutPassword);
@@ -45,7 +45,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const register = async (email: string, password: string, name: string): Promise<boolean> => {
     const users = JSON.parse(localStorage.getItem("users") || "[]");
-    
+
     if (users.find((u: any) => u.email === email)) {
       return false;
     }
@@ -64,7 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { password: _, ...userWithoutPassword } = newUser;
     setUser(userWithoutPassword);
     localStorage.setItem("user", JSON.stringify(userWithoutPassword));
-    
+
     return true;
   };
 

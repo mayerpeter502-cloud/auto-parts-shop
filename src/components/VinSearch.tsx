@@ -58,7 +58,7 @@ export const VinSearch: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     if (vin.length < 17) {
       setError('VIN-код должен содержать 17 символов');
       return;
@@ -91,13 +91,13 @@ export const VinSearch: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      
+
       <main className="flex-1">
         {/* Кнопка на главную */}
         <div className="bg-gray-50 border-b">
           <div className="max-w-7xl mx-auto px-4 py-3">
-            <Link 
-              href="/" 
+            <Link
+              href="/"
               className="inline-flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors"
             >
               <Home className="w-4 h-4" />
@@ -230,7 +230,7 @@ export const VinSearch: React.FC = () => {
           </div>
         )}
       </main>
-      
+
       <Footer />
     </div>
   );

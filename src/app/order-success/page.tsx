@@ -36,7 +36,7 @@ export default function OrderSuccessPage() {
           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-10 h-10 text-green-600" />
           </div>
-          
+
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
             Заказ оформлен!
           </h1>
@@ -78,7 +78,7 @@ export default function OrderSuccessPage() {
               Продолжить покупки
               <ArrowRight className="w-5 h-5" />
             </Link>
-            
+
             <Link
               href="/"
               className="flex items-center justify-center gap-2 w-full px-6 py-3 text-blue-600 hover:bg-blue-50 rounded-lg font-medium"

@@ -20,12 +20,12 @@ export function useCart() {
       try {
         const parsed = JSON.parse(saved);
         // Фильтруем corrupted данные
-        const validItems = Array.isArray(parsed) 
-          ? parsed.filter((item: any) => 
-              item && 
-              item.product && 
-              typeof item.product === 'object' && 
-              item.product.id && 
+        const validItems = Array.isArray(parsed)
+          ? parsed.filter((item: any) =>
+              item &&
+              item.product &&
+              typeof item.product === 'object' &&
+              item.product.id &&
               typeof item.product.price === 'number' &&
               typeof item.quantity === 'number'
             )
@@ -47,7 +47,7 @@ export function useCart() {
 
   const addToCart = useCallback((product: Product, quantity: number = 1) => {
     if (!product || !product.id) return;
-    
+
     setItems((prev) => {
       const existing = prev.find((item) => item.product?.id === product.id);
       if (existing) {
@@ -82,7 +82,7 @@ export function useCart() {
   }, []);
 
   const totalItems = items.reduce((sum, item) => sum + (item.quantity || 0), 0);
-  
+
   const totalPrice = items.reduce((sum, item) => {
     const price = item.product?.price || 0;
     const qty = item.quantity || 0;

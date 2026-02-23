@@ -51,8 +51,8 @@ export const productsApi = {
     const products = productsApi.getAll();
     const index = products.findIndex(p => p.id === id);
     if (index === -1) return null;
-    const updated = { 
-      ...products[index], 
+    const updated = {
+      ...products[index],
       ...updates,
       // ← ВАЖНО: если обновляем stock, сохраняем его
       stock: updates.stock !== undefined ? updates.stock : products[index].stock,

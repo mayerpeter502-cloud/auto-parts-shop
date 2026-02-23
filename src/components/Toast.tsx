@@ -17,7 +17,7 @@ export default function ToastContainer() {
       const { message, type = 'success' } = e.detail;
       const id = Date.now();
       setToasts(prev => [...prev, { id, message, type }]);
-      
+
       setTimeout(() => {
         setToasts(prev => prev.filter(t => t.id !== id));
       }, 3000);

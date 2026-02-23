@@ -49,7 +49,7 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
     setIsFormOpen(false);
   };
 
-  const averageRating = reviews.length > 0 
+  const averageRating = reviews.length > 0
     ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
     : "0";
 
@@ -154,7 +154,7 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
                 </div>
                 <span className="text-sm text-gray-400">{review.date}</span>
               </div>
-              
+
               <div className="flex mb-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star
@@ -167,7 +167,7 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
                   />
                 ))}
               </div>
-              
+
               <p className="text-gray-700">{review.text}</p>
             </div>
           ))

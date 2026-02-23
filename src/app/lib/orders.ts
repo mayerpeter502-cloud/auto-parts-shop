@@ -46,7 +46,7 @@ export const ordersApi = {
       id: Date.now().toString(),
       createdAt: new Date().toISOString(),
     };
-    
+
     const orders = ordersApi.getAll();
     orders.push(newOrder);
     localStorage.setItem("orders", JSON.stringify(orders));

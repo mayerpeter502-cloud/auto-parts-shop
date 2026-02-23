@@ -19,13 +19,13 @@ export function RelatedProducts({ products, currentProductId }: RelatedProductsP
   const addToCart = (product: Product) => {
     const cart = JSON.parse(localStorage.getItem("cart") || "[]");
     const existing = cart.find((item: any) => item.id === product.id);
-    
+
     if (existing) {
       existing.quantity += 1;
     } else {
       cart.push({ ...product, quantity: 1 });
     }
-    
+
     localStorage.setItem("cart", JSON.stringify(cart));
     window.dispatchEvent(new Event("storage"));
   };
@@ -33,7 +33,7 @@ export function RelatedProducts({ products, currentProductId }: RelatedProductsP
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <h2 className="text-xl font-bold text-gray-900 mb-6">С этим покупают</h2>
-      
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {related.map((product) => (
           <div key={product.id} className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow">

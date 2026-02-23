@@ -308,7 +308,7 @@ export const getProductsByCategory = (category: string): Product[] => {
 export const getRelatedProducts = (productId: string, limit: number = 4): Product[] => {
   const product = getProductById(productId);
   if (!product) return [];
-  
+
   return getProducts()
     .filter(p => p.category === product.category && p.id !== productId)
     .slice(0, limit);

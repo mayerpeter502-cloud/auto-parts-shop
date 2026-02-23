@@ -70,8 +70,8 @@ export function Header() {
           {/* Navigation */}
           <div className="flex items-center gap-2 sm:gap-4">
             {/* Подбор по авто */}
-            <Link 
-              href="/car-selector" 
+            <Link
+              href="/car-selector"
               className="hidden sm:flex items-center gap-1 text-sm text-gray-600 hover:text-blue-600"
             >
               <Car className="w-4 h-4" />
@@ -79,8 +79,8 @@ export function Header() {
             </Link>
 
             {/* Подбор по VIN */}
-            <Link 
-              href="/vin-check" 
+            <Link
+              href="/vin-check"
               className="hidden sm:flex items-center gap-1 text-sm text-gray-600 hover:text-blue-600"
             >
               <Car className="w-4 h-4" />
@@ -106,7 +106,7 @@ export function Header() {
                 </span>
               )}
             </Link>
-            
+
             {/* Корзина */}
             <Link href="/cart" className="relative p-2 text-gray-600 hover:text-blue-600">
               <ShoppingCart className="w-6 h-6" />
@@ -132,7 +132,7 @@ export function Header() {
             )}
 
             {/* Mobile Menu */}
-            <button 
+            <button
               className="md:hidden p-2 text-gray-600"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >

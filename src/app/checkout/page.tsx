@@ -155,7 +155,7 @@ export default function CheckoutPage() {
                   <Truck className="w-5 h-5 text-blue-600" />
                   Способ доставки
                 </h2>
-                
+
                 <div className="space-y-3 mb-6">
                   {[
                     { value: "pickup", label: "Самовывоз", desc: "Бесплатно, г. Алматы" },
@@ -237,7 +237,7 @@ export default function CheckoutPage() {
                   <CreditCard className="w-5 h-5 text-blue-600" />
                   Способ оплаты
                 </h2>
-                
+
                 <div className="space-y-3 mb-6">
                   {[
                     { value: "cash", label: "Наличными при получении", desc: "Оплата курьеру или в пункте выдачи" },
@@ -306,7 +306,7 @@ export default function CheckoutPage() {
                   </div>
                 ))}
               </div>
-              
+
               <div className="border-t pt-4 space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Товары ({items.reduce((sum, i) => sum + i.quantity, 0)})</span>
@@ -315,14 +315,14 @@ export default function CheckoutPage() {
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Доставка</span>
                   <span className="text-green-600">
-                    {formData.deliveryMethod === "pickup" ? "Бесплатно" : 
+                    {formData.deliveryMethod === "pickup" ? "Бесплатно" :
                      formData.deliveryMethod === "courier" ? "500 ₸" : "1000 ₸"}
                   </span>
                 </div>
                 <div className="flex justify-between text-lg font-bold pt-2 border-t">
                   <span>Итого</span>
                   <span>
-                    {(total + (formData.deliveryMethod === "pickup" ? 0 : 
+                    {(total + (formData.deliveryMethod === "pickup" ? 0 :
                               formData.deliveryMethod === "courier" ? 500 : 1000)).toLocaleString()} ₸
                   </span>
                 </div>

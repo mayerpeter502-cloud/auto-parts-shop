@@ -33,7 +33,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      
+
       <main className="flex-1">
         {/* Hero Banner */}
         <section className="relative bg-gray-900 h-64 md:h-96 overflow-hidden">
@@ -86,19 +86,19 @@ export default function HomePage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {products.map((product) => (
-                <ProductCard 
-                  key={product.id} 
+                <ProductCard
+                  key={product.id}
                   product={{
                     ...product,
                     image: product.image || '/placeholder.jpg'  // ← ИСПРАВЛЕНО: добавляем дефолтное значение
-                  }} 
+                  }}
                 />
               ))}
             </div>
           </div>
         </section>
       </main>
-      
+
       <Footer />
     </div>
   );

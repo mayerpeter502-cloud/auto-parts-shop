@@ -10,7 +10,7 @@ export default function NotFound() {
         <p className="text-gray-500 mb-8">
           К сожалению, запрашиваемая страница не существует или была удалена.
         </p>
-        
+
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             href="/"

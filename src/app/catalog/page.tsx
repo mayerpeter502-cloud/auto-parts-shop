@@ -46,7 +46,7 @@ function CatalogContent() {
   useEffect(() => {
     let result = products;
     if (searchQuery) {
-      result = result.filter((p) => 
+      result = result.filter((p) =>
         p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.brand.toLowerCase().includes(searchQuery.toLowerCase())
       );
@@ -68,17 +68,17 @@ function CatalogContent() {
       result = result.filter((p) => p.stock && p.stock > 0);
     }
     if (filters.carBrand) {
-      result = result.filter((p) => 
+      result = result.filter((p) =>
         p.compatibility?.some(c => c.brand.toLowerCase() === filters.carBrand.toLowerCase())
       );
     }
     if (filters.carModel) {
-      result = result.filter((p) => 
+      result = result.filter((p) =>
         p.compatibility?.some(c => c.model.toLowerCase() === filters.carModel.toLowerCase())
       );
     }
     if (filters.year) {
-      result = result.filter((p) => 
+      result = result.filter((p) =>
         p.compatibility?.some(c => c.yearFrom <= Number(filters.year) && c.yearTo >= Number(filters.year))
       );
     }
@@ -115,7 +115,7 @@ function CatalogContent() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      
+
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
         <SearchAutocomplete
           value={searchQuery}
@@ -292,7 +292,7 @@ function CatalogContent() {
           </div>
         </div>
       </main>
-      
+
       <Footer />
     </div>
   );

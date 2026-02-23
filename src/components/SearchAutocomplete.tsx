@@ -33,11 +33,11 @@ export function SearchAutocomplete({ value, onChange, onSelect, placeholder }: S
     }
 
     const products = getProducts();
-    const filtered = products.filter(p => 
+    const filtered = products.filter(p =>
       p.name.toLowerCase().includes(value.toLowerCase()) ||
       p.brand.toLowerCase().includes(value.toLowerCase())
     ).slice(0, 5);
-    
+
     setSuggestions(filtered);
   }, [value]);
 
