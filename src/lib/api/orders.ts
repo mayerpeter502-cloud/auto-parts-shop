@@ -1,58 +1,89 @@
-import { db } from '@/lib/firebase';
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  addDoc,
-  updateDoc,
-  query,
-  where,
-  orderBy,
-  serverTimestamp
-} from 'firebase/firestore';
 import { Order } from '@/types';
 
-const ORDERS_COLLECTION = 'orders';
+const ORDERS_STORAGE_KEY = 'auto_parts_orders';
 
 export const orderApi = {
   async create(order: Omit<Order, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
-    const docRef = await addDoc(collection(db, ORDERS_COLLECTION), {
+    if (typeof window === 'undefined') throw new Error('Server side');
+    
+    const orders = this.getAll();
+    const newOrder: Order = {
       ...order,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    });
-    return docRef.id;
+      id: Date.now().toString(),
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    orders.push(newOrder);
+    localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(orders));
+    return newOrder.id;
   },
 
   async getByUser(userId: string): Promise<Order[]> {
-    const q = query(
-      collection(db, ORDERS_COLLECTION),
-      where('userId', '==', userId),
-      orderBy('createdAt', 'desc')
-    );
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Order[];
+    if (typeof window === 'undefined') return [];
+    
+    const orders = this.getAll();
+    return orders.filter(order => order.userId === userId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   },
 
   async getById(orderId: string): Promise<Order | null> {
-    const docRef = doc(db, ORDERS_COLLECTION, orderId);
-    const docSnap = await getDoc(docRef);
-    if (!docSnap.exists()) return null;
-    return { id: docSnap.id, ...docSnap.data() } as Order;
+    if (typeof window === 'undefined') return null;
+    
+    const orders = this.getAll();
+    return orders.find(order => order.id === orderId) || null;
   },
 
   async updateStatus(orderId: string, status: Order['status']): Promise<void> {
-    const docRef = doc(db, ORDERS_COLLECTION, orderId);
-    await updateDoc(docRef, {
-      status,
-      updatedAt: serverTimestamp()
-    });
+    if (typeof window === 'undefined') return;
+    
+    const orders = this.getAll();
+    const index = orders.findIndex(order => order.id === orderId);
+    
+    if (index !== -1) {
+      orders[index] = {
+        ...orders[index],
+        status,
+        updatedAt: new Date()
+      };
+      localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(orders));
+    }
   },
 
   async getAll(): Promise<Order[]> {
-    const q = query(collection(db, ORDERS_COLLECTION), orderBy('createdAt', 'desc'));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Order[];
+    if (typeof window === 'undefined') return [];
+    
+    try {
+      const data = localStorage.getItem(ORDERS_STORAGE_KEY);
+      if (!data) return [];
+      
+      const parsed = JSON.parse(data);
+      return parsed.map((order: any) => ({
+        ...order,
+        createdAt: order.createdAt ? new Date(order.createdAt) : new Date(),
+        updatedAt: order.updatedAt ? new Date(order.updatedAt) : new Date()
+      }));
+    } catch {
+      return [];
+    }
+  },
+
+  // Вспомогательный метод для получения всех заказов
+  getAll(): Order[] {
+    if (typeof window === 'undefined') return [];
+    
+    try {
+      const data = localStorage.getItem(ORDERS_STORAGE_KEY);
+      if (!data) return [];
+      
+      const parsed = JSON.parse(data);
+      return parsed.map((order: any) => ({
+        ...order,
+        createdAt: order.createdAt ? new Date(order.createdAt) : new Date(),
+        updatedAt: order.updatedAt ? new Date(order.updatedAt) : new Date()
+      }));
+    } catch {
+      return [];
+    }
   }
 };
