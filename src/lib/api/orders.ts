@@ -6,7 +6,7 @@ export const orderApi = {
   async create(order: Omit<Order, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
     if (typeof window === 'undefined') throw new Error('Server side');
     
-    const orders = this.getAll();
+    const orders = await this.getAll();
     const newOrder: Order = {
       ...order,
       id: Date.now().toString(),
@@ -22,7 +22,7 @@ export const orderApi = {
   async getByUser(userId: string): Promise<Order[]> {
     if (typeof window === 'undefined') return [];
     
-    const orders = this.getAll();
+    const orders = await this.getAll();
     return orders.filter(order => order.userId === userId)
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   },
@@ -30,14 +30,14 @@ export const orderApi = {
   async getById(orderId: string): Promise<Order | null> {
     if (typeof window === 'undefined') return null;
     
-    const orders = this.getAll();
+    const orders = await this.getAll();
     return orders.find(order => order.id === orderId) || null;
   },
 
   async updateStatus(orderId: string, status: Order['status']): Promise<void> {
     if (typeof window === 'undefined') return;
     
-    const orders = this.getAll();
+    const orders = await this.getAll();
     const index = orders.findIndex(order => order.id === orderId);
     
     if (index !== -1) {
@@ -51,25 +51,6 @@ export const orderApi = {
   },
 
   async getAll(): Promise<Order[]> {
-    if (typeof window === 'undefined') return [];
-    
-    try {
-      const data = localStorage.getItem(ORDERS_STORAGE_KEY);
-      if (!data) return [];
-      
-      const parsed = JSON.parse(data);
-      return parsed.map((order: any) => ({
-        ...order,
-        createdAt: order.createdAt ? new Date(order.createdAt) : new Date(),
-        updatedAt: order.updatedAt ? new Date(order.updatedAt) : new Date()
-      }));
-    } catch {
-      return [];
-    }
-  },
-
-  // Вспомогательный метод для получения всех заказов
-  getAll(): Order[] {
     if (typeof window === 'undefined') return [];
     
     try {
