@@ -1,14 +1,11 @@
+"use client";
 import Link from "next/link";
 import { Metadata } from "next";
+import { useState, useEffect } from "react";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import ProductCard from "../components/ProductCard";
 import { getProducts } from "./lib/api";
-
-export const metadata: Metadata = {
-  title: "AutoParts.kz - Интернет-магазин автозапчастей",
-  description: "Широкий выбор автозапчастей с доставкой по Казахстану",
-};
 
 const categories = [
   { name: "Моторные масла", slug: "oil", icon: "🛢️" },
@@ -29,28 +26,57 @@ const banners = [
 
 export default function HomePage() {
   const products = getProducts().slice(0, 8);
+  const [currentBanner, setCurrentBanner] = useState(0);
+
+  // ← ДОБАВЛЕНО: Автоматическое переключение баннеров
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentBanner((prev) => (prev + 1) % banners.length);
+    }, 5000); // Переключение каждые 5 секунд
+
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-
+      
       <main className="flex-1">
         {/* Hero Banner */}
         <section className="relative bg-gray-900 h-64 md:h-96 overflow-hidden">
           {banners.map((banner, index) => (
             <div
               key={banner.id}
-              className={`absolute inset-0 transition-opacity duration-500 ${index === 0 ? "opacity-100" : "opacity-0"} ${banner.color} flex items-center justify-center`}
+              className={`absolute inset-0 transition-opacity duration-1000 ${
+                index === currentBanner ? "opacity-100" : "opacity-0"
+              } ${banner.color} flex items-center justify-center`}
             >
               <div className="text-center text-white px-4">
                 <h2 className="text-3xl md:text-5xl font-bold mb-4">{banner.title}</h2>
                 <p className="text-lg md:text-xl opacity-90">{banner.subtitle}</p>
-                <Link href="/catalog" className="inline-block mt-6 px-6 py-3 bg-white text-gray-900 rounded-lg font-medium hover:bg-gray-100">
+                <Link 
+                  href="/catalog" 
+                  className="inline-block mt-6 px-6 py-3 bg-white text-gray-900 rounded-lg font-medium hover:bg-gray-100"
+                >
                   Перейти в каталог
                 </Link>
               </div>
             </div>
           ))}
+          
+          {/* Индикаторы баннеров */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+            {banners.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentBanner(index)}
+                className={`w-3 h-3 rounded-full transition-all ${
+                  index === currentBanner ? "bg-white w-8" : "bg-white/50"
+                }`}
+                aria-label={`Баннер ${index + 1}`}
+              />
+            ))}
+          </div>
         </section>
 
         {/* Categories */}
@@ -90,7 +116,7 @@ export default function HomePage() {
                   key={product.id}
                   product={{
                     ...product,
-                    image: product.image || '/placeholder.jpg'  // ← ИСПРАВЛЕНО: добавляем дефолтное значение
+                    image: product.image || '/placeholder.jpg'
                   }}
                 />
               ))}
@@ -98,7 +124,7 @@ export default function HomePage() {
           </div>
         </section>
       </main>
-
+      
       <Footer />
     </div>
   );
