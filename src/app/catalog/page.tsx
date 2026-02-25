@@ -31,7 +31,7 @@ function CatalogContent() {
 
   const availableBrands = Array.from(new Set(products.map(p => p.brand))).sort();
 
-  // Маппинг slug → полное название категории
+  // ← ИСПРАВЛЕНО: Маппинг slug → полное название категории (как в админке)
   const categorySlugToName: Record<string, string> = {
     oil: "Масла и жидкости",
     filter: "Фильтры",
@@ -41,6 +41,18 @@ function CatalogContent() {
     engine: "Двигатель",
     body: "Кузовные детали",
     accessories: "Аксессуары"
+  };
+
+  // ← ИСПРАВЛЕНО: Обратный маппинг полное название → slug
+  const categoryNameToSlug: Record<string, string> = {
+    "Масла и жидкости": "oil",
+    "Фильтры": "filter",
+    "Тормозная система": "brake",
+    "Подвеска": "suspension",
+    "Электрика": "electrical",
+    "Двигатель": "engine",
+    "Кузовные детали": "body",
+    "Аксессуары": "accessories"
   };
 
   useEffect(() => {
@@ -67,9 +79,13 @@ function CatalogContent() {
     }
 
     if (filters.category) {
-      // ← ИСПРАВЛЕНО: конвертируем slug в полное название
+      // ← ИСПРАВЛЕНО: Проверяем оба варианта (slug и полное название)
       const categoryName = categorySlugToName[filters.category] || filters.category;
-      result = result.filter((p) => p.category === categoryName);
+      result = result.filter((p) => {
+        const productCategorySlug = categoryNameToSlug[p.category] || p.category;
+        const filterCategorySlug = categoryNameToSlug[categoryName] || categoryName;
+        return p.category === categoryName || productCategorySlug === filterCategorySlug;
+      });
     }
 
     if (filters.brand) {
