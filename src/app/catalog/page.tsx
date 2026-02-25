@@ -31,30 +31,6 @@ function CatalogContent() {
 
   const availableBrands = Array.from(new Set(products.map(p => p.brand))).sort();
 
-  // ← ИСПРАВЛЕНО: Маппинг slug → полное название категории (как в админке)
-  const categorySlugToName: Record<string, string> = {
-    oil: "Масла и жидкости",
-    filter: "Фильтры",
-    brake: "Тормозная система",
-    suspension: "Подвеска",
-    electrical: "Электрика",
-    engine: "Двигатель",
-    body: "Кузовные детали",
-    accessories: "Аксессуары"
-  };
-
-  // ← ИСПРАВЛЕНО: Обратный маппинг полное название → slug
-  const categoryNameToSlug: Record<string, string> = {
-    "Масла и жидкости": "oil",
-    "Фильтры": "filter",
-    "Тормозная система": "brake",
-    "Подвеска": "suspension",
-    "Электрика": "electrical",
-    "Двигатель": "engine",
-    "Кузовные детали": "body",
-    "Аксессуары": "accessories"
-  };
-
   useEffect(() => {
     const allProducts = getProducts();
     setProducts(allProducts);
@@ -69,7 +45,7 @@ function CatalogContent() {
 
   useEffect(() => {
     let result = products;
-
+    
     if (searchQuery) {
       result = result.filter((p) =>
         p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -77,46 +53,48 @@ function CatalogContent() {
         p.sku?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-
+    
     if (filters.category) {
-      // ← ИСПРАВЛЕНО: Проверяем оба варианта (slug и полное название)
-      const categoryName = categorySlugToName[filters.category] || filters.category;
-      result = result.filter((p) => {
-        const productCategorySlug = categoryNameToSlug[p.category] || p.category;
-        const filterCategorySlug = categoryNameToSlug[categoryName] || categoryName;
-        return p.category === categoryName || productCategorySlug === filterCategorySlug;
-      });
+      result = result.filter((p) => p.category === filters.category);
     }
-
+    
     if (filters.brand) {
       result = result.filter((p) => p.brand === filters.brand);
     }
-
+    
     if (filters.minPrice) {
       result = result.filter((p) => p.price >= Number(filters.minPrice));
     }
-
+    
     if (filters.maxPrice) {
       result = result.filter((p) => p.price <= Number(filters.maxPrice));
     }
-
+    
     if (filters.inStock) {
-      // ← ИСПРАВЛЕНО: проверяем stock вместо inStock
-      result = result.filter((p) => p.stock && p.stock > 0);
+      // Проверяем оба поля для совместимости
+      result = result.filter((p) => {
+        if ('stock' in p && typeof p.stock === 'number') {
+          return p.stock > 0;
+        }
+        if ('inStock' in p && typeof p.inStock === 'boolean') {
+          return p.inStock === true;
+        }
+        return true;
+      });
     }
-
+    
     if (filters.carBrand) {
       result = result.filter((p) =>
         p.compatibility?.some(c => c.brand.toLowerCase() === filters.carBrand.toLowerCase())
       );
     }
-
+    
     if (filters.carModel) {
       result = result.filter((p) =>
         p.compatibility?.some(c => c.model.toLowerCase() === filters.carModel.toLowerCase())
       );
     }
-
+    
     if (filters.year) {
       result = result.filter((p) =>
         p.compatibility?.some(c => c.yearFrom <= Number(filters.year) && c.yearTo >= Number(filters.year))
