@@ -37,7 +37,7 @@ export default function NewProduct() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-
+    
     try {
       await productApi.create({
         name: formData.name,
@@ -84,7 +84,7 @@ export default function NewProduct() {
             <div className="flex items-center gap-4">
               {formData.image && (
                 <div className="relative">
-                  <Image
+                  <Image 
                     src={formData.image}
                     alt="Preview"
                     width={128}
