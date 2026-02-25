@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { Plus, Edit, Trash2, Search, Upload, X } from "lucide-react";
 import Image from "next/image";
@@ -12,10 +11,12 @@ export default function AdminProductsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [formData, setFormData] = useState({
     name: "",
+    sku: "",
     price: "",
     oldPrice: "",
     brand: "",
     category: "oil",
+    stock: "0",
     inStock: true,
     images: [] as string[],
     description: ""
@@ -53,10 +54,12 @@ export default function AdminProductsPage() {
     e.preventDefault();
     const productData = {
       name: formData.name,
+      sku: formData.sku,
       price: Number(formData.price),
       oldPrice: formData.oldPrice ? Number(formData.oldPrice) : undefined,
       brand: formData.brand,
       category: formData.category,
+      stock: Number(formData.stock),
       inStock: formData.inStock,
       image: formData.images[0] || "https://via.placeholder.com/300x300?text=No+Image",
       images: formData.images,
@@ -76,10 +79,12 @@ export default function AdminProductsPage() {
     setEditingProduct(null);
     setFormData({
       name: "",
+      sku: "",
       price: "",
       oldPrice: "",
       brand: "",
       category: "oil",
+      stock: "0",
       inStock: true,
       images: [],
       description: ""
@@ -90,11 +95,13 @@ export default function AdminProductsPage() {
     setEditingProduct(product);
     setFormData({
       name: product.name,
+      sku: product.sku || "",
       price: product.price.toString(),
       oldPrice: product.oldPrice?.toString() || "",
       brand: product.brand,
       category: product.category,
-      inStock: product.inStock,
+      stock: product.stock?.toString() || "0",
+      inStock: product.inStock || (product.stock && product.stock > 0) || false,
       images: product.images?.length ? product.images : product.image ? [product.image] : [],
       description: product.description || ""
     });
@@ -114,104 +121,114 @@ export default function AdminProductsPage() {
   );
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Товары</h1>
-        <button
-          onClick={() => {
-            setEditingProduct(null);
-            setFormData({
-              name: "",
-              price: "",
-              oldPrice: "",
-              brand: "",
-              category: "oil",
-              inStock: true,
-              images: [],
-              description: ""
-            });
-            setIsModalOpen(true);
-          }}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          <Plus className="w-5 h-5" />
-          Добавить товар
-        </button>
-      </div>
-
-      <div className="bg-white rounded-lg shadow-sm mb-6">
-        <div className="p-4 border-b">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Поиск по названию или бренду..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Товары</h1>
+          <button
+            onClick={() => {
+              setEditingProduct(null);
+              setFormData({
+                name: "",
+                sku: "",
+                price: "",
+                oldPrice: "",
+                brand: "",
+                category: "oil",
+                stock: "0",
+                inStock: true,
+                images: [],
+                description: ""
+              });
+              setIsModalOpen(true);
+            }}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            <Plus className="w-5 h-5" />
+            Добавить товар
+          </button>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Фото</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Название</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Бренд</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Цена</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Наличие</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Действия</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {filteredProducts.map((product) => (
-                <tr key={product.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3">
-                    <div className="w-12 h-12 bg-gray-100 rounded relative overflow-hidden">
-  {product.image ? (
-    <Image
-      src={product.image}
-      alt={product.name}
-      fill
-      className="object-cover"
-    />
-  ) : (
-    <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
-      Нет фото
-    </div>
-  )}
-</div>
-                  </td>
-                  <td className="px-4 py-3 font-medium">{product.name}</td>
-                  <td className="px-4 py-3 text-gray-600">{product.brand}</td>
-                  <td className="px-4 py-3">{product.price.toLocaleString()} ₸</td>
-                  <td className="px-4 py-3">
-                    <span className={`px-2 py-1 rounded text-sm ${product.inStock ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                      {product.inStock ? 'В наличии' : 'Нет'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleEdit(product)}
-                        className="p-2 text-blue-600 hover:bg-blue-50 rounded"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(product.id)}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
+        <div className="bg-white rounded-lg shadow-sm mb-6">
+          <div className="p-4 border-b">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Поиск по названию или бренду..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Фото</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Название</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">SKU</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Бренд</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Цена</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Количество</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Наличие</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Действия</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {filteredProducts.map((product) => (
+                  <tr key={product.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-3">
+                      <div className="w-12 h-12 bg-gray-100 rounded relative overflow-hidden">
+                        {product.image ? (
+                          <Image
+                            src={product.image}
+                            alt={product.name}
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <span className="text-xs text-gray-400">Нет фото</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 font-medium">{product.name}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600">{product.sku || "-"}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600">{product.brand}</td>
+                    <td className="px-4 py-3 font-medium">{product.price.toLocaleString()} ₸</td>
+                    <td className="px-4 py-3 text-sm text-gray-600">{product.stock || 0} шт.</td>
+                    <td className="px-4 py-3">
+                      <span className={`px-2 py-1 rounded-full text-xs ${
+                        (product.inStock || (product.stock && product.stock > 0))
+                          ? "bg-green-100 text-green-700"
+                          : "bg-gray-100 text-gray-700"
+                      }`}>
+                        {(product.inStock || (product.stock && product.stock > 0)) ? 'В наличии' : 'Нет'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleEdit(product)}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(product.id)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -295,6 +312,30 @@ export default function AdminProductsPage() {
                     required
                     value={formData.brand}
                     onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Артикул (SKU)</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.sku}
+                    onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Количество на складе</label>
+                  <input
+                    type="number"
+                    min="0"
+                    required
+                    value={formData.stock}
+                    onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
                   />
                 </div>
