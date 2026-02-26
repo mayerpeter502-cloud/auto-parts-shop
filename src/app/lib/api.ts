@@ -1,4 +1,3 @@
-// Файл: src/app/lib/api.ts
 export interface Product {
   id: string;
   name: string;
@@ -9,7 +8,7 @@ export interface Product {
   image?: string;
   images?: string[];
   inStock: boolean;
-  stock?: number;  // ← ДОБАВЬТЕ (для совместимости с types/index.ts)
+  stock?: number;
   description?: string;
   compatibility?: {
     brand: string;
@@ -20,9 +19,10 @@ export interface Product {
   specifications?: Record<string, string>;
   rating?: number;
   reviewsCount?: number;
-  sku?: string;  // ← ДОБАВЬТЕ
-  createdAt?: Date;  // ← ДОБАВЬТЕ
-  isPopular?: boolean;  // ← ДОБАВЬТЕ
+  sku?: string;
+  createdAt?: Date;
+  isPopular?: boolean;
+  crossNumbers?: string[];  // ← ДОБАВЬТЕ ЭТУ СТРОКУ
 }
 
 const defaultProducts: Product[] = [

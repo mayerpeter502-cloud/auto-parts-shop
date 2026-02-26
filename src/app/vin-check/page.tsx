@@ -51,14 +51,13 @@ interface VinResult {
 }
 
 export default function VinCheckPage() {
-  const [vin, setVin] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
+  const [vin, setVin] = useState('');
+  const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<VinResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (vin.length < 17) {
       setError('VIN-код должен содержать 17 символов');
       return;
@@ -88,10 +87,29 @@ export default function VinCheckPage() {
     }, 1500);
   };
 
+  const handleVinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // ← АВТОМАТИЧЕСКИЙ UPPERCASE и только допустимые символы
+    let value = e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, '');
+    
+    // ← ОГРАНИЧЕНИЕ 17 символов
+    if (value.length > 17) {
+      value = value.slice(0, 17);
+    }
+    
+    setVin(value);
+    setError(null);
+  };
+
+  const getProgressColor = () => {
+    if (vin.length === 0) return 'bg-gray-200';
+    if (vin.length < 17) return 'bg-yellow-500';
+    return 'bg-green-500';
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-
+      
       <main className="flex-1">
         {/* Кнопка на главную */}
         <div className="bg-gray-50 border-b">
@@ -123,11 +141,22 @@ export default function VinCheckPage() {
               <input
                 type="text"
                 value={vin}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setVin(e.target.value.toUpperCase())}
+                onChange={handleVinChange}
                 placeholder="Введите VIN-код (17 символов)"
-                className="w-full px-6 py-4 pr-36 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-white/30 text-lg uppercase tracking-wider"
+                className="w-full px-6 py-4 pr-36 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-white/30 text-lg uppercase tracking-wider font-mono"
                 maxLength={17}
               />
+              
+              {/* ← СЧЕТЧИК СИМВОЛОВ */}
+              <div className="absolute right-36 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                <span className={`text-sm font-medium ${
+                  vin.length === 17 ? 'text-green-600' : 
+                  vin.length > 0 ? 'text-yellow-600' : 'text-gray-400'
+                }`}>
+                  {vin.length}/17
+                </span>
+              </div>
+
               <button
                 type="submit"
                 disabled={loading || vin.length < 17}
@@ -144,20 +173,46 @@ export default function VinCheckPage() {
               </button>
             </form>
 
+            {/* ← ПРОГРЕСС-БАР ЗАПОЛНЕНИЯ */}
+            <div className="mb-4">
+              <div className="h-2 bg-white/20 rounded-full overflow-hidden">
+                <div 
+                  className={`h-full transition-all duration-300 ${getProgressColor()}`}
+                  style={{ width: `${(vin.length / 17) * 100}%` }}
+                />
+              </div>
+            </div>
+
+            {/* ← ПОДСКАЗКИ ПО ВВОДУ */}
+            <div className="flex flex-wrap gap-4 text-sm text-blue-200">
+              <div className="flex items-center gap-2">
+                <span className="font-mono bg-white/10 px-2 py-1 rounded">A-H</span>
+                <span>Буквы (кроме I, O, Q)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-mono bg-white/10 px-2 py-1 rounded">0-9</span>
+                <span>Цифры</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-mono bg-white/10 px-2 py-1 rounded">17</span>
+                <span>символов</span>
+              </div>
+            </div>
+
             {error && (
-              <div className="mb-4 flex items-center gap-2 text-red-200 bg-red-500/20 px-4 py-2 rounded-lg">
-                <AlertCircle className="w-5 h-5" />
+              <div className="mt-4 flex items-center gap-2 text-red-200 bg-red-500/20 px-4 py-3 rounded-lg">
+                <AlertCircle className="w-5 h-5 flex-shrink-0" />
                 <span>{error}</span>
               </div>
             )}
 
-            <div className="flex flex-wrap gap-2 text-sm text-blue-200">
+            <div className="mt-6 flex flex-wrap gap-2 text-sm text-blue-200">
               <span>Примеры:</span>
               {['JTDBU4EE3B9123456', 'Z94CT41DBMR123456'].map((example) => (
                 <button
                   key={example}
                   onClick={() => setVin(example)}
-                  className="underline hover:text-white transition-colors"
+                  className="underline hover:text-white transition-colors font-mono"
                 >
                   {example}
                 </button>
@@ -232,7 +287,7 @@ export default function VinCheckPage() {
           </div>
         )}
       </main>
-
+      
       <Footer />
     </div>
   );

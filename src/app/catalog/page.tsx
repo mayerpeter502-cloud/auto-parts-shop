@@ -2,12 +2,15 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import ProductCard from '../../components/ProductCard';
+import { ProductCardSkeleton } from '../../components/ProductCardSkeleton';
 import { SearchAutocomplete } from "../../components/SearchAutocomplete";
 import { CarSelector } from "../../components/CarSelector";
 import { getProducts, Product } from "../lib/api";
-import { SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal, Home } from "lucide-react";
 import { Header } from "../../components/Header";
 import { Footer } from "../../components/Footer";
+import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 
 function CatalogContent() {
   const searchParams = useSearchParams();
@@ -16,6 +19,7 @@ function CatalogContent() {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(true); // ← НОВОЕ
   const [filters, setFilters] = useState({
     category: categoryFromUrl || "",
     brand: "",
@@ -35,6 +39,7 @@ function CatalogContent() {
     const allProducts = getProducts();
     setProducts(allProducts);
     setFilteredProducts(allProducts);
+    setIsLoading(false); // ← НОВОЕ: загрузка завершена
   }, []);
 
   useEffect(() => {
@@ -53,7 +58,16 @@ function CatalogContent() {
       );
     }
     if (filters.category) {
-      result = result.filter((p) => p.category === filters.category);
+      const categoryMap: Record<string, string[]> = {
+        "Масла и жидкости": ["oil", "Масла и жидкости"],
+        "Фильтры": ["filter", "Фильтры"],
+        "Тормозная система": ["brake", "Тормозная система"],
+        "Подвеска": ["suspension", "Подвеска"],
+        "Электрика": ["electrical", "Электрика"],
+        "Двигатель": ["engine", "Двигатель"]
+      };
+      const categoryValues = categoryMap[filters.category] || [filters.category];
+      result = result.filter((p) => categoryValues.includes(p.category));
     }
     if (filters.brand) {
       result = result.filter((p) => p.brand === filters.brand);
@@ -65,7 +79,6 @@ function CatalogContent() {
       result = result.filter((p) => p.price <= Number(filters.maxPrice));
     }
     if (filters.inStock) {
-      // ← ИСПРАВЛЕНО: проверяем stock вместо inStock
       result = result.filter((p) => p.stock !== undefined && p.stock > 0);
     }
     if (filters.carBrand) {
@@ -103,16 +116,20 @@ function CatalogContent() {
 
   const getCategoryName = (category: string) => {
     const names: Record<string, string> = {
-      oil: "Моторные масла",
+      oil: "Масла и жидкости",
       filter: "Фильтры",
-      brake: "Тормозные системы",
+      brake: "Тормозная система",
       suspension: "Подвеска",
       electrical: "Электрика",
       engine: "Двигатель",
-      body: "Кузовные детали",
-      accessories: "Аксессуары"
+      "Масла и жидкости": "Масла и жидкости",
+      "Фильтры": "Фильтры",
+      "Тормозная система": "Тормозная система",
+      "Подвеска": "Подвеска",
+      "Электрика": "Электрика",
+      "Двигатель": "Двигатель"
     };
-    return names[category] || "Каталог";
+    return names[category] || category;
   };
 
   return (
@@ -120,6 +137,18 @@ function CatalogContent() {
       <Header />
       
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
+        {/* Breadcrumbs */}
+        <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
+          <Link href="/" className="flex items-center gap-1 hover:text-blue-600 transition-colors">
+            <Home className="w-4 h-4" />
+            <span>Главная</span>
+          </Link>
+          <ChevronRight className="w-4 h-4" />
+          <span className="text-gray-900 font-medium">
+            {filters.category ? getCategoryName(filters.category) : "Каталог"}
+          </span>
+        </nav>
+
         <SearchAutocomplete
           value={searchQuery}
           onChange={setSearchQuery}
@@ -250,25 +279,32 @@ function CatalogContent() {
               <span className="text-sm text-gray-500">{filteredProducts.length} товаров</span>
             </div>
 
-            {paginatedProducts.length === 0 ? (
+            {paginatedProducts.length === 0 && !isLoading ? (
               <div className="text-center py-12 bg-white rounded-lg">
                 <p className="text-gray-500">Товары не найдены</p>
               </div>
             ) : (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {paginatedProducts.map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      product={{
-                        ...product,
-                        image: product.image || '/placeholder.jpg'
-                      }}
-                    />
-                  ))}
+                  {/* ← НОВОЕ: Показываем скелетоны во время загрузки */}
+                  {isLoading ? (
+                    Array.from({ length: itemsPerPage }).map((_, i) => (
+                      <ProductCardSkeleton key={i} />
+                    ))
+                  ) : (
+                    paginatedProducts.map((product) => (
+                      <ProductCard
+                        key={product.id}
+                        product={{
+                          ...product,
+                          image: product.image || '/placeholder.jpg'
+                        }}
+                      />
+                    ))
+                  )}
                 </div>
 
-                {filteredProducts.length > itemsPerPage && (
+                {!isLoading && filteredProducts.length > itemsPerPage && (
                   <div className="mt-8 flex flex-col items-center gap-4">
                     <div className="flex items-center gap-2">
                       {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (

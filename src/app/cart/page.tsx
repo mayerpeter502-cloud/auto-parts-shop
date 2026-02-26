@@ -1,6 +1,6 @@
 "use client";
 import { useCart } from "../../contexts/CartContext";
-import { Trash2, Minus, Plus, ShoppingBag, ArrowRight } from "lucide-react";
+import { Trash2, Minus, Plus, ShoppingBag, ArrowRight, Home, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Header } from "../../components/Header";
@@ -13,17 +13,31 @@ export default function CartPage() {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-1 flex flex-col items-center justify-center p-4">
-          <ShoppingBag className="w-24 h-24 text-gray-300 mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Корзина пуста</h1>
-          <p className="text-gray-500 mb-6">Добавьте товары для оформления заказа</p>
-          <Link
-            href="/catalog"
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Перейти в каталог
-          </Link>
+        
+        <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
+          {/* Breadcrumbs */}
+          <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
+            <Link href="/" className="flex items-center gap-1 hover:text-blue-600 transition-colors">
+              <Home className="w-4 h-4" />
+              <span>Главная</span>
+            </Link>
+            <ChevronRight className="w-4 h-4" />
+            <span className="text-gray-900 font-medium">Корзина</span>
+          </nav>
+
+          <div className="flex flex-col items-center justify-center py-12">
+            <ShoppingBag className="w-24 h-24 text-gray-300 mb-4" />
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Корзина пуста</h1>
+            <p className="text-gray-500 mb-6">Добавьте товары для оформления заказа</p>
+            <Link
+              href="/catalog"
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              Перейти в каталог
+            </Link>
+          </div>
         </main>
+        
         <Footer />
       </div>
     );
@@ -34,6 +48,16 @@ export default function CartPage() {
       <Header />
       
       <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-8">
+        {/* Breadcrumbs */}
+        <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
+          <Link href="/" className="flex items-center gap-1 hover:text-blue-600 transition-colors">
+            <Home className="w-4 h-4" />
+            <span>Главная</span>
+          </Link>
+          <ChevronRight className="w-4 h-4" />
+          <span className="text-gray-900 font-medium">Корзина</span>
+        </nav>
+
         <h1 className="text-2xl font-bold text-gray-900 mb-6">Корзина</h1>
 
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">

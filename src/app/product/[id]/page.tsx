@@ -2,14 +2,13 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { ShoppingCart, Check, ChevronLeft, Star } from "lucide-react";
+import { ShoppingCart, Check, ChevronRight, Star, Home, Repeat } from "lucide-react";
 import Image from "next/image";
-import { productsApi } from "../../lib/api";
+import { productsApi, getProducts, Product } from "../../lib/api";
 import { useCart } from "../../../contexts/CartContext";
 import { RelatedProducts } from "../../../components/RelatedProducts";
 import { ProductReviews } from "../../../components/ProductReviews";
 import { FrequentlyBoughtTogether } from "../../../components/FrequentlyBoughtTogether";
-import { getProducts, Product } from "../../lib/api";
 import { Header } from "../../../components/Header";
 import { Footer } from "../../../components/Footer";
 
@@ -18,6 +17,7 @@ export default function ProductPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [analogProducts, setAnalogProducts] = useState<Product[]>([]);
   const { addItem } = useCart();
 
   useEffect(() => {
@@ -29,6 +29,16 @@ export default function ProductPage() {
       setLoading(false);
     }
   }, [params.id]);
+
+  // ← НОВОЕ: Поиск аналогов по кросс-номерам
+  useEffect(() => {
+    if (product?.crossNumbers && product.crossNumbers.length > 0) {
+      const analogs = allProducts.filter(p => 
+        product.crossNumbers?.includes(p.sku || '') && p.id !== product.id
+      );
+      setAnalogProducts(analogs);
+    }
+  }, [product, allProducts]);
 
   if (loading) {
     return (
@@ -57,19 +67,43 @@ export default function ProductPage() {
     );
   }
 
+  const getCategoryName = (category: string) => {
+    const names: Record<string, string> = {
+      "Масла и жидкости": "Масла и жидкости",
+      "Фильтры": "Фильтры",
+      "Тормозная система": "Тормозная система",
+      "Двигатель": "Двигатель",
+      "Подвеска": "Подвеска",
+      "Электрика": "Электрика"
+    };
+    return names[category] || category;
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-
+      
       <main className="flex-1">
         <div className="container mx-auto px-4 py-8">
-          {/* Breadcrumb */}
-          <div className="mb-6">
-            <Link href="/catalog" className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
-              <ChevronLeft className="w-4 h-4" />
-              Назад в каталог
+          {/* BREADCRUMBS (Хлебные крошки) */}
+          <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
+            <Link href="/" className="flex items-center gap-1 hover:text-blue-600 transition-colors">
+              <Home className="w-4 h-4" />
+              <span>Главная</span>
             </Link>
-          </div>
+            <ChevronRight className="w-4 h-4" />
+            <Link href="/catalog" className="hover:text-blue-600 transition-colors">
+              Каталог
+            </Link>
+            <ChevronRight className="w-4 h-4" />
+            <Link href={`/catalog?category=${encodeURIComponent(product.category)}`} className="hover:text-blue-600 transition-colors">
+              {getCategoryName(product.category)}
+            </Link>
+            <ChevronRight className="w-4 h-4" />
+            <span className="text-gray-900 font-medium truncate max-w-[200px] sm:max-w-md">
+              {product.name}
+            </span>
+          </nav>
 
           <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 md:p-8">
@@ -91,7 +125,7 @@ export default function ProductPage() {
               <div>
                 <div className="text-sm text-gray-500 mb-2">{product.brand}</div>
                 <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">{product.name}</h1>
-
+                
                 <div className="flex items-center gap-2 mb-4">
                   <div className="flex items-center gap-1">
                     <Star className="w-5 h-5 text-yellow-400 fill-current" />
@@ -116,6 +150,9 @@ export default function ProductPage() {
                   <span className={product.stock && product.stock > 0 ? 'text-green-600' : 'text-red-600'}>
                     {product.stock && product.stock > 0 ? 'В наличии' : 'Нет в наличии'}
                   </span>
+                  {product.stock && product.stock > 0 && (
+                    <span className="text-sm text-gray-500">({product.stock} шт.)</span>
+                  )}
                 </div>
 
                 <button
@@ -170,6 +207,64 @@ export default function ProductPage() {
                     </div>
                   </div>
                 )}
+
+                {/* ← НОВОЕ: Кросс-номера (Аналоги) */}
+                {(product.crossNumbers && product.crossNumbers.length > 0) || analogProducts.length > 0 ? (
+                  <div className="mt-8 pt-8 border-t">
+                    <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <Repeat className="w-5 h-5 text-blue-600" />
+                      Аналоги товара
+                    </h2>
+                    
+                    {/* Кросс-номера (SKU) */}
+                    {product.crossNumbers && product.crossNumbers.length > 0 && (
+                      <div className="mb-4">
+                        <p className="text-sm text-gray-600 mb-2">Кросс-номера:</p>
+                        <div className="flex flex-wrap gap-2">
+                          {product.crossNumbers.map((cross, index) => (
+                            <span 
+                              key={index}
+                              className="px-3 py-1 bg-gray-100 text-gray-700 rounded-md text-sm font-mono"
+                            >
+                              {cross}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Товары-аналоги */}
+                    {analogProducts.length > 0 && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {analogProducts.map(analog => (
+                          <Link 
+                            key={analog.id}
+                            href={`/product/${analog.id}`}
+                            className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors"
+                          >
+                            <div className="w-16 h-16 bg-gray-100 rounded-md flex-shrink-0 relative overflow-hidden">
+                              {analog.image && (
+                                <Image
+                                  src={analog.image}
+                                  alt={analog.name}
+                                  fill
+                                  className="object-contain p-2"
+                                />
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-gray-900 truncate text-sm">{analog.name}</div>
+                              <div className="text-xs text-gray-500">{analog.brand}</div>
+                              <div className="text-blue-600 font-semibold text-sm">
+                                {analog.price.toLocaleString()} ₸
+                              </div>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : null}
               </div>
             </div>
           </div>
@@ -186,7 +281,7 @@ export default function ProductPage() {
           <RelatedProducts products={allProducts} currentProductId={product.id} />
         </div>
       </main>
-
+      
       <Footer />
     </div>
   );

@@ -14,6 +14,10 @@ export default function EditProductPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [product, setProduct] = useState<Product | null>(null);
+  
+  // ← Отдельное состояние для input кросс-номеров (строка)
+  const [crossNumbersInput, setCrossNumbersInput] = useState('');
+  
   const [formData, setFormData] = useState<Partial<Product>>({
     stock: 0
   });
@@ -28,6 +32,8 @@ export default function EditProductPage() {
     if (found) {
       setProduct(found);
       setFormData(found);
+      // ← Конвертируем массив в строку для input
+      setCrossNumbersInput(found.crossNumbers?.join(', ') || '');
     }
     setLoading(false);
   }, [params.id, isAdmin, router]);
@@ -48,10 +54,22 @@ export default function EditProductPage() {
     if (!product) return;
     setSaving(true);
     try {
-      const updated = productApi.update(product.id, formData);
+      // ← Конвертируем строку обратно в массив
+      const crossNumbersArray = crossNumbersInput
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean);
+
+      const updated = productApi.update(product.id, {
+        ...formData,
+        crossNumbers: crossNumbersArray,
+        stock: Number(formData.stock) || 0
+      });
       if (updated) {
         router.push('/admin');
       }
+    } catch (error) {
+      console.error('Error updating product:', error);
     } finally {
       setSaving(false);
     }
@@ -92,7 +110,7 @@ export default function EditProductPage() {
               <div className="flex items-center gap-4">
                 {formData.image && (
                   <div className="relative">
-                    <Image
+                    <Image 
                       src={formData.image}
                       alt="Preview"
                       width={128}
@@ -233,6 +251,22 @@ export default function EditProductPage() {
                   <option value="true">Да</option>
                 </select>
               </div>
+            </div>
+
+            {/* ← Поле для кросс-номеров (отдельное состояние) */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Кросс-номера (аналоги)
+              </label>
+              <input
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                value={crossNumbersInput}
+                onChange={(e) => setCrossNumbersInput(e.target.value)}
+                placeholder="BOS-OF-045, MANN-W712, FILTRON-OP596"
+              />
+              <p className="text-sm text-gray-500 mt-1">
+                Введите SKU аналогов через запятую
+              </p>
             </div>
 
             <div>

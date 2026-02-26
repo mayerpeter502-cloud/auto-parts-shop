@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Search, ShoppingCart, User, Menu, X, Car, Scale, Heart } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
+import { getProducts } from '../app/lib/api';
 
 export function Header() {
   const { user } = useAuth();

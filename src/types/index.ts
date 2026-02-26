@@ -5,7 +5,7 @@ export interface Product {
   sku: string;
   price: number;
   oldPrice?: number;
-  image?: string;  // ← ИЗМЕНИТЕ: добавьте ? (сделайте опциональным)
+  image?: string;
   images?: string[];
   category: string;
   brand: string;
@@ -16,7 +16,8 @@ export interface Product {
   rating: number;
   reviewsCount: number;
   createdAt: Date;
-  isPopular?: boolean;  // ← Добавьте это поле
+  isPopular?: boolean;
+  crossNumbers?: string[]; // ← ДОБАВЬТЕ ЭТУ СТРОКУ
 }
 
 export interface CarCompatibility {
