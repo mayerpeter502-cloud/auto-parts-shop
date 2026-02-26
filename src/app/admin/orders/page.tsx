@@ -1,7 +1,8 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { ordersApi } from "../../lib/orders";
+import { updateProduct, getProductById } from "../../lib/api";
+import { CheckCircle, XCircle } from "lucide-react";
 
 const statusLabels: Record<string, string> = {
   pending: "Ожидает",
@@ -21,20 +22,60 @@ const statusColors: Record<string, string> = {
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState<any[]>([]);
+  const [stockUpdated, setStockUpdated] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     setOrders(ordersApi.getAll());
   }, []);
 
   const updateStatus = (orderId: string, newStatus: string) => {
+    const order = orders.find(o => o.id === orderId);
+    const oldOrder = order;
+    
+    // ← Списываем stock только при переходе в "shipped" или "delivered"
+    if ((newStatus === 'shipped' || newStatus === 'delivered') && oldOrder?.status !== newStatus) {
+      const alreadyUpdated = stockUpdated[orderId];
+      
+      if (!alreadyUpdated && order?.items) {
+        order.items.forEach((item: any) => {
+          const product = getProductById(item.productId || item.id);
+          if (product && product.stock !== undefined) {
+            const newStock = Math.max(0, product.stock - item.quantity);
+            updateProduct(product.id, { stock: newStock });
+          }
+        });
+        
+        // Помечаем что stock уже списан для этого заказа
+        setStockUpdated(prev => ({ ...prev, [orderId]: true }));
+      }
+    }
+
+    // ← Возвращаем stock при отмене заказа
+    if (newStatus === 'cancelled' && oldOrder?.status !== 'cancelled') {
+      const wasUpdated = stockUpdated[orderId];
+      
+      if (wasUpdated && order?.items) {
+        order.items.forEach((item: any) => {
+          const product = getProductById(item.productId || item.id);
+          if (product && product.stock !== undefined) {
+            const newStock = product.stock + item.quantity;
+            updateProduct(product.id, { stock: newStock });
+          }
+        });
+        
+        // Снимаем метку что stock списан
+        setStockUpdated(prev => ({ ...prev, [orderId]: false }));
+      }
+    }
+
     ordersApi.updateStatus(orderId, newStatus as any);
     setOrders(ordersApi.getAll());
   };
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">Управление заказами</h1>
-
+    <div className="p-6">
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">Управление заказами</h1>
+      
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
         <table className="w-full">
           <thead className="bg-gray-50 border-b">
@@ -44,6 +85,7 @@ export default function AdminOrders() {
               <th className="text-left py-3 px-4">Товары</th>
               <th className="text-left py-3 px-4">Сумма</th>
               <th className="text-left py-3 px-4">Статус</th>
+              <th className="text-left py-3 px-4">Stock</th>
             </tr>
           </thead>
           <tbody>
@@ -55,8 +97,8 @@ export default function AdminOrders() {
                 </td>
                 <td className="py-3 px-4">
                   <div className="text-sm">
-                    {order.items.map((item: any) => (
-                      <div key={item.productId}>{item.name} x{item.quantity}</div>
+                    {order.items.map((item: any, idx: number) => (
+                      <div key={idx}>{item.name} x{item.quantity}</div>
                     ))}
                   </div>
                 </td>
@@ -71,6 +113,21 @@ export default function AdminOrders() {
                       <option key={value} value={value}>{label}</option>
                     ))}
                   </select>
+                </td>
+                <td className="py-3 px-4">
+                  {stockUpdated[order.id] || order.status === 'shipped' || order.status === 'delivered' ? (
+                    <span className="flex items-center gap-1 text-green-600 text-sm">
+                      <CheckCircle className="w-4 h-4" />
+                      Списан
+                    </span>
+                  ) : order.status === 'cancelled' ? (
+                    <span className="flex items-center gap-1 text-red-600 text-sm">
+                      <XCircle className="w-4 h-4" />
+                      Возвращён
+                    </span>
+                  ) : (
+                    <span className="text-gray-400 text-sm">—</span>
+                  )}
                 </td>
               </tr>
             ))}

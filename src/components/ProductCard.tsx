@@ -116,8 +116,8 @@ export default function ProductCard({ product }: ProductCardProps) {
           <button
             onClick={toggleFavorite}
             className={`p-2 rounded-full shadow-md transition-all duration-200 ${
-              isInFavorites
-                ? 'bg-red-500 text-white'
+              isInFavorites 
+                ? 'bg-red-500 text-white' 
                 : 'bg-white text-gray-400 hover:text-red-500'
             }`}
             title={isInFavorites ? 'В избранном' : 'В избранное'}
@@ -127,8 +127,8 @@ export default function ProductCard({ product }: ProductCardProps) {
           <button
             onClick={toggleCompare}
             className={`p-2 rounded-full shadow-md transition-all duration-200 ${
-              isInCompare
-                ? 'bg-blue-500 text-white'
+              isInCompare 
+                ? 'bg-blue-500 text-white'  
                 : 'bg-white text-gray-400 hover:text-blue-500'
             }`}
             title={isInCompare ? 'В сравнении' : 'Сравнить'}
@@ -145,7 +145,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             {product.name}
           </h3>
         </Link>
-
+        
         {product.rating && (
           <div className="flex items-center gap-1 mb-2">
             <div className="flex text-yellow-400 text-xs">
@@ -169,7 +169,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             )}
           </div>
 
-          {/* ← ДОБАВЛЕНО: Отображение количества на складе */}
+          {/* Отображение количества на складе */}
           {inStock ? (
             <div className="text-sm text-green-600 mb-3">
               В наличии: {product.stock} шт.

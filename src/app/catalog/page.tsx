@@ -45,58 +45,41 @@ function CatalogContent() {
 
   useEffect(() => {
     let result = products;
-    
     if (searchQuery) {
-      result = result.filter((p) =>
+      result = result.filter((p) => 
         p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.sku?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-    
     if (filters.category) {
       result = result.filter((p) => p.category === filters.category);
     }
-    
     if (filters.brand) {
       result = result.filter((p) => p.brand === filters.brand);
     }
-    
     if (filters.minPrice) {
       result = result.filter((p) => p.price >= Number(filters.minPrice));
     }
-    
     if (filters.maxPrice) {
       result = result.filter((p) => p.price <= Number(filters.maxPrice));
     }
-    
     if (filters.inStock) {
-      // Проверяем оба поля для совместимости
-      result = result.filter((p) => {
-        if ('stock' in p && typeof p.stock === 'number') {
-          return p.stock > 0;
-        }
-        if ('inStock' in p && typeof p.inStock === 'boolean') {
-          return p.inStock === true;
-        }
-        return true;
-      });
+      // ← ИСПРАВЛЕНО: проверяем stock вместо inStock
+      result = result.filter((p) => p.stock !== undefined && p.stock > 0);
     }
-    
     if (filters.carBrand) {
-      result = result.filter((p) =>
+      result = result.filter((p) => 
         p.compatibility?.some(c => c.brand.toLowerCase() === filters.carBrand.toLowerCase())
       );
     }
-    
     if (filters.carModel) {
-      result = result.filter((p) =>
+      result = result.filter((p) => 
         p.compatibility?.some(c => c.model.toLowerCase() === filters.carModel.toLowerCase())
       );
     }
-    
     if (filters.year) {
-      result = result.filter((p) =>
+      result = result.filter((p) => 
         p.compatibility?.some(c => c.yearFrom <= Number(filters.year) && c.yearTo >= Number(filters.year))
       );
     }
@@ -200,14 +183,12 @@ function CatalogContent() {
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                 >
                   <option value="">Все категории</option>
-                  <option value="oil">Моторные масла</option>
-                  <option value="filter">Фильтры</option>
-                  <option value="brake">Тормозная система</option>
-                  <option value="suspension">Подвеска</option>
-                  <option value="electrical">Электрика</option>
-                  <option value="engine">Двигатель</option>
-                  <option value="body">Кузовные детали</option>
-                  <option value="accessories">Аксессуары</option>
+                  <option value="Масла и жидкости">Масла и жидкости</option>
+                  <option value="Фильтры">Фильтры</option>
+                  <option value="Тормозная система">Тормозная система</option>
+                  <option value="Двигатель">Двигатель</option>
+                  <option value="Подвеска">Подвеска</option>
+                  <option value="Электрика">Электрика</option>
                 </select>
               </div>
 

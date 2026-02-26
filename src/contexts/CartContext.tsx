@@ -1,6 +1,6 @@
 "use client";
-
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { updateProduct, getProductById } from "../app/lib/api";
 
 interface CartItem {
   id: string;
@@ -19,6 +19,15 @@ interface CartContextType {
   clearCart: () => void;
   total: number;
   count: number;
+  checkout: (orderData: OrderData) => Promise<boolean>;
+}
+
+interface OrderData {
+  name: string;
+  phone: string;
+  email: string;
+  address: string;
+  paymentMethod: string;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -38,6 +47,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (isLoaded) {
       localStorage.setItem("cart", JSON.stringify(items));
+      // ← ДОБАВЛЕНО: Событие для обновления счетчика в Header
+      window.dispatchEvent(new CustomEvent("cartUpdated"));
     }
   }, [items, isLoaded]);
 
@@ -71,6 +82,24 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setItems([]);
   };
 
+  const checkout = async (orderData: OrderData): Promise<boolean> => {
+    try {
+      items.forEach(cartItem => {
+        const product = getProductById(cartItem.id);
+        if (product && product.stock !== undefined) {
+          const newStock = Math.max(0, product.stock - cartItem.quantity);
+          updateProduct(product.id, { stock: newStock });
+        }
+      });
+
+      clearCart();
+      return true;
+    } catch (error) {
+      console.error('Checkout error:', error);
+      return false;
+    }
+  };
+
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const count = items.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -80,7 +109,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <CartContext.Provider
-      value={{ items, addItem, removeItem, updateQuantity, clearCart, total, count }}
+      value={{ items, addItem, removeItem, updateQuantity, clearCart, total, count, checkout }}
     >
       {children}
     </CartContext.Provider>

@@ -1,30 +1,28 @@
 "use client";
-
-import Link from "next/link";
 import { useCart } from "../../contexts/CartContext";
+import { Trash2, Minus, Plus, ShoppingBag, ArrowRight } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
 import { Header } from "../../components/Header";
 import { Footer } from "../../components/Footer";
-import { Trash2, Plus, Minus, ShoppingCart, ArrowRight } from "lucide-react";
 
 export default function CartPage() {
-  const { items, removeItem, updateQuantity, total, count } = useCart();
+  const { items, removeItem, updateQuantity, total, clearCart } = useCart();
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-1 flex items-center justify-center py-12">
-          <div className="container mx-auto px-4 max-w-2xl text-center">
-            <ShoppingCart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Корзина пуста</h1>
-            <p className="text-gray-500 mb-6">Добавьте товары для оформления заказа</p>
-            <Link
-              href="/catalog"
-              className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
-            >
-              Перейти в каталог
-            </Link>
-          </div>
+        <main className="flex-1 flex flex-col items-center justify-center p-4">
+          <ShoppingBag className="w-24 h-24 text-gray-300 mb-4" />
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Корзина пуста</h1>
+          <p className="text-gray-500 mb-6">Добавьте товары для оформления заказа</p>
+          <Link
+            href="/catalog"
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Перейти в каталог
+          </Link>
         </main>
         <Footer />
       </div>
@@ -32,83 +30,89 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 py-8">
-        <div className="container mx-auto px-4">
-          <h1 className="text-2xl font-bold text-gray-900 mb-8">Корзина ({count})</h1>
+      
+      <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-8">
+        <h1 className="text-2xl font-bold text-gray-900 mb-6">Корзина</h1>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-4">
-              {items.map((item) => (
-                <div key={item.id} className="bg-white rounded-lg shadow-sm p-4 flex gap-4">
-                  <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <span className="text-3xl">🔧</span>
-                  </div>
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="divide-y">
+            {items.map((item) => (
+              <div key={item.id} className="p-4 flex gap-4">
+                <div className="w-24 h-24 bg-gray-100 rounded-lg flex-shrink-0 relative overflow-hidden">
+                  <Image
+                    src={item.image}
+                    alt={item.name}
+                    fill
+                    className="object-contain p-2"
+                  />
+                </div>
 
-                  <div className="flex-1">
-                    <h3 className="font-medium text-gray-900 mb-1">{item.name}</h3>
-                    <p className="text-sm text-gray-500 mb-2">{item.sku}</p>
-                    <div className="text-lg font-bold text-gray-900">
-                      {item.price.toLocaleString()} ₸
-                    </div>
-                  </div>
+                <div className="flex-1">
+                  <h3 className="font-medium text-gray-900">{item.name}</h3>
+                  <p className="text-sm text-gray-500">{item.sku}</p>
+                  <p className="text-lg font-bold text-gray-900 mt-2">
+                    {item.price.toLocaleString()} ₸
+                  </p>
+                </div>
 
-                  <div className="flex flex-col items-end justify-between">
+                <div className="flex flex-col items-end gap-2">
+                  <button
+                    onClick={() => removeItem(item.id)}
+                    className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                    title="Удалить из корзины"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+
+                  <div className="flex items-center gap-2">
                     <button
-                      onClick={() => removeItem(item.id)}
-                      className="p-2 text-gray-400 hover:text-red-600"
+                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      className="p-1 hover:bg-gray-100 rounded"
                     >
-                      <Trash2 className="w-5 h-5" />
+                      <Minus className="w-4 h-4" />
                     </button>
-
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="p-1 border border-gray-300 rounded hover:bg-gray-100"
-                      >
-                        <Minus className="w-4 h-4" />
-                      </button>
-                      <span className="w-8 text-center font-medium">{item.quantity}</span>
-                      <button
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="p-1 border border-gray-300 rounded hover:bg-gray-100"
-                      >
-                        <Plus className="w-4 h-4" />
-                      </button>
-                    </div>
+                    <span className="w-8 text-center">{item.quantity}</span>
+                    <button
+                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      className="p-1 hover:bg-gray-100 rounded"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
-              ))}
+              </div>
+            ))}
+          </div>
+
+          <div className="p-4 bg-gray-50 border-t">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-gray-600">Итого:</span>
+              <span className="text-2xl font-bold text-gray-900">
+                {total.toLocaleString()} ₸
+              </span>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm p-6 h-fit">
-              <h2 className="text-lg font-bold text-gray-900 mb-4">Итого</h2>
-              <div className="flex justify-between mb-2">
-                <span className="text-gray-600">Товары ({count})</span>
-                <span className="font-medium">{total.toLocaleString()} ₸</span>
-              </div>
-              <div className="flex justify-between mb-4">
-                <span className="text-gray-600">Доставка</span>
-                <span className="font-medium text-green-600">Бесплатно</span>
-              </div>
-              <div className="border-t pt-4 mb-6">
-                <div className="flex justify-between text-xl font-bold">
-                  <span>К оплате</span>
-                  <span>{total.toLocaleString()} ₸</span>
-                </div>
-              </div>
+            <div className="flex gap-4">
+              <button
+                onClick={clearCart}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
+              >
+                Очистить корзину
+              </button>
               <Link
                 href="/checkout"
-                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2"
               >
                 Оформить заказ
-                <ArrowRight className="w-5 h-5" />
+                <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           </div>
         </div>
       </main>
+      
       <Footer />
     </div>
   );

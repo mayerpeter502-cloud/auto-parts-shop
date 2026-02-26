@@ -36,11 +36,21 @@ export function Header() {
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
+  e.preventDefault();
+  if (searchQuery.trim()) {
+    // ← ДОБАВИТЬ: Проверка на точный SKU
+    const products = getProducts();
+    const exactMatch = products.find(p => 
+      p.sku?.toLowerCase() === searchQuery.toLowerCase()
+    );
+    
+    if (exactMatch) {
+      window.location.href = `/product/${exactMatch.id}`;
+    } else {
       window.location.href = `/catalog?search=${encodeURIComponent(searchQuery)}`;
     }
-  };
+  }
+};
 
   return (
     <header className="bg-white border-b sticky top-0 z-50">
