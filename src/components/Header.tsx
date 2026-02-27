@@ -18,16 +18,19 @@ export function Header() {
       const cart = JSON.parse(localStorage.getItem("cart") || "[]");
       const compare = JSON.parse(localStorage.getItem("compare") || "[]");
       const favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
+      
       setCartCount(cart.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0));
       setCompareCount(compare.length);
       setFavoritesCount(favorites.length);
     };
+
     updateCounts();
+    
     window.addEventListener("storage", updateCounts);
     window.addEventListener("cartUpdated", updateCounts);
     window.addEventListener("compareUpdated", updateCounts);
     window.addEventListener("favoritesUpdated", updateCounts);
-
+    
     return () => {
       window.removeEventListener("storage", updateCounts);
       window.removeEventListener("cartUpdated", updateCounts);
@@ -37,21 +40,20 @@ export function Header() {
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {
-  e.preventDefault();
-  if (searchQuery.trim()) {
-    // ← ДОБАВИТЬ: Проверка на точный SKU
-    const products = getProducts();
-    const exactMatch = products.find(p => 
-      p.sku?.toLowerCase() === searchQuery.toLowerCase()
-    );
-    
-    if (exactMatch) {
-      window.location.href = `/product/${exactMatch.id}`;
-    } else {
-      window.location.href = `/catalog?search=${encodeURIComponent(searchQuery)}`;
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      const products = getProducts();
+      const exactMatch = products.find(p =>
+        p.sku?.toLowerCase() === searchQuery.toLowerCase()
+      );
+      
+      if (exactMatch) {
+        window.location.href = `/product/${exactMatch.id}`;
+      } else {
+        window.location.href = `/catalog?search=${encodeURIComponent(searchQuery)}`;
+      }
     }
-  }
-};
+  };
 
   return (
     <header className="bg-white border-b sticky top-0 z-50">
@@ -80,7 +82,7 @@ export function Header() {
 
           {/* Navigation */}
           <div className="flex items-center gap-2 sm:gap-4">
-            {/* ← ДОБАВЛЕНО: Подбор по авто */}
+            {/* Подбор по авто */}
             <Link 
               href="/car-selector" 
               className="hidden sm:flex items-center gap-1 text-sm text-gray-600 hover:text-blue-600"
@@ -89,7 +91,7 @@ export function Header() {
               <span>Подбор по авто</span>
             </Link>
 
-            {/* ← ДОБАВЛЕНО: Подбор по VIN */}
+            {/* Подбор по VIN */}
             <Link 
               href="/vin-check" 
               className="hidden sm:flex items-center gap-1 text-sm text-gray-600 hover:text-blue-600"
@@ -99,7 +101,7 @@ export function Header() {
             </Link>
 
             {/* Избранное */}
-            <Link href="/favorites" className="relative p-2 text-gray-600 hover:text-blue-600">
+            <Link href="/account/favorites" className="relative p-2 text-gray-600 hover:text-blue-600">
               <Heart className="w-6 h-6" />
               {favoritesCount > 0 && (
                 <span className="absolute -top-1 -right-1 w-5 h-5 bg-pink-500 text-white text-xs rounded-full flex items-center justify-center">
@@ -130,7 +132,7 @@ export function Header() {
 
             {/* Профиль */}
             {user ? (
-              <Link href="/orders" className="flex items-center gap-2 p-2 text-gray-600 hover:text-blue-600">
+              <Link href="/account" className="flex items-center gap-2 p-2 text-gray-600 hover:text-blue-600">
                 <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                   <User className="w-5 h-5 text-blue-600" />
                 </div>
@@ -176,22 +178,21 @@ export function Header() {
             <Link href="/catalog" className="block py-2 text-gray-700 hover:text-blue-600">
               Каталог
             </Link>
-            {/* ← ДОБАВЛЕНО: В мобильное меню */}
             <Link href="/car-selector" className="block py-2 text-gray-700 hover:text-blue-600">
               Подбор по авто
             </Link>
             <Link href="/vin-check" className="block py-2 text-gray-700 hover:text-blue-600">
               Подбор по VIN
             </Link>
-            <Link href="/favorites" className="block py-2 text-gray-700 hover:text-blue-600">
+            <Link href="/account/favorites" className="block py-2 text-gray-700 hover:text-blue-600">
               Избранное ({favoritesCount})
             </Link>
             <Link href="/compare" className="block py-2 text-gray-700 hover:text-blue-600">
               Сравнение ({compareCount})
             </Link>
             {user ? (
-              <Link href="/orders" className="block py-2 text-gray-700 hover:text-blue-600">
-                Мои заказы
+              <Link href="/account" className="block py-2 text-gray-700 hover:text-blue-600">
+                Личный кабинет
               </Link>
             ) : (
               <Link href="/login" className="block py-2 text-gray-700 hover:text-blue-600">

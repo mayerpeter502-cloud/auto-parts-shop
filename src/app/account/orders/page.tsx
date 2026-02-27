@@ -3,14 +3,32 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Package, Truck, CheckCircle, Clock, ChevronRight, RotateCcw, X, LogOut, User, Home } from "lucide-react";
-import { Header } from "../../components/Header";
-import { Footer } from "../../components/Footer";
-import { ordersApi } from "../lib/orders";
-import { useAuth } from "../../contexts/AuthContext";
-import { useCart } from "../../contexts/CartContext";
+import { Header } from "../../../components/Header";
+import { Footer } from "../../../components/Footer";
+import { ordersApi } from "../../lib/orders";
+import { useAuth } from "../../../contexts/AuthContext";
+import { useCart } from "../../../contexts/CartContext";
+
+interface OrderItem {
+  productId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  image?: string;
+  sku?: string;
+}
+
+interface Order {
+  id: string;
+  userId: string;
+  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+  total: number;
+  createdAt: string;
+  items: OrderItem[];
+}
 
 export default function OrdersPage() {
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
   const { user, logout } = useAuth();
   const { addItem } = useCart();
@@ -22,16 +40,20 @@ export default function OrdersPage() {
     }
   }, [user]);
 
-  const getStatusIcon = (status: string) => {
+  const getStatusIcon = (status: Order["status"]) => {
     switch (status) {
-      case "delivered": return <CheckCircle className="w-5 h-5 text-green-600" />;
-      case "shipped": return <Truck className="w-5 h-5 text-blue-600" />;
-      case "processing": return <Clock className="w-5 h-5 text-yellow-600" />;
-      default: return <Package className="w-5 h-5 text-gray-400" />;
+      case "delivered":
+        return <CheckCircle className="w-5 h-5 text-green-500" />;
+      case "shipped":
+        return <Truck className="w-5 h-5 text-blue-500" />;
+      case "processing":
+        return <Clock className="w-5 h-5 text-yellow-500" />;
+      default:
+        return <Package className="w-5 h-5 text-gray-400" />;
     }
   };
 
-  const getStatusText = (status: string) => {
+  const getStatusText = (status: Order["status"]) => {
     const statuses: Record<string, string> = {
       pending: "Ожидает обработки",
       processing: "В обработке",
@@ -42,22 +64,22 @@ export default function OrdersPage() {
     return statuses[status] || status;
   };
 
-  const repeatOrder = (order: any) => {
-    order.items.forEach((item: any) => {
+  const repeatOrder = (order: Order) => {
+    order.items.forEach((item) => {
       addItem({
         id: item.productId,
         name: item.name,
         price: item.price,
-        image: item.image || '',
-        sku: item.sku || ''
+        image: item.image || "",
+        sku: item.sku || ""
       });
     });
-    window.location.href = '/cart';
+    window.location.href = "/cart";
   };
 
   const handleLogout = () => {
     logout();
-    window.location.href = '/';
+    window.location.href = "/";
   };
 
   // Не авторизован
@@ -65,7 +87,6 @@ export default function OrdersPage() {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        
         <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
           {/* Breadcrumbs */}
           <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
@@ -80,15 +101,11 @@ export default function OrdersPage() {
           <div className="flex flex-col items-center justify-center py-12">
             <User className="w-24 h-24 text-gray-300 mb-4" />
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Войдите для просмотра заказов</h1>
-            <Link
-              href="/login"
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
+            <Link href="/login" className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
               Войти
             </Link>
           </div>
         </main>
-        
         <Footer />
       </div>
     );
@@ -97,7 +114,6 @@ export default function OrdersPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
         {/* Breadcrumbs */}
         <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
@@ -106,7 +122,7 @@ export default function OrdersPage() {
             <span>Главная</span>
           </Link>
           <ChevronRight className="w-4 h-4" />
-          <Link href="/profile" className="hover:text-blue-600 transition-colors">
+          <Link href="/account" className="hover:text-blue-600 transition-colors">
             Личный кабинет
           </Link>
           <ChevronRight className="w-4 h-4" />
@@ -164,24 +180,36 @@ export default function OrdersPage() {
                 </div>
 
                 <div className="border-t pt-4">
-                  {order.items.slice(0, selectedOrder === order.id ? undefined : 2).map((item: any) => (
-                    <div key={item.productId} className="flex items-center gap-4 py-3">
+                  {order.items.slice(0, selectedOrder === order.id ? undefined : 2).map((item, index) => (
+                    <div key={index} className="flex items-center gap-4 py-3">
                       <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
                         {item.image ? (
-                          <Image src={item.image} alt={item.name} width={64} height={64} className="object-cover rounded-lg" />
+                          <Image
+                            src={item.image}
+                            alt={item.name}
+                            width={64}
+                            height={64}
+                            className="object-cover rounded-lg"
+                          />
                         ) : (
                           <span className="text-2xl">🔧</span>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="font-medium text-gray-900 truncate">{item.name}</div>
-                        <div className="text-sm text-gray-500">{item.quantity} шт. × {item.price.toLocaleString()} ₸</div>
+                        <div className="text-sm text-gray-500">
+                          {item.quantity} шт. × {item.price.toLocaleString()} ₸
+                        </div>
                       </div>
-                      <div className="font-bold text-gray-900">{(item.price * item.quantity).toLocaleString()} ₸</div>
+                      <div className="font-bold text-gray-900">
+                        {(item.price * item.quantity).toLocaleString()} ₸
+                      </div>
                     </div>
                   ))}
                   {order.items.length > 2 && selectedOrder !== order.id && (
-                    <div className="text-sm text-gray-500 py-2 text-center">+{order.items.length - 2} товаров</div>
+                    <div className="text-sm text-gray-500 py-2 text-center">
+                      +{order.items.length - 2} товаров
+                    </div>
                   )}
                 </div>
 
@@ -191,8 +219,12 @@ export default function OrdersPage() {
                     onClick={() => setSelectedOrder(selectedOrder === order.id ? null : order.id)}
                     className="flex items-center gap-1 text-blue-600 hover:underline"
                   >
-                    {selectedOrder === order.id ? 'Свернуть' : 'Подробнее'}
-                    <ChevronRight className={`w-4 h-4 transition-transform ${selectedOrder === order.id ? 'rotate-90' : ''}`} />
+                    {selectedOrder === order.id ? "Свернуть" : "Подробнее"}
+                    <ChevronRight
+                      className={`w-4 h-4 transition-transform ${
+                        selectedOrder === order.id ? "rotate-90" : ""
+                      }`}
+                    />
                   </button>
                 </div>
 
@@ -205,10 +237,8 @@ export default function OrdersPage() {
                       <RotateCcw className="w-4 h-4" />
                       Повторить заказ
                     </button>
-                    {['pending', 'processing'].includes(order.status) && (
-                      <button
-                        className="flex items-center gap-2 px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 text-sm"
-                      >
+                    {["pending", "processing"].includes(order.status) && (
+                      <button className="flex items-center gap-2 px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 text-sm">
                         <X className="w-4 h-4" />
                         Отменить
                       </button>
@@ -220,7 +250,6 @@ export default function OrdersPage() {
           </div>
         )}
       </main>
-      
       <Footer />
     </div>
   );
