@@ -19,7 +19,8 @@ export default function AdminProductsPage() {
     stock: "0",
     inStock: true,
     images: [] as string[],
-    description: ""
+    description: "",
+    crossNumbers: ""  // ✅ ДОБАВЛЕНО
   });
 
   useEffect(() => {
@@ -52,6 +53,7 @@ export default function AdminProductsPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
     const productData = {
       name: formData.name,
       sku: formData.sku,
@@ -64,6 +66,7 @@ export default function AdminProductsPage() {
       image: formData.images[0] || "https://via.placeholder.com/300x300?text=No+Image",
       images: formData.images,
       description: formData.description,
+      crossNumbers: formData.crossNumbers ? formData.crossNumbers.split(',').map(s => s.trim()).filter(s => s) : [],  // ✅ ДОБАВЛЕНО
       rating: 0,
       reviewsCount: 0
     };
@@ -75,7 +78,7 @@ export default function AdminProductsPage() {
     }
 
     setProducts(productsApi.getAll());
-    setIsModalOpen(false);
+    setIsModalOpen(false); 
     setEditingProduct(null);
     setFormData({
       name: "",
@@ -87,9 +90,10 @@ export default function AdminProductsPage() {
       stock: "0",
       inStock: true,
       images: [],
-      description: ""
+      description: "",
+      crossNumbers: ""  // ✅ ДОБАВЛЕНО
     });
-  };
+  };  // ✅ ЗАКРЫТА ФУНКЦИЯ
 
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
@@ -103,7 +107,8 @@ export default function AdminProductsPage() {
       stock: product.stock?.toString() || "0",
       inStock: product.inStock || (product.stock && product.stock > 0) || false,
       images: product.images?.length ? product.images : product.image ? [product.image] : [],
-      description: product.description || ""
+      description: product.description || "",
+      crossNumbers: product.crossNumbers?.join(', ') || ""  // ✅ ДОБАВЛЕНО
     });
     setIsModalOpen(true);
   };
@@ -138,7 +143,8 @@ export default function AdminProductsPage() {
                 stock: "0",
                 inStock: true,
                 images: [],
-                description: ""
+                description: "",
+                crossNumbers: ""  // ✅ ДОБАВЛЕНО
               });
               setIsModalOpen(true);
             }}
@@ -387,6 +393,21 @@ export default function AdminProductsPage() {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2"
                 />
+              </div>
+
+              {/* ✅ ДОБАВЛЕНО ПОЛЕ КРОСС-НОМЕРА */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Кросс-номера (через запятую)
+                </label>
+                <textarea
+                  rows={2}
+                  value={formData.crossNumbers}
+                  onChange={(e) => setFormData({ ...formData, crossNumbers: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  placeholder="OC91, OC92, BOSCH-123"
+                />
+                <p className="text-xs text-gray-500 mt-1">Введите SKU аналогов через запятую</p>
               </div>
 
               <label className="flex items-center gap-2">
