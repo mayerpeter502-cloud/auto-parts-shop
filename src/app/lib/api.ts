@@ -7,7 +7,7 @@ export interface Product {
   oldPrice?: number;
   image?: string;
   images?: string[];
-  inStock: boolean;
+  inStock?: boolean;
   stock?: number;
   description?: string;
   compatibility?: {
@@ -22,7 +22,7 @@ export interface Product {
   sku?: string;
   createdAt?: Date;
   isPopular?: boolean;
-  crossNumbers?: string[];  // ← ДОБАВЬТЕ ЭТУ СТРОКУ
+  crossNumbers?: string[];  // ← Обязательно
 }
 
 const defaultProducts: Product[] = [
@@ -30,10 +30,12 @@ const defaultProducts: Product[] = [
     id: "1",
     name: "Моторное масло Castrol EDGE 5W-30 4L",
     brand: "Castrol",
-    category: "oil",
+    category: "Масла и жидкости",
     price: 18500,
     oldPrice: 22000,
     inStock: true,
+    stock: 15,
+    sku: "CASTROL-5W30-4L",
     image: "https://dummyimage.com/300x300/2563eb/ffffff&text=Castrol+5W30",
     images: ["https://dummyimage.com/300x300/2563eb/ffffff&text=Castrol+5W30"],
     description: "Синтетическое моторное масло премиум класса",
@@ -47,15 +49,18 @@ const defaultProducts: Product[] = [
       "Тип": "Синтетическое"
     },
     rating: 4.8,
-    reviewsCount: 124
+    reviewsCount: 124,
+    crossNumbers: ["MOBIL-5W30-4L", "SHELL-5W30-4L"]
   },
   {
     id: "2",
     name: "Моторное масло Mobil 1 0W-40 4L",
     brand: "Mobil",
-    category: "oil",
+    category: "Масла и жидкости",
     price: 21000,
     inStock: true,
+    stock: 10,
+    sku: "MOBIL-0W40-4L",
     image: "https://dummyimage.com/300x300/dc2626/ffffff&text=Mobil+0W40",
     images: ["https://dummyimage.com/300x300/dc2626/ffffff&text=Mobil+0W40"],
     compatibility: [
@@ -68,15 +73,18 @@ const defaultProducts: Product[] = [
       "Тип": "Синтетическое"
     },
     rating: 4.9,
-    reviewsCount: 89
+    reviewsCount: 89,
+    crossNumbers: ["CASTROL-0W40-4L", "SHELL-0W40-4L"]
   },
   {
     id: "3",
     name: "Фильтр масляный Bosch F026407183",
     brand: "Bosch",
-    category: "filter",
+    category: "Фильтры",
     price: 2500,
     inStock: true,
+    stock: 50,
+    sku: "BOSCH-F026407183",
     image: "https://dummyimage.com/300x300/059669/ffffff&text=Bosch+Filter",
     images: ["https://dummyimage.com/300x300/059669/ffffff&text=Bosch+Filter"],
     compatibility: [
@@ -88,16 +96,19 @@ const defaultProducts: Product[] = [
       "Высота": "76 мм"
     },
     rating: 4.7,
-    reviewsCount: 56
+    reviewsCount: 56,
+    crossNumbers: ["MANN-W811/80", "FILTRON-OP596", "MAHLE-OC1051"]
   },
   {
     id: "4",
     name: "Фильтр воздушный Mann C30130",
     brand: "Mann",
-    category: "filter",
+    category: "Фильтры",
     price: 3200,
     oldPrice: 3800,
     inStock: true,
+    stock: 30,
+    sku: "MANN-C30130",
     image: "https://dummyimage.com/300x300/7c3aed/ffffff&text=Mann+Air",
     images: ["https://dummyimage.com/300x300/7c3aed/ffffff&text=Mann+Air"],
     compatibility: [
@@ -109,15 +120,18 @@ const defaultProducts: Product[] = [
       "Длина": "280 мм"
     },
     rating: 4.6,
-    reviewsCount: 42
+    reviewsCount: 42,
+    crossNumbers: ["BOSCH-F026407183", "KNECHT-LX300"]
   },
   {
     id: "5",
     name: "Тормозные колодки Brembo P85020",
     brand: "Brembo",
-    category: "brake",
+    category: "Тормозная система",
     price: 15800,
     inStock: true,
+    stock: 25,
+    sku: "BREMBO-P85020",
     image: "https://dummyimage.com/300x300/dc2626/ffffff&text=Brembo+Brake",
     images: ["https://dummyimage.com/300x300/dc2626/ffffff&text=Brembo+Brake"],
     compatibility: [
@@ -129,15 +143,18 @@ const defaultProducts: Product[] = [
       "Тип": "Дисковые"
     },
     rating: 4.9,
-    reviewsCount: 78
+    reviewsCount: 78,
+    crossNumbers: ["TEXTAR-2305701", "TRW-GDB3428"]
   },
   {
     id: "6",
     name: "Тормозной диск ATE 24.0122-0150.1",
     brand: "ATE",
-    category: "brake",
+    category: "Тормозная система",
     price: 12500,
-    inStock: false,
+    inStock: true,
+    stock: 20,
+    sku: "ATE-24012201",
     image: "https://dummyimage.com/300x300/4b5563/ffffff&text=ATE+Disc",
     images: ["https://dummyimage.com/300x300/4b5563/ffffff&text=ATE+Disc"],
     compatibility: [
@@ -148,15 +165,18 @@ const defaultProducts: Product[] = [
       "Толщина": "28 мм"
     },
     rating: 4.5,
-    reviewsCount: 23
+    reviewsCount: 23,
+    crossNumbers: ["BREMBO-08.7067.11", "ZIMMERMANN-150.1234.50"]
   },
   {
     id: "7",
     name: "Амортизатор KYB 341346",
     brand: "KYB",
-    category: "suspension",
+    category: "Подвеска",
     price: 18900,
     inStock: true,
+    stock: 12,
+    sku: "KYB-341346",
     image: "https://dummyimage.com/300x300/2563eb/ffffff&text=KYB+Shock",
     images: ["https://dummyimage.com/300x300/2563eb/ffffff&text=KYB+Shock"],
     compatibility: [
@@ -168,15 +188,18 @@ const defaultProducts: Product[] = [
       "Тип": "Газомасляный"
     },
     rating: 4.7,
-    reviewsCount: 34
+    reviewsCount: 34,
+    crossNumbers: ["SACHS-313534", "MONROE-E7189"]
   },
   {
     id: "8",
     name: "Свеча зажигания NGK BKR6E",
     brand: "NGK",
-    category: "electrical",
+    category: "Электрика",
     price: 1200,
     inStock: true,
+    stock: 100,
+    sku: "NGK-BKR6E",
     image: "https://dummyimage.com/300x300/f59e0b/ffffff&text=NGK+Spark",
     images: ["https://dummyimage.com/300x300/f59e0b/ffffff&text=NGK+Spark"],
     compatibility: [
@@ -188,16 +211,19 @@ const defaultProducts: Product[] = [
       "Количество": "1 шт"
     },
     rating: 4.8,
-    reviewsCount: 156
+    reviewsCount: 156,
+    crossNumbers: ["BOSCH-FR7DC+", "DENSO-K20PRU"]
   },
   {
     id: "9",
     name: "Аккумулятор Varta Blue Dynamic 60Ah",
     brand: "Varta",
-    category: "electrical",
+    category: "Электрика",
     price: 45000,
     oldPrice: 52000,
     inStock: true,
+    stock: 8,
+    sku: "VARTA-60AH",
     image: "https://dummyimage.com/300x300/1e40af/ffffff&text=Varta+60Ah",
     images: ["https://dummyimage.com/300x300/1e40af/ffffff&text=Varta+60Ah"],
     compatibility: [
@@ -209,15 +235,18 @@ const defaultProducts: Product[] = [
       "Полярность": "Прямая"
     },
     rating: 4.6,
-    reviewsCount: 67
+    reviewsCount: 67,
+    crossNumbers: ["BOSCH-S4005", "EXIDE-EB604"]
   },
   {
     id: "10",
     name: "Ремень ГРМ Gates 5669XS",
     brand: "Gates",
-    category: "engine",
+    category: "Двигатель",
     price: 8900,
     inStock: true,
+    stock: 15,
+    sku: "GATES-5669XS",
     image: "https://dummyimage.com/300x300/374151/ffffff&text=Gates+Belt",
     images: ["https://dummyimage.com/300x300/374151/ffffff&text=Gates+Belt"],
     compatibility: [
@@ -229,15 +258,18 @@ const defaultProducts: Product[] = [
       "Ширина": "30 мм"
     },
     rating: 4.7,
-    reviewsCount: 45
+    reviewsCount: 45,
+    crossNumbers: ["CONTITECH-CT1061", "DAYCO-94990"]
   },
   {
     id: "11",
     name: "Масло Shell Helix Ultra 5W-40 4L",
     brand: "Shell",
-    category: "oil",
+    category: "Масла и жидкости",
     price: 19500,
     inStock: true,
+    stock: 20,
+    sku: "SHELL-5W40-4L",
     image: "https://dummyimage.com/300x300/fbbf24/ffffff&text=Shell+5W40",
     images: ["https://dummyimage.com/300x300/fbbf24/ffffff&text=Shell+5W40"],
     compatibility: [
@@ -250,15 +282,18 @@ const defaultProducts: Product[] = [
       "Тип": "Синтетическое"
     },
     rating: 4.8,
-    reviewsCount: 112
+    reviewsCount: 112,
+    crossNumbers: ["CASTROL-5W40-4L", "MOBIL-5W40-4L"]
   },
   {
     id: "12",
     name: "Фильтр топливный Delphi HDF924",
     brand: "Delphi",
-    category: "filter",
+    category: "Фильтры",
     price: 4500,
     inStock: true,
+    stock: 40,
+    sku: "DELPHI-HDF924",
     image: "https://dummyimage.com/300x300/0891b2/ffffff&text=Delphi+Fuel",
     images: ["https://dummyimage.com/300x300/0891b2/ffffff&text=Delphi+Fuel"],
     compatibility: [
@@ -270,7 +305,8 @@ const defaultProducts: Product[] = [
       "Топливо": "Бензин"
     },
     rating: 4.5,
-    reviewsCount: 28
+    reviewsCount: 28,
+    crossNumbers: ["BOSCH-F026402016", "MANN-FK2000"]
   }
 ];
 
@@ -308,9 +344,21 @@ export const getProductsByCategory = (category: string): Product[] => {
 export const getRelatedProducts = (productId: string, limit: number = 4): Product[] => {
   const product = getProductById(productId);
   if (!product) return [];
-
   return getProducts()
     .filter(p => p.category === product.category && p.id !== productId)
+    .slice(0, limit);
+};
+
+// ← НОВОЕ: Поиск аналогов по кросс-номерам
+export const getAnalogProducts = (product: Product, limit: number = 4): Product[] => {
+  if (!product.crossNumbers || product.crossNumbers.length === 0) return [];
+  
+  const allProducts = getProducts();
+  return allProducts
+    .filter(p => 
+      p.id !== product.id && 
+      product.crossNumbers?.includes(p.sku || '')
+    )
     .slice(0, limit);
 };
 
@@ -353,5 +401,5 @@ export const productsApi = {
   update: updateProduct,
   delete: deleteProduct
 };
-// Для обратной совместимости
+
 export const productApi = productsApi;

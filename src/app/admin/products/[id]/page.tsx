@@ -19,7 +19,8 @@ export default function EditProductPage() {
   const [crossNumbersInput, setCrossNumbersInput] = useState('');
   
   const [formData, setFormData] = useState<Partial<Product>>({
-    stock: 0
+    stock: 0,
+    crossNumbers: []
   });
 
   useEffect(() => {
@@ -155,6 +156,19 @@ export default function EditProductPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Бренд
+                </label>
+                <input
+                  type="text"
+                  value={formData.brand || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, brand: e.target.value }))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Артикул (SKU)
                 </label>
                 <input
@@ -168,7 +182,20 @@ export default function EditProductPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Цена (₸)
+                  Количество на складе
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={formData.stock || 0}
+                  onChange={(e) => setFormData(prev => ({ ...prev, stock: Number(e.target.value) }))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Цена, ₸
                 </label>
                 <input
                   type="number"
@@ -181,7 +208,7 @@ export default function EditProductPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Старая цена (₸)
+                  Старая цена
                 </label>
                 <input
                   type="number"
@@ -213,33 +240,6 @@ export default function EditProductPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Бренд
-                </label>
-                <input
-                  type="text"
-                  value={formData.brand || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, brand: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Количество на складе *
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  value={formData.stock || 0}
-                  onChange={(e) => setFormData(prev => ({ ...prev, stock: Number(e.target.value) }))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Популярный товар
                 </label>
                 <select
@@ -253,7 +253,7 @@ export default function EditProductPage() {
               </div>
             </div>
 
-            {/* ← Поле для кросс-номеров (отдельное состояние) */}
+            {/* ← НОВОЕ: Поле для кросс-номеров */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Кросс-номера (аналоги)

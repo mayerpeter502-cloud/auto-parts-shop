@@ -19,7 +19,7 @@ export default function NewProduct() {
     description: '',
     image: '' as string | undefined,
     isPopular: false,
-    crossNumbers: '', // ← НОВОЕ: поле для кросс-номеров
+    crossNumbers: '', // ← Поле для кросс-номеров
     specifications: {} as Record<string, string>,
     compatibility: [] as Array<{ brand: string; model: string; yearFrom: number; yearTo: number }>
   });
@@ -38,7 +38,6 @@ export default function NewProduct() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    
     try {
       // ← Преобразуем кросс-номера из строки в массив
       const crossNumbersArray = formData.crossNumbers
@@ -56,7 +55,7 @@ export default function NewProduct() {
         stock: Number(formData.stock),
         description: formData.description,
         image: formData.image || 'https://via.placeholder.com/300x300?text=No+Image',
-        crossNumbers: crossNumbersArray, // ← Сохраняем массив кросс-номеров
+        crossNumbers: crossNumbersArray, // ← Сохраняем массив
         specifications: formData.specifications,
         compatibility: formData.compatibility,
         rating: 0,
@@ -233,21 +232,21 @@ export default function NewProduct() {
             </div>
           </div>
 
-          {/* ← НОВОЕ: Поле для кросс-номеров */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Кросс-номера (аналоги)
-            </label>
-            <input
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              value={formData.crossNumbers}
-              onChange={(e) => setFormData({...formData, crossNumbers: e.target.value})}
-              placeholder="BOS-OF-045, MANN-W712, FILTRON-OP596"
-            />
-            <p className="text-sm text-gray-500 mt-1">
-              Введите SKU аналогов через запятую
-            </p>
-          </div>
+          {/* ← Поле для кросс-номеров */}
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    Кросс-номера (аналоги)
+  </label>
+  <input
+    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+    value={formData.crossNumbers}
+    onChange={(e) => setFormData({...formData, crossNumbers: e.target.value})}
+    placeholder="BOS-OF-045, MANN-W712, FILTRON-OP596"
+  />
+  <p className="text-sm text-gray-500 mt-1">
+    Введите SKU аналогов через запятую
+  </p>
+</div>
 
           {/* Описание */}
           <div>

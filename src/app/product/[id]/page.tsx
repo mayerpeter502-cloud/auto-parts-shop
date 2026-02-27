@@ -30,15 +30,35 @@ export default function ProductPage() {
     }
   }, [params.id]);
 
-  // ← НОВОЕ: Поиск аналогов по кросс-номерам
+  // Поиск аналогов по кросс-номерам
   useEffect(() => {
     if (product?.crossNumbers && product.crossNumbers.length > 0) {
-      const analogs = allProducts.filter(p => 
+      const analogs = allProducts.filter(p =>
         product.crossNumbers?.includes(p.sku || '') && p.id !== product.id
       );
       setAnalogProducts(analogs);
+    } else {
+      setAnalogProducts([]);
     }
   }, [product, allProducts]);
+
+  const getCategoryName = (category: string) => {
+    const names: Record<string, string> = {
+      "Масла и жидкости": "Масла и жидкости",
+      "Фильтры": "Фильтры",
+      "Тормозная система": "Тормозная система",
+      "Двигатель": "Двигатель",
+      "Подвеска": "Подвеска",
+      "Электрика": "Электрика",
+      oil: "Масла и жидкости",
+      filter: "Фильтры",
+      brake: "Тормозная система",
+      engine: "Двигатель",
+      suspension: "Подвеска",
+      electrical: "Электрика"
+    };
+    return names[category] || category;
+  };
 
   if (loading) {
     return (
@@ -67,17 +87,7 @@ export default function ProductPage() {
     );
   }
 
-  const getCategoryName = (category: string) => {
-    const names: Record<string, string> = {
-      "Масла и жидкости": "Масла и жидкости",
-      "Фильтры": "Фильтры",
-      "Тормозная система": "Тормозная система",
-      "Двигатель": "Двигатель",
-      "Подвеска": "Подвеска",
-      "Электрика": "Электрика"
-    };
-    return names[category] || category;
-  };
+  const inStock = product.stock !== undefined && product.stock > 0;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -96,7 +106,10 @@ export default function ProductPage() {
               Каталог
             </Link>
             <ChevronRight className="w-4 h-4" />
-            <Link href={`/catalog?category=${encodeURIComponent(product.category)}`} className="hover:text-blue-600 transition-colors">
+            <Link 
+              href={`/catalog?category=${encodeURIComponent(product.category)}`} 
+              className="hover:text-blue-600 transition-colors"
+            >
               {getCategoryName(product.category)}
             </Link>
             <ChevronRight className="w-4 h-4" />
@@ -129,9 +142,9 @@ export default function ProductPage() {
                 <div className="flex items-center gap-2 mb-4">
                   <div className="flex items-center gap-1">
                     <Star className="w-5 h-5 text-yellow-400 fill-current" />
-                    <span className="font-medium">4.8</span>
+                    <span className="font-medium">{product.rating || 4.8}</span>
                   </div>
-                  <span className="text-gray-400">(12 отзывов)</span>
+                  <span className="text-gray-400">({product.reviewsCount || 0} отзывов)</span>
                 </div>
 
                 <div className="mb-6">
@@ -146,11 +159,11 @@ export default function ProductPage() {
                 </div>
 
                 <div className="flex items-center gap-2 mb-6">
-                  <Check className={`w-5 h-5 ${product.stock && product.stock > 0 ? 'text-green-500' : 'text-red-500'}`} />
-                  <span className={product.stock && product.stock > 0 ? 'text-green-600' : 'text-red-600'}>
-                    {product.stock && product.stock > 0 ? 'В наличии' : 'Нет в наличии'}
+                  <Check className={`w-5 h-5 ${inStock ? 'text-green-500' : 'text-red-500'}`} />
+                  <span className={inStock ? 'text-green-600' : 'text-red-600'}>
+                    {inStock ? 'В наличии' : 'Нет в наличии'}
                   </span>
-                  {product.stock && product.stock > 0 && (
+                  {inStock && product.stock && (
                     <span className="text-sm text-gray-500">({product.stock} шт.)</span>
                   )}
                 </div>
@@ -163,7 +176,7 @@ export default function ProductPage() {
                     image: product.image || '/placeholder.jpg',
                     sku: product.sku || product.id
                   })}
-                  disabled={!product.stock || product.stock === 0}
+                  disabled={!inStock}
                   className="w-full md:w-auto px-8 py-4 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   <ShoppingCart className="w-5 h-5" />
@@ -208,7 +221,7 @@ export default function ProductPage() {
                   </div>
                 )}
 
-                {/* ← НОВОЕ: Кросс-номера (Аналоги) */}
+                {/* Кросс-номера (Аналоги) */}
                 {(product.crossNumbers && product.crossNumbers.length > 0) || analogProducts.length > 0 ? (
                   <div className="mt-8 pt-8 border-t">
                     <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
@@ -261,6 +274,12 @@ export default function ProductPage() {
                             </div>
                           </Link>
                         ))}
+                      </div>
+                    )}
+
+                    {analogProducts.length === 0 && product.crossNumbers && product.crossNumbers.length > 0 && (
+                      <div className="text-sm text-gray-500">
+                        Аналоги с указанными кросс-номерами не найдены в каталоге
                       </div>
                     )}
                   </div>
