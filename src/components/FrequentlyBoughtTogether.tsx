@@ -1,6 +1,8 @@
 'use client';
 import React, { useState } from 'react';
 import { Plus, ShoppingCart, Check } from 'lucide-react';
+import Link from 'next/link';
+import { useCart } from '../contexts/CartContext';
 
 interface Product {
   id: string | number;
@@ -43,6 +45,7 @@ const suggestions: Product[] = [
 ];
 
 export const FrequentlyBoughtTogether: React.FC<FrequentlyBoughtTogetherProps> = ({ mainProduct }) => {
+  const { addItem } = useCart(); // ✅ Добавлен хук корзины
   const [selected, setSelected] = useState<Set<string | number>>(new Set([101, 102]));
   const [added, setAdded] = useState(false);
 
@@ -63,14 +66,37 @@ export const FrequentlyBoughtTogether: React.FC<FrequentlyBoughtTogetherProps> =
     .reduce((sum, item) => sum + item.price, mainProduct?.price || 0);
 
   const handleAddAll = () => {
+    // ✅ Добавляем основной товар
+    if (mainProduct) {
+      addItem({
+        id: mainProduct.id.toString(),
+        name: mainProduct.name,
+        price: mainProduct.price,
+        image: mainProduct.image || '/placeholder.jpg',
+        sku: mainProduct.id.toString()
+      });
+    }
+
+    // ✅ Добавляем все выбранные сопутствующие товары
+    const selectedProducts = suggestions.filter(item => selected.has(item.id));
+    selectedProducts.forEach(product => {
+      addItem({
+        id: product.id.toString(),
+        name: product.name,
+        price: product.price,
+        image: product.image || '/placeholder.jpg',
+        sku: product.id.toString()
+      });
+    });
+
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
 
   return (
     <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-      <h3 className="text-lg font-bold text-gray-900 mb-6">С этим товаром покупают</h3>
-
+      <h2 className="text-xl font-bold mb-6">С этим товаром покупают</h2>
+      
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="flex-1 space-y-4">
           {/* Main Product */}
@@ -92,7 +118,7 @@ export const FrequentlyBoughtTogether: React.FC<FrequentlyBoughtTogetherProps> =
 
           {/* Suggestions */}
           {suggestions.map((item) => (
-            <label
+            <div
               key={item.id}
               className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
                 selected.has(item.id)
@@ -100,26 +126,32 @@ export const FrequentlyBoughtTogether: React.FC<FrequentlyBoughtTogetherProps> =
                   : 'border-gray-200 hover:border-gray-300'
               }`}
             >
+              {/* ✅ Чекбокс */}
               <input
                 type="checkbox"
                 checked={selected.has(item.id)}
                 onChange={() => toggleSelection(item.id)}
                 className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                onClick={(e) => e.stopPropagation()}
               />
-              <div className="w-16 h-16 bg-gray-200 rounded-lg flex-shrink-0" />
-              <div className="flex-1">
-                <p className="font-medium text-gray-900">{item.name}</p>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="font-bold text-gray-900">{item.price.toLocaleString()} ₸</span>
-                  <span className="text-sm text-gray-400 line-through">{item.originalPrice?.toLocaleString()} ₸</span>
+              
+              {/* ✅ Кликабельная карточка товара */}
+              <Link href={`/product/${item.id}`} className="flex items-center gap-4 flex-1">
+                <div className="w-16 h-16 bg-gray-200 rounded-lg flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="font-medium text-gray-900">{item.name}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="font-bold text-gray-900">{item.price.toLocaleString()} ₸</span>
+                    <span className="text-sm text-gray-400 line-through">{item.originalPrice?.toLocaleString()} ₸</span>
+                  </div>
+                  {item.compatible && (
+                    <span className="inline-block mt-1 text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+                      Подходит для вашего авто
+                    </span>
+                  )}
                 </div>
-                {item.compatible && (
-                  <span className="inline-block mt-1 text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
-                    Подходит для вашего авто
-                  </span>
-                )}
-              </div>
-            </label>
+              </Link>
+            </div>
           ))}
         </div>
 

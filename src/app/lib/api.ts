@@ -22,7 +22,7 @@ export interface Product {
   sku?: string;
   createdAt?: Date;
   isPopular?: boolean;
-  crossNumbers?: string[];  // ← Обязательно
+  crossNumbers?: string[];
 }
 
 const defaultProducts: Product[] = [
@@ -30,7 +30,7 @@ const defaultProducts: Product[] = [
     id: "1",
     name: "Моторное масло Castrol EDGE 5W-30 4L",
     brand: "Castrol",
-    category: "Масла и жидкости",
+    category: "oil",  // ← ИСПРАВЛЕНО
     price: 18500,
     oldPrice: 22000,
     inStock: true,
@@ -56,7 +56,7 @@ const defaultProducts: Product[] = [
     id: "2",
     name: "Моторное масло Mobil 1 0W-40 4L",
     brand: "Mobil",
-    category: "Масла и жидкости",
+    category: "oil",  // ← ИСПРАВЛЕНО
     price: 21000,
     inStock: true,
     stock: 10,
@@ -80,7 +80,7 @@ const defaultProducts: Product[] = [
     id: "3",
     name: "Фильтр масляный Bosch F026407183",
     brand: "Bosch",
-    category: "Фильтры",
+    category: "filter",  // ← ИСПРАВЛЕНО
     price: 2500,
     inStock: true,
     stock: 50,
@@ -103,7 +103,7 @@ const defaultProducts: Product[] = [
     id: "4",
     name: "Фильтр воздушный Mann C30130",
     brand: "Mann",
-    category: "Фильтры",
+    category: "filter",  // ← ИСПРАВЛЕНО
     price: 3200,
     oldPrice: 3800,
     inStock: true,
@@ -127,7 +127,7 @@ const defaultProducts: Product[] = [
     id: "5",
     name: "Тормозные колодки Brembo P85020",
     brand: "Brembo",
-    category: "Тормозная система",
+    category: "brake",  // ← ИСПРАВЛЕНО
     price: 15800,
     inStock: true,
     stock: 25,
@@ -150,7 +150,7 @@ const defaultProducts: Product[] = [
     id: "6",
     name: "Тормозной диск ATE 24.0122-0150.1",
     brand: "ATE",
-    category: "Тормозная система",
+    category: "brake",  // ← ИСПРАВЛЕНО
     price: 12500,
     inStock: true,
     stock: 20,
@@ -172,7 +172,7 @@ const defaultProducts: Product[] = [
     id: "7",
     name: "Амортизатор KYB 341346",
     brand: "KYB",
-    category: "Подвеска",
+    category: "suspension",  // ← ИСПРАВЛЕНО
     price: 18900,
     inStock: true,
     stock: 12,
@@ -195,7 +195,7 @@ const defaultProducts: Product[] = [
     id: "8",
     name: "Свеча зажигания NGK BKR6E",
     brand: "NGK",
-    category: "Электрика",
+    category: "electrical",  // ← ИСПРАВЛЕНО
     price: 1200,
     inStock: true,
     stock: 100,
@@ -218,7 +218,7 @@ const defaultProducts: Product[] = [
     id: "9",
     name: "Аккумулятор Varta Blue Dynamic 60Ah",
     brand: "Varta",
-    category: "Электрика",
+    category: "electrical",  // ← ИСПРАВЛЕНО
     price: 45000,
     oldPrice: 52000,
     inStock: true,
@@ -242,7 +242,7 @@ const defaultProducts: Product[] = [
     id: "10",
     name: "Ремень ГРМ Gates 5669XS",
     brand: "Gates",
-    category: "Двигатель",
+    category: "engine",  // ← ИСПРАВЛЕНО
     price: 8900,
     inStock: true,
     stock: 15,
@@ -265,7 +265,7 @@ const defaultProducts: Product[] = [
     id: "11",
     name: "Масло Shell Helix Ultra 5W-40 4L",
     brand: "Shell",
-    category: "Масла и жидкости",
+    category: "oil",  // ← ИСПРАВЛЕНО
     price: 19500,
     inStock: true,
     stock: 20,
@@ -289,7 +289,7 @@ const defaultProducts: Product[] = [
     id: "12",
     name: "Фильтр топливный Delphi HDF924",
     brand: "Delphi",
-    category: "Фильтры",
+    category: "filter",  // ← ИСПРАВЛЕНО
     price: 4500,
     inStock: true,
     stock: 40,
@@ -349,14 +349,13 @@ export const getRelatedProducts = (productId: string, limit: number = 4): Produc
     .slice(0, limit);
 };
 
-// ← НОВОЕ: Поиск аналогов по кросс-номерам
+// Поиск аналогов по кросс-номерам
 export const getAnalogProducts = (product: Product, limit: number = 4): Product[] => {
   if (!product.crossNumbers || product.crossNumbers.length === 0) return [];
-  
   const allProducts = getProducts();
   return allProducts
-    .filter(p => 
-      p.id !== product.id && 
+    .filter(p =>
+      p.id !== product.id &&
       product.crossNumbers?.includes(p.sku || '')
     )
     .slice(0, limit);
