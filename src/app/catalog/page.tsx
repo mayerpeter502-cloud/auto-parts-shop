@@ -1,25 +1,25 @@
 "use client";
-import { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import ProductCard from '../../components/ProductCard';
 import { ProductCardSkeleton } from '../../components/ProductCardSkeleton';
 import { SearchAutocomplete } from "../../components/SearchAutocomplete";
 import { CarSelector } from "../../components/CarSelector";
-import { getProducts, Product } from "../lib/api";
-import { SlidersHorizontal, Home } from "lucide-react";
+import { getProducts, Product, getCategoryBySlug, getCategoryParents, getAllCategories, getChildCategories } from "../lib/api";
+import { SlidersHorizontal, Home, ChevronRight } from "lucide-react";
 import { Header } from "../../components/Header";
 import { Footer } from "../../components/Footer";
-import Link from "next/link";
-import { ChevronRight } from "lucide-react";
 
 function CatalogContent() {
   const searchParams = useSearchParams();
   const categoryFromUrl = searchParams.get('category');
+  
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isLoading, setIsLoading] = useState(true); // ← НОВОЕ
+  const [isLoading, setIsLoading] = useState(true);
   const [filters, setFilters] = useState({
     category: categoryFromUrl || "",
     brand: "",
@@ -31,16 +31,38 @@ function CatalogContent() {
     year: "",
   });
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
-  const itemsPerPage = 12;
 
+  const itemsPerPage = 12;
   const availableBrands = Array.from(new Set(products.map(p => p.brand))).sort();
+
+  // Получаем текущую категорию и родителей
+  const currentCategory = categoryFromUrl ? getCategoryBySlug(categoryFromUrl) : undefined;
+  const categoryParents = categoryFromUrl ? getCategoryParents(categoryFromUrl) : [];
 
   useEffect(() => {
     const allProducts = getProducts();
     setProducts(allProducts);
     setFilteredProducts(allProducts);
-    setIsLoading(false); // ← НОВОЕ: загрузка завершена
+    setIsLoading(false);
   }, []);
+
+  // ← ДОБАВЛЕНО: Сброс фильтров при переходе на /catalog без параметров
+  useEffect(() => {
+    if (!categoryFromUrl && filters.category) {
+      setFilters({
+        category: "",
+        brand: "",
+        minPrice: "",
+        maxPrice: "",
+        inStock: false,
+        carBrand: "",
+        carModel: "",
+        year: "",
+      });
+      setSearchQuery("");
+      setCurrentPage(1);
+    }
+  }, [categoryFromUrl]);
 
   useEffect(() => {
     if (categoryFromUrl) {
@@ -50,49 +72,77 @@ function CatalogContent() {
 
   useEffect(() => {
     let result = products;
+
+    // Поиск по названию/бренду/SKU
     if (searchQuery) {
-      result = result.filter((p) => 
+      result = result.filter((p) =>
         p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.sku?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
+
+    // Фильтр по категории (с поддержкой вложенности)
     if (filters.category) {
-      const categoryMap: Record<string, string[]> = {
-        "Масла и жидкости": ["oil", "Масла и жидкости"],
-        "Фильтры": ["filter", "Фильтры"],
-        "Тормозная система": ["brake", "Тормозная система"],
-        "Подвеска": ["suspension", "Подвеска"],
-        "Электрика": ["electrical", "Электрика"],
-        "Двигатель": ["engine", "Двигатель"]
-      };
-      const categoryValues = categoryMap[filters.category] || [filters.category];
-      result = result.filter((p) => categoryValues.includes(p.category));
+      const categoryInfo = getCategoryBySlug(filters.category);
+      
+      if (categoryInfo?.parentId) {
+        // Это подкатегория — ищем товары ТОЛЬКО этой подкатегории
+        result = result.filter((p) => {
+          return p.category === filters.category ||
+                 p.category === categoryInfo.slug ||
+                 p.category === categoryInfo.name ||
+                 p.category === categoryInfo.parentId;
+        });
+      } else {
+        // Это родительская категория — показываем все товары родителя + подкатегорий
+        const childCategories = getChildCategories(filters.category);
+        const childSlugs = childCategories.map(child => child.slug);
+        const childNames = childCategories.map(child => child.name);
+        
+        result = result.filter((p) => {
+          return p.category === filters.category || 
+                 p.category === categoryInfo.name ||
+                 childSlugs.includes(p.category) ||
+                 childNames.includes(p.category);
+        });
+      }
     }
+
+    // Фильтр по бренду
     if (filters.brand) {
       result = result.filter((p) => p.brand === filters.brand);
     }
+
+    // Фильтр по цене
     if (filters.minPrice) {
       result = result.filter((p) => p.price >= Number(filters.minPrice));
     }
+
     if (filters.maxPrice) {
       result = result.filter((p) => p.price <= Number(filters.maxPrice));
     }
+
+    // Фильтр "В наличии"
     if (filters.inStock) {
       result = result.filter((p) => p.stock !== undefined && p.stock > 0);
     }
+
+    // Фильтр по авто
     if (filters.carBrand) {
-      result = result.filter((p) => 
+      result = result.filter((p) =>
         p.compatibility?.some(c => c.brand.toLowerCase() === filters.carBrand.toLowerCase())
       );
     }
+
     if (filters.carModel) {
-      result = result.filter((p) => 
+      result = result.filter((p) =>
         p.compatibility?.some(c => c.model.toLowerCase() === filters.carModel.toLowerCase())
       );
     }
+
     if (filters.year) {
-      result = result.filter((p) => 
+      result = result.filter((p) =>
         p.compatibility?.some(c => c.yearFrom <= Number(filters.year) && c.yearTo >= Number(filters.year))
       );
     }
@@ -117,17 +167,23 @@ function CatalogContent() {
   const getCategoryName = (category: string) => {
     const names: Record<string, string> = {
       oil: "Масла и жидкости",
+      "oil-motor": "Моторные масла",
+      "oil-trans": "Трансмиссионные масла",
+      "oil-coolant": "Охлаждающие жидкости",
       filter: "Фильтры",
+      "filter-oil": "Масляные фильтры",
+      "filter-air": "Воздушные фильтры",
+      "filter-fuel": "Топливные фильтры",
       brake: "Тормозная система",
+      "brake-pads": "Тормозные колодки",
+      "brake-discs": "Тормозные диски",
       suspension: "Подвеска",
+      "suspension-shock": "Амортизаторы",
       electrical: "Электрика",
+      "electrical-spark": "Свечи зажигания",
+      "electrical-battery": "Аккумуляторы",
       engine: "Двигатель",
-      "Масла и жидкости": "Масла и жидкости",
-      "Фильтры": "Фильтры",
-      "Тормозная система": "Тормозная система",
-      "Подвеска": "Подвеска",
-      "Электрика": "Электрика",
-      "Двигатель": "Двигатель"
+      "engine-belt": "Ремни ГРМ"
     };
     return names[category] || category;
   };
@@ -138,27 +194,59 @@ function CatalogContent() {
       
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
         {/* Breadcrumbs */}
-        <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
+        <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6 flex-wrap">
           <Link href="/" className="flex items-center gap-1 hover:text-blue-600 transition-colors">
             <Home className="w-4 h-4" />
             <span>Главная</span>
           </Link>
-          <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">
-            {filters.category ? getCategoryName(filters.category) : "Каталог"}
-          </span>
+          <ChevronRight className="w-4 h-4 flex-shrink-0" />
+          <Link href="/catalog" className="hover:text-blue-600 transition-colors">
+            Каталог
+          </Link>
+          
+          {/* Родительские категории */}
+          {categoryParents.map((parent) => (
+            <React.Fragment key={parent.id}>
+              <ChevronRight className="w-4 h-4 flex-shrink-0" />
+              <Link 
+                href={`/catalog?category=${parent.slug}`} 
+                className="hover:text-blue-600 transition-colors"
+              >
+                {parent.name}
+              </Link>
+            </React.Fragment>
+          ))}
+          
+          {/* Текущая категория */}
+          {currentCategory && (
+            <>
+              <ChevronRight className="w-4 h-4 flex-shrink-0" />
+              <span className="text-gray-900 font-medium">{currentCategory.name}</span>
+            </>
+          )}
+          
+          {!currentCategory && filters.category && (
+            <>
+              <ChevronRight className="w-4 h-4 flex-shrink-0" />
+              <span className="text-gray-900 font-medium">{getCategoryName(filters.category)}</span>
+            </>
+          )}
         </nav>
 
-        <SearchAutocomplete
-          value={searchQuery}
-          onChange={setSearchQuery}
-          onSelect={(product) => {
-            window.location.href = `/product/${product.id}`;
-          }}
-          placeholder="Поиск по номеру, названию..."
-        />
+        {/* Search */}
+        <div className="mb-6">
+          <SearchAutocomplete
+            value={searchQuery}
+            onChange={setSearchQuery}
+            onSelect={(product) => {
+              window.location.href = `/product/${product.id}`;
+            }}
+            placeholder="Поиск по номеру, названию..."
+          />
+        </div>
 
-        <div className="flex flex-col lg:flex-row gap-6 mt-6">
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Mobile Filter Button */}
           <button
             onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
             className="lg:hidden flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 w-fit"
@@ -167,6 +255,7 @@ function CatalogContent() {
             <span>Фильтры</span>
           </button>
 
+          {/* Sidebar Filters */}
           <aside className={`lg:w-64 flex-shrink-0 ${isMobileFilterOpen ? 'block' : 'hidden lg:block'}`}>
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 lg:p-6 space-y-6">
               <div className="flex items-center justify-between">
@@ -191,6 +280,7 @@ function CatalogContent() {
                 </button>
               </div>
 
+              {/* Подбор по авто */}
               <div>
                 <h3 className="font-medium text-gray-900 mb-3">Подбор по авто</h3>
                 <CarSelector onSelect={handleCarSelect} />
@@ -204,6 +294,7 @@ function CatalogContent() {
                 )}
               </div>
 
+              {/* Категория */}
               <div className="border-t pt-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Категория</label>
                 <select
@@ -212,15 +303,16 @@ function CatalogContent() {
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                 >
                   <option value="">Все категории</option>
-                  <option value="Масла и жидкости">Масла и жидкости</option>
-                  <option value="Фильтры">Фильтры</option>
-                  <option value="Тормозная система">Тормозная система</option>
-                  <option value="Двигатель">Двигатель</option>
-                  <option value="Подвеска">Подвеска</option>
-                  <option value="Электрика">Электрика</option>
+                  <option value="oil">Масла и жидкости</option>
+                  <option value="filter">Фильтры</option>
+                  <option value="brake">Тормозная система</option>
+                  <option value="engine">Двигатель</option>
+                  <option value="suspension">Подвеска</option>
+                  <option value="electrical">Электрика</option>
                 </select>
               </div>
 
+              {/* Бренд */}
               <div className="border-t pt-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Бренд ({availableBrands.length})
@@ -237,6 +329,7 @@ function CatalogContent() {
                 </select>
               </div>
 
+              {/* Цена */}
               <div className="border-t pt-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Цена, ₸</label>
                 <div className="flex gap-2">
@@ -257,6 +350,7 @@ function CatalogContent() {
                 </div>
               </div>
 
+              {/* В наличии */}
               <div className="border-t pt-4">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -271,10 +365,11 @@ function CatalogContent() {
             </div>
           </aside>
 
+          {/* Products Grid */}
           <div className="flex-1">
             <div className="flex items-center justify-between mb-4">
               <h1 className="text-xl font-bold text-gray-900">
-                {filters.category ? getCategoryName(filters.category) : "Каталог"}
+                {currentCategory?.name || filters.category ? getCategoryName(filters.category) : "Каталог"}
               </h1>
               <span className="text-sm text-gray-500">{filteredProducts.length} товаров</span>
             </div>
@@ -286,7 +381,6 @@ function CatalogContent() {
             ) : (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {/* ← НОВОЕ: Показываем скелетоны во время загрузки */}
                   {isLoading ? (
                     Array.from({ length: itemsPerPage }).map((_, i) => (
                       <ProductCardSkeleton key={i} />
@@ -341,7 +435,7 @@ export default function CatalogPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-gray-500">Загрузка...</div>
+        <p className="text-gray-500">Загрузка...</p>
       </div>
     }>
       <CatalogContent />

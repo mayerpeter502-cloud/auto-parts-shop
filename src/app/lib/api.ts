@@ -25,12 +25,132 @@ export interface Product {
   crossNumbers?: string[];
 }
 
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  icon: string;
+  parentId?: string | null;
+  children?: Category[];
+}
+
+export const categories: Category[] = [
+  {
+    id: "oil",
+    name: "Масла и жидкости",
+    slug: "oil",
+    icon: "🛢️",
+    parentId: null,
+    children: [
+      { id: "oil-motor", name: "Моторные масла", slug: "oil-motor", icon: "🔧", parentId: "oil" },
+      { id: "oil-trans", name: "Трансмиссионные масла", slug: "oil-trans", icon: "⚙️", parentId: "oil" },
+      { id: "oil-coolant", name: "Охлаждающие жидкости", slug: "oil-coolant", icon: "❄️", parentId: "oil" }
+    ]
+  },
+  {
+    id: "filter",
+    name: "Фильтры",
+    slug: "filter",
+    icon: "🔄",
+    parentId: null,
+    children: [
+      { id: "filter-oil", name: "Масляные фильтры", slug: "filter-oil", icon: "🛢️", parentId: "filter" },
+      { id: "filter-air", name: "Воздушные фильтры", slug: "filter-air", icon: "💨", parentId: "filter" },
+      { id: "filter-fuel", name: "Топливные фильтры", slug: "filter-fuel", icon: "⛽", parentId: "filter" }
+    ]
+  },
+  {
+    id: "brake",
+    name: "Тормозная система",
+    slug: "brake",
+    icon: "🛑",
+    parentId: null,
+    children: [
+      { id: "brake-pads", name: "Тормозные колодки", slug: "brake-pads", icon: "🔲", parentId: "brake" },
+      { id: "brake-discs", name: "Тормозные диски", slug: "brake-discs", icon: "💿", parentId: "brake" }
+    ]
+  },
+  {
+    id: "suspension",
+    name: "Подвеска",
+    slug: "suspension",
+    icon: "🔧",
+    parentId: null,
+    children: [
+      { id: "suspension-shock", name: "Амортизаторы", slug: "suspension-shock", icon: "📍", parentId: "suspension" }
+    ]
+  },
+  {
+    id: "electrical",
+    name: "Электрика",
+    slug: "electrical",
+    icon: "⚡",
+    parentId: null,
+    children: [
+      { id: "electrical-spark", name: "Свечи зажигания", slug: "electrical-spark", icon: "🔌", parentId: "electrical" },
+      { id: "electrical-battery", name: "Аккумуляторы", slug: "electrical-battery", icon: "🔋", parentId: "electrical" }
+    ]
+  },
+  {
+    id: "engine",
+    name: "Двигатель",
+    slug: "engine",
+    icon: "⚙️",
+    parentId: null,
+    children: [
+      { id: "engine-belt", name: "Ремни ГРМ", slug: "engine-belt", icon: "🔗", parentId: "engine" }
+    ]
+  }
+];
+
+export const getAllCategories = (flat: boolean = false): Category[] => {
+  if (flat) {
+    const flat: Category[] = [];
+    const flatten = (cats: Category[]) => {
+      cats.forEach(cat => {
+        flat.push({ ...cat, children: undefined });
+        if (cat.children) flatten(cat.children);
+      });
+    };
+    flatten(categories);
+    return flat;
+  }
+  return categories;
+};
+
+export const getCategoryBySlug = (slug: string): Category | undefined => {
+  const flat = getAllCategories(true);
+  return flat.find(cat => cat.slug === slug);
+};
+
+export const getCategoryParents = (slug: string): Category[] => {
+  const parents: Category[] = [];
+  const category = getCategoryBySlug(slug);
+  if (!category || !category.parentId) return parents;
+
+  const findParent = (parentId: string) => {
+    const parent = categories.find(cat => cat.id === parentId);
+    if (parent) {
+      parents.unshift({ ...parent, children: undefined });
+      if (parent.parentId) findParent(parent.parentId);
+    }
+  };
+
+  findParent(category.parentId);
+  return parents;
+};
+
+export const getChildCategories = (parentId: string): Category[] => {
+  const parent = categories.find(cat => cat.id === parentId);
+  return parent?.children || [];
+};
+
 const defaultProducts: Product[] = [
   {
     id: "1",
     name: "Моторное масло Castrol EDGE 5W-30 4L",
     brand: "Castrol",
-    category: "oil",  // ← ИСПРАВЛЕНО
+    category: "oil",
     price: 18500,
     oldPrice: 22000,
     inStock: true,
@@ -56,7 +176,7 @@ const defaultProducts: Product[] = [
     id: "2",
     name: "Моторное масло Mobil 1 0W-40 4L",
     brand: "Mobil",
-    category: "oil",  // ← ИСПРАВЛЕНО
+    category: "oil",
     price: 21000,
     inStock: true,
     stock: 10,
@@ -80,7 +200,7 @@ const defaultProducts: Product[] = [
     id: "3",
     name: "Фильтр масляный Bosch F026407183",
     brand: "Bosch",
-    category: "filter",  // ← ИСПРАВЛЕНО
+    category: "filter",
     price: 2500,
     inStock: true,
     stock: 50,
@@ -103,7 +223,7 @@ const defaultProducts: Product[] = [
     id: "4",
     name: "Фильтр воздушный Mann C30130",
     brand: "Mann",
-    category: "filter",  // ← ИСПРАВЛЕНО
+    category: "filter",
     price: 3200,
     oldPrice: 3800,
     inStock: true,
@@ -127,7 +247,7 @@ const defaultProducts: Product[] = [
     id: "5",
     name: "Тормозные колодки Brembo P85020",
     brand: "Brembo",
-    category: "brake",  // ← ИСПРАВЛЕНО
+    category: "brake",
     price: 15800,
     inStock: true,
     stock: 25,
@@ -150,7 +270,7 @@ const defaultProducts: Product[] = [
     id: "6",
     name: "Тормозной диск ATE 24.0122-0150.1",
     brand: "ATE",
-    category: "brake",  // ← ИСПРАВЛЕНО
+    category: "brake",
     price: 12500,
     inStock: true,
     stock: 20,
@@ -172,7 +292,7 @@ const defaultProducts: Product[] = [
     id: "7",
     name: "Амортизатор KYB 341346",
     brand: "KYB",
-    category: "suspension",  // ← ИСПРАВЛЕНО
+    category: "suspension",
     price: 18900,
     inStock: true,
     stock: 12,
@@ -195,7 +315,7 @@ const defaultProducts: Product[] = [
     id: "8",
     name: "Свеча зажигания NGK BKR6E",
     brand: "NGK",
-    category: "electrical",  // ← ИСПРАВЛЕНО
+    category: "electrical",
     price: 1200,
     inStock: true,
     stock: 100,
@@ -218,7 +338,7 @@ const defaultProducts: Product[] = [
     id: "9",
     name: "Аккумулятор Varta Blue Dynamic 60Ah",
     brand: "Varta",
-    category: "electrical",  // ← ИСПРАВЛЕНО
+    category: "electrical",
     price: 45000,
     oldPrice: 52000,
     inStock: true,
@@ -242,7 +362,7 @@ const defaultProducts: Product[] = [
     id: "10",
     name: "Ремень ГРМ Gates 5669XS",
     brand: "Gates",
-    category: "engine",  // ← ИСПРАВЛЕНО
+    category: "engine",
     price: 8900,
     inStock: true,
     stock: 15,
@@ -265,7 +385,7 @@ const defaultProducts: Product[] = [
     id: "11",
     name: "Масло Shell Helix Ultra 5W-40 4L",
     brand: "Shell",
-    category: "oil",  // ← ИСПРАВЛЕНО
+    category: "oil",
     price: 19500,
     inStock: true,
     stock: 20,
@@ -289,7 +409,7 @@ const defaultProducts: Product[] = [
     id: "12",
     name: "Фильтр топливный Delphi HDF924",
     brand: "Delphi",
-    category: "filter",  // ← ИСПРАВЛЕНО
+    category: "filter",
     price: 4500,
     inStock: true,
     stock: 40,
@@ -312,7 +432,6 @@ const defaultProducts: Product[] = [
 
 const PRODUCTS_KEY = 'autoparts_products_v2';
 
-// Инициализация localStorage при первом запуске
 const initStorage = () => {
   if (typeof window !== 'undefined') {
     const stored = localStorage.getItem(PRODUCTS_KEY);
@@ -349,7 +468,6 @@ export const getRelatedProducts = (productId: string, limit: number = 4): Produc
     .slice(0, limit);
 };
 
-// Поиск аналогов по кросс-номерам
 export const getAnalogProducts = (product: Product, limit: number = 4): Product[] => {
   if (!product.crossNumbers || product.crossNumbers.length === 0) return [];
   const allProducts = getProducts();
@@ -388,7 +506,6 @@ export const deleteProduct = (id: string): void => {
   saveProducts(filtered);
 };
 
-// Для обратной совместимости
 export const productsApi = {
   getAll: getProducts,
   getById: getProductById,

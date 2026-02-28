@@ -1,10 +1,10 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { ShoppingCart, Check, ChevronRight, Star, Home, Repeat } from "lucide-react";
 import Image from "next/image";
-import { productsApi, getProducts, Product } from "../../lib/api";
+import { productsApi, getProducts, Product, getCategoryBySlug, getCategoryParents } from "../../lib/api";
 import { useCart } from "../../../contexts/CartContext";
 import { RelatedProducts } from "../../../components/RelatedProducts";
 import { ProductReviews } from "../../../components/ProductReviews";
@@ -44,7 +44,11 @@ export default function ProductPage() {
     }
   }, [product, allProducts]);
 
-  const getCategoryName = (category: string) => {
+  // Получаем категорию и родителей для хлебных крошек
+  const category = product ? getCategoryBySlug(product.category) : undefined;
+  const categoryParents = product ? getCategoryParents(product.category) : [];
+
+  const getCategoryName = (categorySlug: string) => {
     const names: Record<string, string> = {
       "Масла и жидкости": "Масла и жидкости",
       "Фильтры": "Фильтры",
@@ -59,7 +63,7 @@ export default function ProductPage() {
       suspension: "Подвеска",
       electrical: "Электрика"
     };
-    return names[category] || category;
+    return names[categorySlug] || categorySlug;
   };
 
   if (loading) {
@@ -67,7 +71,7 @@ export default function ProductPage() {
       <div className="min-h-screen flex flex-col">
         <Header />
         <main className="flex-1 flex items-center justify-center">
-          <div className="text-gray-500">Загрузка...</div>
+          <p className="text-gray-500">Загрузка...</p>
         </main>
         <Footer />
       </div>
@@ -80,7 +84,7 @@ export default function ProductPage() {
         <Header />
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <div className="text-gray-500 mb-4">Товар не найден</div>
+            <p className="text-gray-500 mb-4">Товар не найден</p>
             <Link href="/catalog" className="text-blue-600 hover:underline">
               ← Вернуться в каталог
             </Link>
@@ -96,26 +100,60 @@ export default function ProductPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
+      
       <main className="flex-1">
         <div className="container mx-auto px-4 py-8">
-          {/* BREADCRUMBS */}
-          <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
-            <Link href="/" className="flex items-center gap-1 hover:text-blue-600 transition-colors">
-              <Home className="w-4 h-4" />
-              <span>Главная</span>
-            </Link>
-            <ChevronRight className="w-4 h-4" />
-            <Link href="/catalog" className="hover:text-blue-600 transition-colors">
-              Каталог
-            </Link>
-            <ChevronRight className="w-4 h-4" />
-            <Link 
-              href={`/catalog?category=${encodeURIComponent(product.category)}`} 
-              className="hover:text-blue-600 transition-colors"
-            >
-              {getCategoryName(product.category)}
-            </Link>
-            <ChevronRight className="w-4 h-4" />
+          {/* BREADCRUMBS — ИСПРАВЛЕНО: Полная иерархия категорий */}
+          <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6 flex-wrap">
+  <Link href="/" className="flex items-center gap-1 hover:text-blue-600 transition-colors">
+    <Home className="w-4 h-4" />
+    <span>Главная</span>
+  </Link>
+  <ChevronRight className="w-4 h-4 flex-shrink-0" />
+  <Link href="/catalog" className="hover:text-blue-600 transition-colors">
+    Каталог
+  </Link>
+            
+            {/* Родительские категории (дерево) */}
+            {categoryParents.map((parent) => (
+              <React.Fragment key={parent.id}>
+                <ChevronRight className="w-4 h-4 flex-shrink-0" />
+                <Link 
+                  href={`/catalog?category=${parent.slug}`} 
+                  className="hover:text-blue-600 transition-colors"
+                >
+                  {parent.name}
+                </Link>
+              </React.Fragment>
+            ))}
+            
+            {/* Текущая категория */}
+            {category && (
+              <>
+                <ChevronRight className="w-4 h-4 flex-shrink-0" />
+                <Link 
+                  href={`/catalog?category=${category.slug}`} 
+                  className="hover:text-blue-600 transition-colors"
+                >
+                  {category.name}
+                </Link>
+              </>
+            )}
+            
+            {/* Если категория не найдена в дереве — показываем старое название */}
+            {!category && product.category && (
+              <>
+                <ChevronRight className="w-4 h-4 flex-shrink-0" />
+                <Link 
+                  href={`/catalog?category=${encodeURIComponent(product.category)}`} 
+                  className="hover:text-blue-600 transition-colors"
+                >
+                  {getCategoryName(product.category)}
+                </Link>
+              </>
+            )}
+            
+            <ChevronRight className="w-4 h-4 flex-shrink-0" />
             <span className="text-gray-900 font-medium truncate max-w-[200px] sm:max-w-md">
               {product.name}
             </span>
@@ -313,14 +351,14 @@ export default function ProductPage() {
           {/* Related Products */}
           <RelatedProducts products={allProducts} currentProductId={product.id} />
         </div>
-
-        {/* Модальное окно быстрого заказа */}
-        <QuickOrderModal
-          isOpen={quickOrderOpen}
-          onClose={() => setQuickOrderOpen(false)}
-          product={product}
-        />
       </main>
+      
+      {/* Модальное окно быстрого заказа */}
+      <QuickOrderModal
+        isOpen={quickOrderOpen}
+        onClose={() => setQuickOrderOpen(false)}
+        product={product}
+      />
       
       <Footer />
     </div>

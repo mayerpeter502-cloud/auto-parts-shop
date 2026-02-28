@@ -1,22 +1,10 @@
 "use client";
 import Link from "next/link";
-import { Metadata } from "next";
 import { useState, useEffect } from "react";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import ProductCard from "../components/ProductCard";
-import { getProducts } from "./lib/api";
-
-const categories = [
-  { name: "Моторные масла", slug: "oil", icon: "🛢️" },
-  { name: "Фильтры", slug: "filter", icon: "🔄" },
-  { name: "Тормозные системы", slug: "brake", icon: "🛑" },
-  { name: "Подвеска", slug: "suspension", icon: "🔧" },
-  { name: "Электрика", slug: "electrical", icon: "⚡" },
-  { name: "Двигатель", slug: "engine", icon: "⚙️" },
-  { name: "Кузовные детали", slug: "body", icon: "🚗" },
-  { name: "Аксессуары", slug: "accessories", icon: "🔌" }
-];
+import { getProducts, categories } from "./lib/api";
 
 const banners = [
   { id: 1, title: "Скидка 20% на масла", subtitle: "При покупке от 10 000 ₸", color: "bg-blue-600" },
@@ -28,12 +16,10 @@ export default function HomePage() {
   const products = getProducts().slice(0, 8);
   const [currentBanner, setCurrentBanner] = useState(0);
 
-  // ← ДОБАВЛЕНО: Автоматическое переключение баннеров
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentBanner((prev) => (prev + 1) % banners.length);
-    }, 5000); // Переключение каждые 5 секунд
-
+    }, 5000);
     return () => clearInterval(timer);
   }, []);
 
@@ -64,7 +50,6 @@ export default function HomePage() {
             </div>
           ))}
           
-          {/* Индикаторы баннеров */}
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
             {banners.map((_, index) => (
               <button
@@ -79,22 +64,39 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Categories */}
+        {/* Categories with Subcategories */}
         <section className="py-12 bg-white">
           <div className="container mx-auto px-4">
             <h2 className="text-2xl font-bold text-gray-900 mb-8">Популярные категории</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
               {categories.map((category) => (
-                <Link
-                  key={category.slug}
-                  href={`/catalog?category=${category.slug}`}
-                  className="flex flex-col items-center p-4 bg-gray-50 rounded-xl hover:bg-blue-50 transition-all"
-                >
-                  <div className="w-16 h-16 mb-3 flex items-center justify-center text-3xl bg-white rounded-full shadow-sm">
-                    {category.icon}
-                  </div>
-                  <span className="text-sm text-center text-gray-700 font-medium">{category.name}</span>
-                </Link>
+                <div key={category.id} className="flex flex-col">
+                  {/* Parent Category */}
+                  <Link
+                    href={`/catalog?category=${category.slug}`}
+                    className="flex flex-col items-center p-4 bg-gray-50 rounded-xl hover:bg-blue-50 transition-all mb-2"
+                  >
+                    <div className="w-16 h-16 mb-3 flex items-center justify-center text-3xl bg-white rounded-full shadow-sm">
+                      {category.icon}
+                    </div>
+                    <span className="text-sm text-center text-gray-700 font-medium">{category.name}</span>
+                  </Link>
+                  
+                  {/* Subcategories */}
+                  {category.children && category.children.length > 0 && (
+                    <div className="pl-2 space-y-1">
+                      {category.children.map((child) => (
+                        <Link
+                          key={child.id}
+                          href={`/catalog?category=${child.slug}`}
+                          className="block text-xs text-gray-500 hover:text-blue-600 py-1 px-2 rounded hover:bg-gray-50 transition-colors"
+                        >
+                          {child.icon} {child.name}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           </div>

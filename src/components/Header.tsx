@@ -176,8 +176,8 @@ export function Header() {
         <div className="md:hidden border-t bg-white">
           <nav className="container mx-auto px-4 py-4 space-y-2">
             <Link href="/catalog" className="block py-2 text-gray-700 hover:text-blue-600">
-              Каталог
-            </Link>
+  Каталог
+</Link>
             <Link href="/car-selector" className="block py-2 text-gray-700 hover:text-blue-600">
               Подбор по авто
             </Link>
