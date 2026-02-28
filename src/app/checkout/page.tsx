@@ -24,16 +24,16 @@ export default function CheckoutPage() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-4xl mx-auto px-4">
-          <Link href="/cart" className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6">
-            <ChevronLeft className="w-5 h-5" />
+      <div className="min-h-screen flex flex-col">
+        <div className="flex-1 container mx-auto px-4 py-8">
+          <Link href="/cart" className="inline-flex items-center gap-2 text-gray-600 hover:text-blue-600 mb-6">
+            <ChevronLeft className="w-4 h-4" />
             Назад в корзину
           </Link>
-          <div className="bg-white rounded-xl shadow-sm p-8 text-center">
-            <h1 className="text-2xl font-bold mb-4">Корзина пуста</h1>
+          <div className="text-center py-12">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Корзина пуста</h1>
             <p className="text-gray-500 mb-6">Добавьте товары для оформления заказа</p>
-            <Link href="/catalog" className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            <Link href="/catalog" className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
               Перейти в каталог
             </Link>
           </div>
@@ -43,24 +43,25 @@ export default function CheckoutPage() {
   }
 
   const handleSubmit = () => {
+    // ✅ ИСПРАВЛЕНО: Структура заказа должна соответствовать ordersApi
     const order = ordersApi.create({
       userId: user?.id || "guest",
-      customerName: formData.name,
-      phone: formData.phone,
-      email: formData.email || undefined,
-      address: formData.deliveryMethod === "pickup" ? "" : formData.address,
-      city: formData.deliveryMethod === "pickup" ? "" : formData.city,
+      status: "pending",
+      total: total,
       items: items.map(item => ({
-        id: item.id,
+        productId: item.id,  // ✅ Было: id
         name: item.name,
         price: item.price,
-        quantity: item.quantity
+        quantity: item.quantity,
+        image: item.image,
+        sku: item.sku
       })),
-      total: total,
-      status: "pending",
-      deliveryMethod: formData.deliveryMethod,
-      paymentMethod: formData.paymentMethod
+      customer: {  // ✅ Было: customerName, phone отдельно
+        name: formData.name,
+        phone: formData.phone
+      }
     });
+
     clearCart();
     router.push(`/order-success?id=${order.id}`);
   };
@@ -72,10 +73,10 @@ export default function CheckoutPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-6xl mx-auto px-4">
-        <Link href="/cart" className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6">
-          <ChevronLeft className="w-5 h-5" />
+    <div className="min-h-screen flex flex-col">
+      <div className="flex-1 container mx-auto px-4 py-8">
+        <Link href="/cart" className="inline-flex items-center gap-2 text-gray-600 hover:text-blue-600 mb-6">
+          <ChevronLeft className="w-4 h-4" />
           Назад в корзину
         </Link>
 

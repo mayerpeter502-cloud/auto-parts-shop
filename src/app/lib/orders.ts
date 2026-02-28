@@ -1,70 +1,74 @@
-export interface Order {
-  id: string;
-  userId?: string;
-  customerName: string;
-  phone: string;
-  email?: string;
-  address: string;
-  city: string;
-  items: {
-    id: string;
-    name: string;
-    price: number;
-    quantity: number;
-  }[];
-  total: number;
-  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
-  createdAt: string;
-  deliveryMethod: string;
-  paymentMethod: string;
+export interface OrderItem {
+  productId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  image?: string;
+  sku?: string;
 }
 
-const orders: Order[] = [];
+export interface Order {
+  id: string;
+  userId: string;
+  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+  total: number;
+  createdAt: string;
+  items: OrderItem[];
+  customer?: {
+    name: string;
+    phone: string;
+  };
+}
+
+const ORDERS_KEY = 'autoparts_orders';
 
 export const ordersApi = {
   getAll: (): Order[] => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("orders");
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem(ORDERS_KEY);
       return stored ? JSON.parse(stored) : [];
     }
     return [];
   },
 
-  getById: (id: string): Order | undefined => {
+  // ← ДОБАВИТЬ: Метод getById
+  getById: (orderId: string): Order | undefined => {
     const orders = ordersApi.getAll();
-    return orders.find(o => o.id === id);
+    return orders.find(order => order.id === orderId);
   },
 
   getByUser: (userId: string): Order[] => {
     const orders = ordersApi.getAll();
-    return orders.filter(o => o.userId === userId);
+    return orders.filter(order => order.userId === userId || order.userId === 'guest');
   },
 
-  create: (order: Omit<Order, "id" | "createdAt">): Order => {
+  create: (order: Omit<Order, 'id' | 'createdAt'>): Order => {
+    const orders = ordersApi.getAll();
     const newOrder: Order = {
       ...order,
       id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
+      createdAt: new Date().toISOString()
     };
-
-    const orders = ordersApi.getAll();
     orders.push(newOrder);
-    localStorage.setItem("orders", JSON.stringify(orders));
+    localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+    window.dispatchEvent(new CustomEvent('ordersUpdated'));
     return newOrder;
   },
 
-  updateStatus: (id: string, status: Order["status"]): void => {
+  updateStatus: (orderId: string, status: Order['status']): void => {
     const orders = ordersApi.getAll();
-    const order = orders.find(o => o.id === id);
-    if (order) {
-      order.status = status;
-      localStorage.setItem("orders", JSON.stringify(orders));
+    const index = orders.findIndex(o => o.id === orderId);
+    if (index !== -1) {
+      orders[index].status = status;
+      localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+      window.dispatchEvent(new CustomEvent('ordersUpdated'));
     }
   },
 
-  delete: (id: string): void => {
+  delete: (orderId: string): void => {
     const orders = ordersApi.getAll();
-    const filtered = orders.filter(o => o.id !== id);
-    localStorage.setItem("orders", JSON.stringify(filtered));
+    const filtered = orders.filter(o => o.id !== orderId);
+    localStorage.setItem(ORDERS_KEY, JSON.stringify(filtered));
+    window.dispatchEvent(new CustomEvent('ordersUpdated'));
   }
 };

@@ -11,6 +11,7 @@ import { ProductReviews } from "../../../components/ProductReviews";
 import { FrequentlyBoughtTogether } from "../../../components/FrequentlyBoughtTogether";
 import { Header } from "../../../components/Header";
 import { Footer } from "../../../components/Footer";
+import { QuickOrderModal } from "../../../components/QuickOrderModal";
 
 export default function ProductPage() {
   const params = useParams();
@@ -19,6 +20,7 @@ export default function ProductPage() {
   const [loading, setLoading] = useState(true);
   const [analogProducts, setAnalogProducts] = useState<Product[]>([]);
   const { addItem } = useCart();
+  const [quickOrderOpen, setQuickOrderOpen] = useState(false);
 
   useEffect(() => {
     const products = getProducts();
@@ -76,11 +78,13 @@ export default function ProductPage() {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-1 flex flex-col items-center justify-center">
-          <h1 className="text-2xl font-bold mb-4">Товар не найден</h1>
-          <Link href="/catalog" className="text-blue-600 hover:underline">
-            ← Вернуться в каталог
-          </Link>
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-gray-500 mb-4">Товар не найден</div>
+            <Link href="/catalog" className="text-blue-600 hover:underline">
+              ← Вернуться в каталог
+            </Link>
+          </div>
         </main>
         <Footer />
       </div>
@@ -92,10 +96,9 @@ export default function ProductPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      
       <main className="flex-1">
         <div className="container mx-auto px-4 py-8">
-          {/* BREADCRUMBS (Хлебные крошки) */}
+          {/* BREADCRUMBS */}
           <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
             <Link href="/" className="flex items-center gap-1 hover:text-blue-600 transition-colors">
               <Home className="w-4 h-4" />
@@ -168,20 +171,31 @@ export default function ProductPage() {
                   )}
                 </div>
 
-                <button
-                  onClick={() => addItem({
-                    id: product.id,
-                    name: product.name,
-                    price: product.price,
-                    image: product.image || '/placeholder.jpg',
-                    sku: product.sku || product.id
-                  })}
-                  disabled={!inStock}
-                  className="w-full md:w-auto px-8 py-4 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  <ShoppingCart className="w-5 h-5" />
-                  В корзину
-                </button>
+                {/* КНОПКИ — ИСПРАВЛЕНО */}
+                <div className="flex flex-col sm:flex-row gap-3 mb-6">
+                  <button
+                    onClick={() => addItem({
+                      id: product.id,
+                      name: product.name,
+                      price: product.price,
+                      image: product.image || '/placeholder.jpg',
+                      sku: product.sku || product.id
+                    })}
+                    disabled={!inStock}
+                    className="flex-1 px-8 py-4 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    <ShoppingCart className="w-5 h-5" />
+                    В корзину
+                  </button>
+                  
+                  <button
+                    onClick={() => setQuickOrderOpen(true)}
+                    disabled={!inStock}
+                    className="flex-1 px-8 py-4 border-2 border-blue-600 text-blue-600 rounded-lg font-semibold hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Купить в 1 клик
+                  </button>
+                </div>
 
                 {/* Description */}
                 <div className="mt-8 pt-8 border-t">
@@ -299,6 +313,13 @@ export default function ProductPage() {
           {/* Related Products */}
           <RelatedProducts products={allProducts} currentProductId={product.id} />
         </div>
+
+        {/* Модальное окно быстрого заказа */}
+        <QuickOrderModal
+          isOpen={quickOrderOpen}
+          onClose={() => setQuickOrderOpen(false)}
+          product={product}
+        />
       </main>
       
       <Footer />

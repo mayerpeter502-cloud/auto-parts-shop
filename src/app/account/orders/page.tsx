@@ -5,7 +5,6 @@ import Image from "next/image";
 import { Package, Truck, CheckCircle, Clock, ChevronRight, RotateCcw, X, LogOut, User, Home } from "lucide-react";
 import { Header } from "../../../components/Header";
 import { Footer } from "../../../components/Footer";
-import { ordersApi } from "../../lib/orders";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useCart } from "../../../contexts/CartContext";
 
@@ -25,6 +24,10 @@ interface Order {
   total: number;
   createdAt: string;
   items: OrderItem[];
+  customer?: {
+    name: string;
+    phone: string;
+  };
 }
 
 export default function OrdersPage() {
@@ -34,26 +37,27 @@ export default function OrdersPage() {
   const { addItem } = useCart();
 
   useEffect(() => {
-    if (user) {
-      const userOrders = ordersApi.getByUser(user.id);
-      setOrders(userOrders);
+    // ← ИСПРАВЛЕНО: Читаем ВСЕ заказы из localStorage
+    const storedOrders = localStorage.getItem("autoparts_orders");
+    if (storedOrders) {
+      const allOrders = JSON.parse(storedOrders);
+      // Показываем ВСЕ заказы (и пользователя, и гостевые)
+      setOrders(allOrders.sort((a: Order, b: Order) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      ));
     }
-  }, [user]);
+  }, []); // ← Убрали зависимость от user
 
-  const getStatusIcon = (status: Order["status"]) => {
+  const getStatusIcon = (status: string) => {
     switch (status) {
-      case "delivered":
-        return <CheckCircle className="w-5 h-5 text-green-500" />;
-      case "shipped":
-        return <Truck className="w-5 h-5 text-blue-500" />;
-      case "processing":
-        return <Clock className="w-5 h-5 text-yellow-500" />;
-      default:
-        return <Package className="w-5 h-5 text-gray-400" />;
+      case "delivered": return <CheckCircle className="w-5 h-5 text-green-500" />;
+      case "shipped": return <Truck className="w-5 h-5 text-blue-500" />;
+      case "processing": return <Clock className="w-5 h-5 text-yellow-500" />;
+      default: return <Package className="w-5 h-5 text-gray-400" />;
     }
   };
 
-  const getStatusText = (status: Order["status"]) => {
+  const getStatusText = (status: string) => {
     const statuses: Record<string, string> = {
       pending: "Ожидает обработки",
       processing: "В обработке",
@@ -77,45 +81,30 @@ export default function OrdersPage() {
     window.location.href = "/cart";
   };
 
+  // ← ИСПРАВЛЕНО: Корректный logout
   const handleLogout = () => {
-    logout();
+    // Очищаем всё
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("currentUser");
+    
+    // Если есть функция logout в контексте - вызываем
+    if (logout) {
+      try {
+        logout();
+      } catch (e) {
+        console.error("Logout error:", e);
+      }
+    }
+    
+    // Перенаправляем на главную
     window.location.href = "/";
   };
-
-  // Не авторизован
-  if (!user) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
-          {/* Breadcrumbs */}
-          <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
-            <Link href="/" className="flex items-center gap-1 hover:text-blue-600 transition-colors">
-              <Home className="w-4 h-4" />
-              <span>Главная</span>
-            </Link>
-            <ChevronRight className="w-4 h-4" />
-            <span className="text-gray-900 font-medium">Мои заказы</span>
-          </nav>
-
-          <div className="flex flex-col items-center justify-center py-12">
-            <User className="w-24 h-24 text-gray-300 mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Войдите для просмотра заказов</h1>
-            <Link href="/login" className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-              Войти
-            </Link>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
-        {/* Breadcrumbs */}
         <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
           <Link href="/" className="flex items-center gap-1 hover:text-blue-600 transition-colors">
             <Home className="w-4 h-4" />
@@ -129,7 +118,6 @@ export default function OrdersPage() {
           <span className="text-gray-900 font-medium">Мои заказы</span>
         </nav>
 
-        {/* Профиль пользователя с выходом */}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -137,8 +125,8 @@ export default function OrdersPage() {
                 <User className="w-6 h-6 text-blue-600" />
               </div>
               <div>
-                <h2 className="font-semibold text-gray-900">{user.name}</h2>
-                <p className="text-sm text-gray-500">{user.email}</p>
+                <h2 className="font-semibold text-gray-900">{user?.name || "Гость"}</h2>
+                <p className="text-sm text-gray-500">{user?.email || ""}</p>
               </div>
             </div>
             <button

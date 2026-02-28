@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Heart, Scale, Check } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import AddToCartButton from './AddToCartButton';
+import { QuickOrderModal } from "./QuickOrderModal";
 
 interface Product {
   id: string;
@@ -26,6 +27,7 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
   const [isInCompare, setIsInCompare] = useState(false);
   const [isInFavorites, setIsInFavorites] = useState(false);
+const [quickOrderOpen, setQuickOrderOpen] = useState(false);
 
   useEffect(() => {
     const compare = JSON.parse(localStorage.getItem('compare') || '[]');
@@ -181,14 +183,27 @@ export default function ProductCard({ product }: ProductCardProps) {
           )}
 
           {inStock ? (
-            <AddToCartButton product={{...product, image: imageUrl}} />
-          ) : (
-            <button disabled className="w-full py-2 px-4 rounded-lg font-medium bg-gray-100 text-gray-400 cursor-not-allowed">
-              Нет в наличии
-            </button>
-          )}
+  <div className="space-y-2">
+    <AddToCartButton product={{...product, image: imageUrl}} />
+    <button
+      onClick={() => setQuickOrderOpen(true)}
+      className="w-full py-2 border-2 border-blue-600 text-blue-600 rounded-lg font-medium hover:bg-blue-50 text-sm"
+    >
+      Купить в 1 клик
+    </button>
+  </div>
+) : (
+  <button disabled className="w-full py-2 px-4 rounded-lg font-medium bg-gray-100 text-gray-400 cursor-not-allowed">
+    Нет в наличии
+  </button>
+)}
         </div>
-      </div>
+            <QuickOrderModal
+        isOpen={quickOrderOpen}
+        onClose={() => setQuickOrderOpen(false)}
+        product={product}
+      />
     </div>
-  );
+  </div>
+);
 }
