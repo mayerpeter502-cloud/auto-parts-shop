@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 
-export const meta Metadata = {
+export const metadata: Metadata = {
   title: "О компании | AutoParts.kz",
   description: "AutoParts.kz — надежный поставщик автозапчастей в Казахстане. Более 10 лет на рынке.",
 };
