@@ -3,6 +3,11 @@ import { Header } from "../../components/Header";
 import { Footer } from "../../components/Footer";
 import { Truck, RotateCcw, CheckCircle, Clock, Shield } from "lucide-react";
 
+export const meta Metadata = {
+  title: "Доставка и возврат | AutoParts.kz",
+  description: "Условия доставки и возврата товаров. Доставка по Алматы 1-2 дня, по Казахстану 3-7 дней.",
+};
+
 export default function DeliveryPage() {
   return (
     <div className="min-h-screen flex flex-col">

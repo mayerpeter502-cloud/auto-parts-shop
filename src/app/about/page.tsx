@@ -1,8 +1,8 @@
 import { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "О нас",
-  description: "Информация о компании AutoParts.kz",
+export const meta Metadata = {
+  title: "О компании | AutoParts.kz",
+  description: "AutoParts.kz — надежный поставщик автозапчастей в Казахстане. Более 10 лет на рынке.",
 };
 
 export default function AboutPage() {

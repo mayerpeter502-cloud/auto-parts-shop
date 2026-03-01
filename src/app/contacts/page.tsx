@@ -1,9 +1,9 @@
 import { Metadata } from "next";
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "Контакты",
-  description: "Контактная информация AutoParts.kz",
+export const meta Metadata = {
+  title: "Контакты | AutoParts.kz",
+  description: "Свяжитесь с нами: телефон, email, адрес в Алматы. Режим работы Пн-Пт 9:00-18:00.",
 };
 
 export default function ContactsPage() {

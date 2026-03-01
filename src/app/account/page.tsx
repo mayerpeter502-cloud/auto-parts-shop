@@ -18,6 +18,13 @@ interface Order {
   }>;
 }
 
+export const metadata: Metadata = {
+  title: "Личный кабинет | AutoParts.kz",
+  description: "Управление заказами, избранным и настройками профиля.",
+  robots: { index: false }, // Не индексировать ЛК
+};
+
+
 export default function AccountPage() {
   const [user, setUser] = useState({
     name: "Алексей",
