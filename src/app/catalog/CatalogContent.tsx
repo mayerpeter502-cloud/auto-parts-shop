@@ -1,5 +1,4 @@
 "use client";
-import React from "react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -15,7 +14,6 @@ import {
   Product,
   getCategoryBySlug,
   getCategoryParents,
-  getAllCategories,
   getChildCategories
 } from "../lib/api";
 
@@ -73,10 +71,10 @@ export default function CatalogContent({ searchParams }: { searchParams: { categ
   }, [categoryFromUrl]);
 
   useEffect(() => {
-  if (categoryFromUrl) {
-    setFilters(prev => ({ ...prev, category: categoryFromUrl }));
-  }
-}, [categoryFromUrl, setFilters]); 
+    if (categoryFromUrl) {
+      setFilters(prev => ({ ...prev, category: categoryFromUrl }));
+    }
+  }, [categoryFromUrl, setFilters]);
 
   useEffect(() => {
     let result = products;
@@ -91,32 +89,31 @@ export default function CatalogContent({ searchParams }: { searchParams: { categ
     }
 
     // Фильтр по категории (с поддержкой вложенности)
-    // Фильтр по категории (с поддержкой вложенности)
-if (filters.category) {
-  const categoryInfo = getCategoryBySlug(filters.category);
-  
-  if (categoryInfo?.parentId) {
-    // Это подкатегория — ищем товары ТОЛЬКО этой подкатегории
-    result = result.filter((p) => {
-      return p.category === filters.category ||
-             p.category === categoryInfo.slug ||
-             p.category === categoryInfo.name ||
-             p.category === categoryInfo.parentId;
-    });
-  } else if (categoryInfo) {  // ← ДОБАВИТЬ: Проверка
-    // Это родительская категория — показываем все товары родителя + подкатегорий
-    const childCategories = getChildCategories(filters.category);
-    const childSlugs = childCategories.map(child => child.slug);
-    const childNames = childCategories.map(child => child.name);
-    
-    result = result.filter((p) => {
-      return p.category === filters.category || 
-             p.category === categoryInfo.name ||
-             childSlugs.includes(p.category) ||
-             childNames.includes(p.category);
-    });
-  }
-}
+    if (filters.category) {
+      const categoryInfo = getCategoryBySlug(filters.category);
+      
+      if (categoryInfo?.parentId) {
+        // Это подкатегория — ищем товары ТОЛЬКО этой подкатегории
+        result = result.filter((p) => {
+          return p.category === filters.category ||
+                 p.category === categoryInfo.slug ||
+                 p.category === categoryInfo.name ||
+                 p.category === categoryInfo.parentId;
+        });
+      } else if (categoryInfo) {
+        // Это родительская категория — показываем все товары родителя + подкатегорий
+        const childCategories = getChildCategories(filters.category);
+        const childSlugs = childCategories.map(child => child.slug);
+        const childNames = childCategories.map(child => child.name);
+        
+        result = result.filter((p) => {
+          return p.category === filters.category || 
+                 p.category === categoryInfo.name ||
+                 childSlugs.includes(p.category) ||
+                 childNames.includes(p.category);
+        });
+      }
+    }
 
     // Фильтр по бренду
     if (filters.brand) {
@@ -214,15 +211,16 @@ if (filters.category) {
           
           {/* Родительские категории */}
           {categoryParents.map((parent) => (
-            <React.Fragment key={parent.id}>
-              <ChevronRight className="w-4 h-4 flex-shrink-0" />
+            <>
+              <ChevronRight className="w-4 h-4 flex-shrink-0" key={parent.id + '-icon'} />
               <Link 
                 href={`/catalog?category=${parent.slug}`} 
                 className="hover:text-blue-600 transition-colors"
+                key={parent.id}
               >
                 {parent.name}
               </Link>
-            </React.Fragment>
+            </>
           ))}
           
           {/* Текущая категория */}

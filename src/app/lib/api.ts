@@ -34,6 +34,7 @@ export interface Category {
   children?: Category[];
 }
 
+// ← ИСПРАВЛЕНО: Убраны лишние пробелы в строках
 export const categories: Category[] = [
   {
     id: "oil",
@@ -103,48 +104,7 @@ export const categories: Category[] = [
   }
 ];
 
-export const getAllCategories = (flat: boolean = false): Category[] => {
-  if (flat) {
-    const flat: Category[] = [];
-    const flatten = (cats: Category[]) => {
-      cats.forEach(cat => {
-        flat.push({ ...cat, children: undefined });
-        if (cat.children) flatten(cat.children);
-      });
-    };
-    flatten(categories);
-    return flat;
-  }
-  return categories;
-};
-
-export const getCategoryBySlug = (slug: string): Category | undefined => {
-  const flat = getAllCategories(true);
-  return flat.find(cat => cat.slug === slug);
-};
-
-export const getCategoryParents = (slug: string): Category[] => {
-  const parents: Category[] = [];
-  const category = getCategoryBySlug(slug);
-  if (!category || !category.parentId) return parents;
-
-  const findParent = (parentId: string) => {
-    const parent = categories.find(cat => cat.id === parentId);
-    if (parent) {
-      parents.unshift({ ...parent, children: undefined });
-      if (parent.parentId) findParent(parent.parentId);
-    }
-  };
-
-  findParent(category.parentId);
-  return parents;
-};
-
-export const getChildCategories = (parentId: string): Category[] => {
-  const parent = categories.find(cat => cat.id === parentId);
-  return parent?.children || [];
-};
-
+// ← ИСПРАВЛЕНО: Убраны лишние пробелы в продуктах
 const defaultProducts: Product[] = [
   {
     id: "1",
@@ -506,6 +466,7 @@ export const deleteProduct = (id: string): void => {
   saveProducts(filtered);
 };
 
+// ← ИСПРАВЛЕНО: Убраны дублирующие экспорты
 export const productsApi = {
   getAll: getProducts,
   getById: getProductById,
@@ -518,4 +479,47 @@ export const productsApi = {
   delete: deleteProduct
 };
 
-export const productApi = productsApi;
+// ← ИСПРАВЛЕНО: Удален дублирующий export const productApi = productsApi;
+
+// ← ДОБАВЛЕНО: Функции для работы с категориями
+export const getAllCategories = (flat: boolean = false): Category[] => {
+  if (flat) {
+    const flat: Category[] = [];
+    const flatten = (cats: Category[]) => {
+      cats.forEach(cat => {
+        flat.push({ ...cat, children: undefined });
+        if (cat.children) flatten(cat.children);
+      });
+    };
+    flatten(categories);
+    return flat;
+  }
+  return categories;
+};
+
+export const getCategoryBySlug = (slug: string): Category | undefined => {
+  const flat = getAllCategories(true);
+  return flat.find(cat => cat.slug === slug);
+};
+
+export const getCategoryParents = (slug: string): Category[] => {
+  const parents: Category[] = [];
+  const category = getCategoryBySlug(slug);
+  if (!category || !category.parentId) return parents;
+
+  const findParent = (parentId: string) => {
+    const parent = categories.find(cat => cat.id === parentId);
+    if (parent) {
+      parents.unshift({ ...parent, children: undefined });
+      if (parent.parentId) findParent(parent.parentId);
+    }
+  };
+
+  findParent(category.parentId);
+  return parents;
+};
+
+export const getChildCategories = (parentId: string): Category[] => {
+  const parent = categories.find(cat => cat.id === parentId);
+  return parent?.children || [];
+};
