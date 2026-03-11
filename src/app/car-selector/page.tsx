@@ -12,7 +12,7 @@ import {
   PlusCircle 
 } from 'lucide-react';
 import { productsApi } from '@/app/lib/api';
-import { useGarage } from '@/contexts/GarageContext'; // 1. Импорт здесь
+import { useGarage } from '@/contexts/GarageContext';
 
 const carDatabase = {
   brands: ['Toyota', 'Lexus', 'BMW', 'Mercedes', 'Hyundai', 'Kia'],
@@ -28,7 +28,7 @@ const carDatabase = {
 };
 
 export default function CarSelectorPage() {
-  // 2. Вызов хука ДОЛЖЕН быть строго внутри функции компонента
+  // ПРАВИЛЬНО: Хук вызывается ВНУТРИ компонента
   const { addCar, cars } = useGarage();
 
   const [selectedBrand, setSelectedBrand] = useState('');
@@ -85,7 +85,7 @@ export default function CarSelectorPage() {
                 <select 
                   value={selectedBrand}
                   onChange={(e) => { setSelectedBrand(e.target.value); setSelectedModel(''); }}
-                  className="w-full h-12 px-4 rounded-xl border border-gray-300"
+                  className="w-full h-12 px-4 rounded-xl border border-gray-300 outline-none"
                 >
                   <option value="">Выберите марку</option>
                   {carDatabase.brands.map(brand => <option key={brand} value={brand}>{brand}</option>)}
@@ -98,7 +98,7 @@ export default function CarSelectorPage() {
                   value={selectedModel}
                   disabled={!selectedBrand}
                   onChange={(e) => setSelectedModel(e.target.value)}
-                  className="w-full h-12 px-4 rounded-xl border border-gray-300 disabled:bg-gray-50"
+                  className="w-full h-12 px-4 rounded-xl border border-gray-300 disabled:bg-gray-50 outline-none"
                 >
                   <option value="">Выберите модель</option>
                   {selectedBrand && carDatabase.models[selectedBrand as keyof typeof carDatabase.models].map(model => (
@@ -113,7 +113,7 @@ export default function CarSelectorPage() {
                   value={selectedYear}
                   disabled={!selectedModel}
                   onChange={(e) => setSelectedYear(e.target.value)}
-                  className="w-full h-12 px-4 rounded-xl border border-gray-300 disabled:bg-gray-50"
+                  className="w-full h-12 px-4 rounded-xl border border-gray-300 disabled:bg-gray-50 outline-none"
                 >
                   <option value="">Выберите год</option>
                   {carDatabase.years.map(year => <option key={year} value={year}>{year}</option>)}
@@ -125,12 +125,16 @@ export default function CarSelectorPage() {
               <button
                 onClick={handleSearch}
                 disabled={!selectedYear || isSearching}
-                className="flex-1 h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl flex items-center justify-center gap-2"
+                className="flex-1 h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
               >
-                {isSearching ? "Поиск..." : <><Search className="w-5 h-5" /> Показать запчасти</>}
+                {isSearching ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <><Search className="w-5 h-5" /> Показать запчасти</>
+                )}
               </button>
 
-              {selectedYear && (
+              {selectedYear && !isSearching && (
                 <button
                   onClick={handleSaveToGarage}
                   disabled={isSaved}
@@ -148,11 +152,11 @@ export default function CarSelectorPage() {
           {results.length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {results.map((part) => (
-                <Link key={part.id} href={`/product/${part.id}`} className="bg-white rounded-xl border p-4">
+                <Link key={part.id} href={`/product/${part.id}`} className="bg-white rounded-xl border p-4 hover:shadow-md transition-shadow">
                   <div className="relative aspect-square mb-3">
                     {part.image && <Image src={part.image} alt={part.name} fill className="object-contain" />}
                   </div>
-                  <h4 className="font-medium text-sm line-clamp-2">{part.name}</h4>
+                  <h4 className="font-medium text-sm line-clamp-2 text-gray-900">{part.name}</h4>
                   <p className="text-blue-600 font-bold mt-2">{part.price.toLocaleString()} ₸</p>
                 </Link>
               ))}
