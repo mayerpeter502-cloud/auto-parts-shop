@@ -39,183 +39,128 @@ export function Header() {
     };
   }, []);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      const products = getProducts();
-      const exactMatch = products.find(p =>
-        p.sku?.toLowerCase() === searchQuery.toLowerCase()
-      );
-      
-      if (exactMatch) {
-        window.location.href = `/product/${exactMatch.id}`;
-      } else {
-        window.location.href = `/catalog?search=${encodeURIComponent(searchQuery)}`;
-      }
-    }
-  };
-
   return (
     <header className="bg-white border-b sticky top-0 z-50">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-20 gap-4">
           {/* Logo */}
-          <Link href="/" className="text-xl font-bold text-blue-600">
-            AutoParts.kz
+          <Link href="/" className="flex items-center gap-2 flex-shrink-0">
+            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+              <Car className="w-6 h-6 text-white" />
+            </div>
+            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent hidden sm:block">
+              AutoParts.kz
+            </span>
           </Link>
 
-          {/* Search */}
-          <form onSubmit={handleSearch} className="flex-1 max-w-2xl hidden md:block">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Поиск по номеру, названию или VIN..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg pl-4 pr-10 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-              <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-blue-600">
-                <Search className="w-5 h-5" />
-              </button>
-            </div>
-          </form>
+          {/* Desktop Navigation Links */}
+          <nav className="hidden lg:flex items-center gap-6">
+            <Link href="/catalog" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">
+              Каталог
+            </Link>
+            <Link href="/car-selector" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">
+              Подбор по авто
+            </Link>
+            <Link href="/vin-check" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">
+              Подбор по VIN
+            </Link>
+          </nav>
 
-          {/* Navigation */}
+          {/* Search Bar */}
+          <div className="hidden md:flex flex-1 max-w-md relative">
+            <input
+              type="text"
+              placeholder="Поиск запчастей..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 bg-gray-100 border-none rounded-xl focus:ring-2 focus:ring-blue-500 transition-all outline-none"
+            />
+            <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          </div>
+
+          {/* Action Buttons */}
           <div className="flex items-center gap-2 sm:gap-4">
-            {/* Подбор по авто */}
-            <Link 
-              href="/car-selector" 
-              className="hidden sm:flex items-center gap-1 text-sm text-gray-600 hover:text-blue-600"
-            >
-              <Car className="w-4 h-4" />
-              <span>Подбор по авто</span>
+            {/* Garage - ДОБАВЛЕНО ДЛЯ ДЕСКТОПА */}
+            {user && (
+              <Link href="/account/garage" className="p-2 text-gray-600 hover:bg-gray-100 rounded-xl transition-all group relative" title="Мой гараж">
+                <Car className="w-6 h-6 group-hover:text-blue-600" />
+                <span className="hidden md:block text-xs mt-0.5 font-medium">Гараж</span>
+              </Link>
+            )}
+
+            <Link href="/compare" className="p-2 text-gray-600 hover:bg-gray-100 rounded-xl transition-all group relative">
+              <Scale className="w-6 h-6 group-hover:text-blue-600" />
+              {compareCount > 0 && (
+                <span className="absolute top-1 right-1 bg-blue-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                  {compareCount}
+                </span>
+              )}
             </Link>
 
-            {/* Подбор по VIN */}
-            <Link 
-              href="/vin-check" 
-              className="hidden sm:flex items-center gap-1 text-sm text-gray-600 hover:text-blue-600"
-            >
-              <Car className="w-4 h-4" />
-              <span>Подбор по VIN</span>
-            </Link>
-
-{user && (
-  <Link href="/account/garage" className="flex items-center gap-1 text-sm text-gray-600 hover:text-blue-600">
-    <Car className="w-4 h-4" />
-    <span>Гараж</span>
-  </Link>
-)}
-
-            {/* Избранное */}
-            <Link href="/account/favorites" className="relative p-2 text-gray-600 hover:text-blue-600">
-              <Heart className="w-6 h-6" />
+            <Link href="/account/favorites" className="p-2 text-gray-600 hover:bg-gray-100 rounded-xl transition-all group relative">
+              <Heart className="w-6 h-6 group-hover:text-red-500" />
               {favoritesCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-pink-500 text-white text-xs rounded-full flex items-center justify-center">
+                <span className="absolute top-1 right-1 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                   {favoritesCount}
                 </span>
               )}
             </Link>
 
-            {/* Сравнение */}
-            <Link href="/compare" className="relative p-2 text-gray-600 hover:text-blue-600">
-              <Scale className="w-6 h-6" />
-              {compareCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 text-white text-xs rounded-full flex items-center justify-center">
-                  {compareCount}
-                </span>
-              )}
-            </Link>
-            
-            {/* Корзина */}
-            <Link href="/cart" className="relative p-2 text-gray-600 hover:text-blue-600">
-              <ShoppingCart className="w-6 h-6" />
+            <Link href="/cart" className="p-2 text-gray-600 hover:bg-gray-100 rounded-xl transition-all group relative">
+              <ShoppingCart className="w-6 h-6 group-hover:text-blue-600" />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                <span className="absolute top-1 right-1 bg-blue-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                   {cartCount}
                 </span>
               )}
             </Link>
 
-            {/* Профиль */}
+            <div className="h-8 w-px bg-gray-200 mx-1 hidden sm:block"></div>
+
             {user ? (
-              <Link href="/account" className="flex items-center gap-2 p-2 text-gray-600 hover:text-blue-600">
-                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+              <Link href="/account" className="flex items-center gap-2 p-1.5 hover:bg-gray-100 rounded-xl transition-all">
+                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                   <User className="w-5 h-5 text-blue-600" />
                 </div>
-                <span className="hidden md:block text-sm font-medium">{user.name}</span>
+                <span className="hidden lg:block text-sm font-medium text-gray-700">Профиль</span>
               </Link>
             ) : (
-              <Link href="/login" className="p-2 text-gray-600 hover:text-blue-600">
-                <User className="w-6 h-6" />
+              <Link href="/login" className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-medium text-sm">
+                <User className="w-4 h-4" />
+                <span>Войти</span>
               </Link>
             )}
 
-            {/* Mobile Menu */}
-            <button 
-              className="md:hidden p-2 text-gray-600"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
+            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-xl transition-all">
               {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
-        </div>
-
-        {/* Mobile Search */}
-        <div className="md:hidden pb-3">
-          <form onSubmit={handleSearch} className="relative">
-            <input
-              type="text"
-              placeholder="Поиск..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg pl-4 pr-10 py-2 text-sm"
-            />
-            <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2">
-              <Search className="w-4 h-4 text-gray-400" />
-            </button>
-          </form>
         </div>
       </div>
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden border-t bg-white">
-          <nav className="container mx-auto px-4 py-4 space-y-2">
-            <Link href="/catalog" className="block py-2 text-gray-700 hover:text-blue-600">
-  Каталог
-</Link>
-            <Link href="/car-selector" className="block py-2 text-gray-700 hover:text-blue-600">
+        <div className="lg:hidden bg-white border-t border-gray-100 py-4 px-4 shadow-xl">
+          <nav className="flex flex-col gap-1">
+            <Link href="/catalog" className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-all">
+              Каталог
+            </Link>
+            <Link href="/car-selector" className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-all">
               Подбор по авто
             </Link>
-            <Link href="/vin-check" className="block py-2 text-gray-700 hover:text-blue-600">
+            <Link href="/vin-check" className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-all">
               Подбор по VIN
             </Link>
-{user && (
-  <Link href="/account/garage" className="block py-2 text-gray-700 hover:text-blue-600">
-    Мой гараж
-  </Link>
-)}
-            <Link href="/account/favorites" className="block py-2 text-gray-700 hover:text-blue-600">
-              Избранное ({favoritesCount})
-            </Link>
-            <Link href="/compare" className="block py-2 text-gray-700 hover:text-blue-600">
-              Сравнение ({compareCount})
-            </Link>
-            {user ? (
-              <Link href="/account" className="block py-2 text-gray-700 hover:text-blue-600">
-                Личный кабинет
-              </Link>
-            ) : (
-              <Link href="/login" className="block py-2 text-gray-700 hover:text-blue-600">
-                Войти
+            {user && (
+              <Link href="/account/garage" className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-all font-medium">
+                <Car className="w-5 h-5" />
+                Мой гараж
               </Link>
             )}
-            {user?.isAdmin && (
-              <Link href="/admin" className="block py-2 text-gray-700 hover:text-blue-600">
-                Админ панель
-              </Link>
-            )}
+            <div className="h-px bg-gray-100 my-2"></div>
+            <Link href="/login" className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-all">
+              {user ? 'Личный кабинет' : 'Войти'}
+            </Link>
           </nav>
         </div>
       )}
