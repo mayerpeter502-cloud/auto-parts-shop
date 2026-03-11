@@ -1,4 +1,6 @@
 'use client';
+import { useGarage } from '../../contexts/GarageContext';
+import { Save } from 'lucide-react';
 import { useState } from 'react';
 import Link from 'next/link';
 import { ChevronRight, Car, Search, CheckCircle2, Home } from 'lucide-react';

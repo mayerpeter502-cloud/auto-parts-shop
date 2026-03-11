@@ -100,6 +100,11 @@ export function Header() {
               <span>Подбор по VIN</span>
             </Link>
 
+<Link href="/account/garage" className="flex items-center gap-2">
+  <Car className="w-5 h-5" />
+  <span className="hidden md:block">Гараж</span>
+</Link>
+
             {/* Избранное */}
             <Link href="/account/favorites" className="relative p-2 text-gray-600 hover:text-blue-600">
               <Heart className="w-6 h-6" />
