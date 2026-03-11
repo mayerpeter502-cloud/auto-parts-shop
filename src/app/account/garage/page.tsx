@@ -6,17 +6,22 @@ import { useState } from 'react';
 export default function GaragePage() {
   const { cars, defaultCar, addCar, removeCar, setDefaultCar, isLoading } = useGarage();
   const [showAddForm, setShowAddForm] = useState(false);
-  const [newCar, setNewCar] = useState({ make: '', model: '', year: '', licensePlate: '' });
+  const [newCar, setNewCar] = useState({ 
+    brand: '', 
+    model: '', 
+    year: '', 
+    licensePlate: '' 
+  });
 
   const handleAddCar = () => {
-    if (newCar.make && newCar.model && newCar.year) {
+    if (newCar.brand && newCar.model && newCar.year) {
       addCar({
-        make: newCar.make,
+        brand: newCar.brand,
         model: newCar.model,
         year: parseInt(newCar.year),
         licensePlate: newCar.licensePlate,
       });
-      setNewCar({ make: '', model: '', year: '', licensePlate: '' });
+      setNewCar({ brand: '', model: '', year: '', licensePlate: '' });
       setShowAddForm(false);
     }
   };
@@ -45,8 +50,8 @@ export default function GaragePage() {
             <input
               type="text"
               placeholder="Марка (например: Toyota)"
-              value={newCar.make}
-              onChange={(e) => setNewCar({ ...newCar, make: e.target.value })}
+              value={newCar.brand}
+              onChange={(e) => setNewCar({ ...newCar, brand: e.target.value })}
               className="border border-gray-300 rounded-lg px-4 py-2"
             />
             <input
@@ -113,7 +118,7 @@ export default function GaragePage() {
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <h3 className="text-xl font-semibold">
-                      {car.make} {car.model}
+                      {car.brand} {car.model}
                     </h3>
                     <p className="text-gray-600">{car.year} г.</p>
                     {car.licensePlate && (
