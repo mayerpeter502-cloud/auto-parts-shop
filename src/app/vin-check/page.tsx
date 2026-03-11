@@ -2,8 +2,6 @@
 import React, { useState } from 'react';
 import { Search, Car, CheckCircle, AlertCircle, Loader2, Home } from 'lucide-react';
 import Link from 'next/link';
-import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
 
 const mockVinDatabase: Record<string, any> = {
   'JTDBU4EE3B9123456': {
@@ -108,7 +106,6 @@ export default function VinCheckPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
       
       <main className="flex-1">
         {/* Кнопка на главную */}
@@ -287,8 +284,6 @@ export default function VinCheckPage() {
           </div>
         )}
       </main>
-      
-      <Footer />
     </div>
   );
 }

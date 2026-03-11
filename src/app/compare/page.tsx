@@ -3,8 +3,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Scale, X, ShoppingCart, Home, ChevronRight } from "lucide-react";
-import { Header } from "../../components/Header";
-import { Footer } from "../../components/Footer";
 
 interface CompareItem {
   id: string;
@@ -47,7 +45,6 @@ export default function ComparePage() {
   if (compareItems.length === 0) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Header />
         
         <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
           {/* Breadcrumbs */}
@@ -72,15 +69,12 @@ export default function ComparePage() {
             </Link>
           </div>
         </main>
-        
-        <Footer />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
       
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
         {/* Breadcrumbs */}
@@ -185,8 +179,6 @@ export default function ComparePage() {
           </table>
         </div>
       </main>
-      
-      <Footer />
     </div>
   );
 }

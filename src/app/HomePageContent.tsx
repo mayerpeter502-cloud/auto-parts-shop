@@ -1,8 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Header } from "../components/Header";
-import { Footer } from "../components/Footer";
 import ProductCard from "../components/ProductCard";
 import { getProducts, categories } from "./lib/api";
 
@@ -25,7 +23,6 @@ export default function HomePageContent() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
       <main className="flex-1">
         {/* Hero Banner */}
         <section className="relative bg-gray-900 h-64 md:h-96 overflow-hidden">
@@ -126,7 +123,6 @@ export default function HomePageContent() {
           </div>
         </section>
       </main>
-      <Footer />
     </div>
   );
 }

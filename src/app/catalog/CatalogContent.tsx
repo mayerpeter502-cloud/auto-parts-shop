@@ -3,8 +3,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { SlidersHorizontal, Home, ChevronRight } from "lucide-react";
-import { Header } from "../../components/Header";
-import { Footer } from "../../components/Footer";
 import ProductCard from "../../components/ProductCard";
 import { ProductCardSkeleton } from "../../components/ProductCardSkeleton";
 import { SearchAutocomplete } from "../../components/SearchAutocomplete";
@@ -196,7 +194,6 @@ export default function CatalogContent({ searchParams }: { searchParams: { categ
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
         {/* Breadcrumbs */}
         <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6 flex-wrap">
@@ -431,7 +428,6 @@ export default function CatalogContent({ searchParams }: { searchParams: { categ
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 }

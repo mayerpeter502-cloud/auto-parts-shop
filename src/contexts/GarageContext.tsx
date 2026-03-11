@@ -20,7 +20,8 @@ export function GarageProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Загружаем гараж при монтировании
-    setCars(garageApi.getAll());
+    const initialCars = garageApi.getAll();
+    setCars(initialCars);
     setIsLoading(false);
   }, []);
 
@@ -47,15 +48,16 @@ export function GarageProvider({ children }: { children: ReactNode }) {
     return success;
   };
 
-  const defaultCar = cars.length > 0 ? cars[0] : null;
+  // Находим автомобиль по умолчанию (у которого isDefault: true)
+  const defaultCar = cars.find(car => car.isDefault) || (cars.length > 0 ? cars[0] : null);
 
   return (
     <GarageContext.Provider value={{ 
       cars, 
-      defaultCar, 
+      defaultCar,
       addCar, 
       removeCar, 
-      setDefaultCar,
+      setDefaultCar, 
       isLoading 
     }}>
       {children}
@@ -63,6 +65,7 @@ export function GarageProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// ДОБАВЛЕНО: Экспорт хука для использования в компонентах
 export function useGarage() {
   const context = useContext(GarageContext);
   if (context === undefined) {

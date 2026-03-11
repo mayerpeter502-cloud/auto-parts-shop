@@ -3,8 +3,6 @@ import { useCart } from "../../contexts/CartContext";
 import { Trash2, Minus, Plus, ShoppingBag, ArrowRight, Home, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { Header } from "../../components/Header";
-import { Footer } from "../../components/Footer";
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, total, clearCart } = useCart();
@@ -12,7 +10,6 @@ export default function CartPage() {
   if (items.length === 0) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Header />
         
         <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
           {/* Breadcrumbs */}
@@ -37,15 +34,12 @@ export default function CartPage() {
             </Link>
           </div>
         </main>
-        
-        <Footer />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
       
       <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-8">
         {/* Breadcrumbs */}
@@ -136,8 +130,6 @@ export default function CartPage() {
           </div>
         </div>
       </main>
-      
-      <Footer />
     </div>
   );
 }

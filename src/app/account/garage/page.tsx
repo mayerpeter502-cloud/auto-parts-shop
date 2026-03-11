@@ -1,7 +1,8 @@
 "use client";
 import { useGarage } from '@/contexts/GarageContext';
-import { Car, Trash2, Star, Plus } from 'lucide-react';
+import { Car, Trash2, Star, Plus, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
+import Link from "next/link";
 
 export default function GaragePage() {
   const { cars, defaultCar, addCar, removeCar, setDefaultCar, isLoading } = useGarage();
@@ -32,6 +33,15 @@ export default function GaragePage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* Хлебные крошки внутри основного контейнера */}
+      <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
+        <Link href="/" className="hover:text-blue-600">Главная</Link>
+        <ChevronRight className="w-4 h-4" />
+        <Link href="/account" className="hover:text-blue-600">Личный кабинет</Link>
+        <ChevronRight className="w-4 h-4" />
+        <span className="text-gray-900 font-medium">Мой гараж</span>
+      </nav>
+
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Мой гараж</h1>
         <button

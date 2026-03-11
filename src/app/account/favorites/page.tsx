@@ -3,8 +3,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Heart, Trash2, ShoppingCart, Home, ChevronRight } from "lucide-react";
-import { Header } from "../../../components/Header";
-import { Footer } from "../../../components/Footer";
 
 interface FavoriteItem {
   id: string;
@@ -45,7 +43,6 @@ export default function FavoritesPage() {
   if (favorites.length === 0) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Header />
         <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
           {/* Breadcrumbs - ИСПРАВЛЕНО */}
           <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
@@ -73,14 +70,12 @@ export default function FavoritesPage() {
             </Link>
           </div>
         </main>
-        <Footer />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
         {/* Breadcrumbs - ИСПРАВЛЕНО */}
         <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
@@ -155,7 +150,6 @@ export default function FavoritesPage() {
           ))}
         </div>
       </main>
-      <Footer />
     </div>
   );
 }

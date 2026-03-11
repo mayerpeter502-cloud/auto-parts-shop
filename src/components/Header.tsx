@@ -100,10 +100,12 @@ export function Header() {
               <span>Подбор по VIN</span>
             </Link>
 
-<Link href="/account/garage" className="flex items-center gap-2">
-  <Car className="w-5 h-5" />
-  <span className="hidden md:block">Гараж</span>
-</Link>
+{user && (
+  <Link href="/account/garage" className="flex items-center gap-1 text-sm text-gray-600 hover:text-blue-600">
+    <Car className="w-4 h-4" />
+    <span>Гараж</span>
+  </Link>
+)}
 
             {/* Избранное */}
             <Link href="/account/favorites" className="relative p-2 text-gray-600 hover:text-blue-600">
@@ -189,6 +191,11 @@ export function Header() {
             <Link href="/vin-check" className="block py-2 text-gray-700 hover:text-blue-600">
               Подбор по VIN
             </Link>
+{user && (
+  <Link href="/account/garage" className="block py-2 text-gray-700 hover:text-blue-600">
+    Мой гараж
+  </Link>
+)}
             <Link href="/account/favorites" className="block py-2 text-gray-700 hover:text-blue-600">
               Избранное ({favoritesCount})
             </Link>
