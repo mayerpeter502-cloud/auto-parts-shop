@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import AccountPageContent from "./AccountPageContent";
 import Link from 'next/link';
-import { Car, Settings, Package, Heart, ChevronRight, LogOut, User, MapPin, Phone, Mail } from 'lucide-react';
+import { Car, Settings, Package, Heart, ChevronRight, MapPin, Phone } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: "Личный кабинет | AutoParts.kz",
@@ -14,7 +14,7 @@ export default function AccountPage() {
     <div className="container mx-auto px-4 py-8">
       {/* Breadcrumbs */}
       <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
-        <Link href="/" className="hover:text-blue-600">Главная</Link>
+        <Link href="/" className="hover:text-blue-600 transition-colors">Главная</Link>
         <ChevronRight className="w-4 h-4" />
         <span className="text-gray-900 font-medium">Личный кабинет</span>
       </nav>
@@ -34,11 +34,11 @@ export default function AccountPage() {
                 <Package className="w-5 h-5" />
                 <span>Мои заказы</span>
               </Link>
-              <Link href="/account/favorites" className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50">
+              <Link href="/account/favorites" className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
                 <Heart className="w-5 h-5" />
                 <span>Избранное</span>
               </Link>
-              <Link href="/account/settings" className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50">
+              <Link href="/account/settings" className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
                 <Settings className="w-5 h-5" />
                 <span>Настройки</span>
               </Link>
@@ -46,10 +46,10 @@ export default function AccountPage() {
           </div>
 
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 className="font-semibold text-gray-900 mb-4">Контакты</h3>
+            <h3 className="font-semibold text-gray-900 mb-4 text-sm uppercase tracking-wider">Контакты</h3>
             <div className="space-y-3 text-sm text-gray-600">
-              <div className="flex items-center gap-3"><Phone className="w-4 h-4" /> +7 (XXX) XXX-XX-XX</div>
-              <div className="flex items-center gap-3"><MapPin className="w-4 h-4" /> г. Алматы</div>
+              <div className="flex items-center gap-3"><Phone className="w-4 h-4 text-blue-500" /> +7 (XXX) XXX-XX-XX</div>
+              <div className="flex items-center gap-3"><MapPin className="w-4 h-4 text-blue-500" /> г. Алматы</div>
             </div>
           </div>
         </aside>
