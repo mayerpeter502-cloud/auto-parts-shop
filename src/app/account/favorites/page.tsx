@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Heart, Trash2, ShoppingCart, Home, ChevronRight } from "lucide-react";
+// 1. Добавлен недостающий импорт
+import { useGarage } from '@/contexts/GarageContext';
 
 interface FavoriteItem {
   id: string;
@@ -14,6 +16,9 @@ interface FavoriteItem {
 }
 
 export default function FavoritesPage() {
+  // 2. Вызов хука перемещен ВНУТРЬ компонента
+  const { cars } = useGarage();
+  
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
 
   useEffect(() => {
@@ -38,87 +43,47 @@ export default function FavoritesPage() {
     }
     localStorage.setItem("cart", JSON.stringify(cart));
     window.dispatchEvent(new CustomEvent('cartUpdated'));
+    alert('Товар добавлен в корзину');
   };
 
-  if (favorites.length === 0) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
-          {/* Breadcrumbs - ИСПРАВЛЕНО */}
-          <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
-            <Link href="/" className="flex items-center gap-1 hover:text-blue-600 transition-colors">
-              <Home className="w-4 h-4" />
-              <span>Главная</span>
-            </Link>
-            <ChevronRight className="w-4 h-4" />
-            <Link href="/account" className="hover:text-blue-600 transition-colors">
-              Личный кабинет
-            </Link>
-            <ChevronRight className="w-4 h-4" />
-            <span className="text-gray-900 font-medium">Избранное</span>
-          </nav>
-
-          <div className="flex flex-col items-center justify-center py-12">
-            <Heart className="w-24 h-24 text-gray-300 mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Избранное пусто</h1>
-            <p className="text-gray-500 mb-6">Добавьте товары в избранное</p>
-            <Link
-              href="/catalog"
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              Перейти в каталог
-            </Link>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen flex flex-col">
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
-        {/* Breadcrumbs - ИСПРАВЛЕНО */}
-        <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
-          <Link href="/" className="flex items-center gap-1 hover:text-blue-600 transition-colors">
-            <Home className="w-4 h-4" />
-            <span>Главная</span>
-          </Link>
-          <ChevronRight className="w-4 h-4" />
-          <Link href="/account" className="hover:text-blue-600 transition-colors">
-            Личный кабинет
-          </Link>
-          <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">Избранное</span>
-        </nav>
+    <div className="container mx-auto px-4 py-8">
+      {/* Breadcrumbs */}
+      <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
+        <Link href="/" className="hover:text-blue-600 flex items-center gap-1">
+          <Home className="w-4 h-4" /> Главная
+        </Link>
+        <ChevronRight className="w-4 h-4" />
+        <Link href="/account" className="hover:text-blue-600 text-sm">Личный кабинет</Link>
+        <ChevronRight className="w-4 h-4" />
+        <span className="text-gray-900 font-medium">Избранное</span>
+      </nav>
 
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">
-            Избранное ({favorites.length})
-          </h1>
-          <Link
-            href="/catalog"
-            className="text-sm text-blue-600 hover:underline"
-          >
-            Продолжить покупки →
-          </Link>
-        </div>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">Избранное</h1>
+        <span className="text-gray-500">{favorites.length} товаров</span>
+      </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {favorites.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {favorites.map((item) => (
-            <div key={item.id} className="bg-white rounded-xl shadow-sm overflow-hidden group border border-gray-200">
-              <Link href={`/product/${item.id}`} className="block relative h-48 bg-gray-100">
+            <div
+              key={item.id}
+              className="group bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
+            >
+              <div className="relative aspect-square bg-gray-50">
                 <Image
-                  src={item.image || '/placeholder.jpg'}
+                  src={item.image}
                   alt={item.name}
                   fill
-                  className="object-contain p-4"
+                  className="object-contain p-4 group-hover:scale-105 transition-transform duration-300"
                 />
-              </Link>
+              </div>
 
               <div className="p-4">
                 <div className="text-xs text-gray-500 mb-1">{item.brand}</div>
                 <Link href={`/product/${item.id}`}>
-                  <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600">
+                  <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
                     {item.name}
                   </h3>
                 </Link>
@@ -132,14 +97,14 @@ export default function FavoritesPage() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => addToCart(item)}
-                    className="flex-1 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 text-sm"
+                    className="flex-1 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 text-sm transition-colors"
                   >
                     <ShoppingCart className="w-4 h-4" />
                     В корзину
                   </button>
                   <button
                     onClick={() => removeFromFavorites(item.id)}
-                    className="p-2 border border-red-200 text-red-600 rounded-lg hover:bg-red-50"
+                    className="p-2 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
                     title="Удалить из избранного"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -149,7 +114,23 @@ export default function FavoritesPage() {
             </div>
           ))}
         </div>
-      </main>
+      ) : (
+        <div className="bg-white rounded-2xl border-2 border-dashed border-gray-200 p-12 text-center">
+          <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Heart className="w-10 h-10 text-gray-300" />
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">В избранном пока пусто</h2>
+          <p className="text-gray-500 mb-8 max-w-sm mx-auto">
+            Добавляйте товары в избранное, чтобы не потерять их и вернуться к покупкам позже.
+          </p>
+          <Link
+            href="/catalog"
+            className="inline-flex items-center gap-2 px-8 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors"
+          >
+            Перейти в каталог
+          </Link>
+        </div>
+      )}
     </div>
   );
 }
