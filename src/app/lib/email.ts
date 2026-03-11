@@ -1,23 +1,19 @@
 import { Order } from '@/types';
 
-export async function sendOrderEmail(order: Order): Promise<boolean> {
+export const sendOrderEmail = async (order: any) => {
   try {
-    // Для frontend-only версии используем EmailJS или аналог
-    // В продакшене нужен backend с Nodemailer
+    const customerEmail = order.customer?.email || (order as any).email;
     
-    const customerEmail = (order.customer as any).email;
     if (!customerEmail) return false;
 
-    // Здесь будет вызов API для отправки email
-    // Например: await fetch('/api/send-email', { method: 'POST', body: JSON.stringify(order) })
-    
-    console.log('Email would be sent to:', customerEmail);
+    console.log(`Sending email to ${customerEmail} for order ${order.id}`);
+    // Логика отправки будет настроена позже
     return true;
   } catch (error) {
-    console.error('Email notification error:', error);
+    console.error("Email error:", error);
     return false;
   }
-}
+};
 
 // Для отправки через EmailJS (frontend решение)
 export async function sendOrderEmailEmailJS(order: Order): Promise<boolean> {

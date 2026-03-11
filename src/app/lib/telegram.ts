@@ -1,6 +1,6 @@
 import { Order } from '@/types';
 
-export async function sendOrderNotification(order: Order): Promise<boolean> {
+export async function sendOrderNotification(order: any): Promise<boolean> {
   try {
     const token = process.env.TELEGRAM_BOT_TOKEN;
     const chatId = process.env.TELEGRAM_CHAT_ID;
