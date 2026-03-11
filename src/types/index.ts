@@ -17,7 +17,7 @@ export interface Product {
   reviewsCount: number;
   createdAt: Date;
   isPopular?: boolean;
-  crossNumbers?: string[]; // ← ДОБАВЬТЕ ЭТУ СТРОКУ
+  crossNumbers?: string[];
 }
 
 export interface CarCompatibility {
@@ -71,6 +71,7 @@ export interface UserCar {
   year: number;
   vin?: string;
   engine?: string;
+  licensePlate?: string; // ← ДОБАВЛЕНО
 }
 
 export interface Address {
