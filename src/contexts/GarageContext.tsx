@@ -1,7 +1,15 @@
 "use client";
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { UserCar } from '@/types';
-import { garageApi } from '../app/lib/garage';
+
+// Определяем интерфейс прямо здесь для надежности сборки
+export interface UserCar {
+  id: string;
+  brand: string;
+  model: string;
+  year: number;
+  licensePlate?: string;
+  isDefault?: boolean; // Добавили это свойство
+}
 
 interface GarageContextType {
   cars: UserCar[];
@@ -19,53 +27,52 @@ export function GarageProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Загружаем гараж при монтировании
-    const initialCars = garageApi.getAll();
-    setCars(initialCars);
+    const stored = localStorage.getItem('autoparts_garage');
+    if (stored) {
+      setCars(JSON.parse(stored));
+    }
     setIsLoading(false);
   }, []);
 
-  const addCar = (car: Omit<UserCar, 'id'>) => {
-    const newCar = garageApi.addCar(car);
-    setCars(prev => [...prev, newCar]);
+  const saveToStorage = (updatedCars: UserCar[]) => {
+    localStorage.setItem('autoparts_garage', JSON.stringify(updatedCars));
+    setCars(updatedCars);
+  };
+
+  const addCar = (carData: Omit<UserCar, 'id'>) => {
+    const newCar: UserCar = {
+      ...carData,
+      id: Math.random().toString(36).substr(2, 9),
+    };
+    const updated = [...cars, newCar];
+    saveToStorage(updated);
     return newCar;
   };
 
   const removeCar = (carId: string) => {
-    const success = garageApi.removeCar(carId);
-    if (success) {
-      setCars(prev => prev.filter(car => car.id !== carId));
-    }
-    return success;
+    const updated = cars.filter(c => c.id !== carId);
+    saveToStorage(updated);
+    return true;
   };
 
   const setDefaultCar = (carId: string) => {
-    const success = garageApi.setDefault(carId);
-    if (success) {
-      const updated = garageApi.getAll();
-      setCars(updated);
-    }
-    return success;
+    const updated = cars.map(c => ({
+      ...c,
+      isDefault: c.id === carId
+    }));
+    saveToStorage(updated);
+    return true;
   };
 
-  // Находим автомобиль по умолчанию (у которого isDefault: true)
-  const defaultCar = cars.find(car => car.isDefault) || (cars.length > 0 ? cars[0] : null);
+  const defaultCar = cars.find(c => c.isDefault) || (cars.length > 0 ? cars[0] : null);
 
   return (
-    <GarageContext.Provider value={{ 
-      cars, 
-      defaultCar,
-      addCar, 
-      removeCar, 
-      setDefaultCar, 
-      isLoading 
-    }}>
+    <GarageContext.Provider value={{ cars, defaultCar, addCar, removeCar, setDefaultCar, isLoading }}>
       {children}
     </GarageContext.Provider>
   );
 }
 
-// ДОБАВЛЕНО: Экспорт хука для использования в компонентах
 export function useGarage() {
   const context = useContext(GarageContext);
   if (context === undefined) {
