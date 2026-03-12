@@ -25,7 +25,13 @@ export default function AccountPageContent() {
 
   return (
     <div className="space-y-8">
-      {/* Список заказов */}
+{/* Добавь этот блок навигации сверху */}
+    <nav className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+      <Link href="/" className="hover:text-blue-600">Главная</Link>
+      <ChevronRight className="w-4 h-4" />
+      <span className="text-gray-900 font-medium">Личный кабинет</span>
+    </nav> 
+{/* Список заказов */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-gray-900">Последние заказы</h2>
