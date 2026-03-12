@@ -1,6 +1,4 @@
 import Link from "next/link";
-import { Header } from "../../components/Header";
-import { Footer } from "../../components/Footer";
 import { Truck, RotateCcw, CheckCircle, Clock, Shield } from "lucide-react";
 import { Metadata } from "next";
 
@@ -12,7 +10,6 @@ export const metadata: Metadata = {
 export default function DeliveryPage() {
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
       <main className="flex-1 container mx-auto px-4 py-8">
         {/* Breadcrumbs */}
         <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
@@ -197,7 +194,6 @@ export default function DeliveryPage() {
           </div>
         </section>
       </main>
-      <Footer />
     </div>
   );
 }

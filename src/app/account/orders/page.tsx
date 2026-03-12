@@ -3,8 +3,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Package, Truck, CheckCircle, Clock, ChevronRight, RotateCcw, X, LogOut, User, Home } from "lucide-react";
-import { Header } from "../../../components/Header";
-import { Footer } from "../../../components/Footer";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useCart } from "../../../contexts/CartContext";
 
@@ -103,7 +101,6 @@ export default function OrdersPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
         <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
           <Link href="/" className="flex items-center gap-1 hover:text-blue-600 transition-colors">
@@ -238,7 +235,6 @@ export default function OrdersPage() {
           </div>
         )}
       </main>
-      <Footer />
     </div>
   );
 }
