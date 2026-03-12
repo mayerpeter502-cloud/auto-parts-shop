@@ -55,10 +55,16 @@ export default function GaragePage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
-        <Link href="/" className="hover:text-blue-600 flex items-center gap-1"><Home className="w-4 h-4" /> Главная</Link>
-        <ChevronRight className="w-4 h-4" />
-        <span className="text-gray-900 font-medium">Мой гараж</span>
-      </nav>
+  <Link href="/" className="hover:text-blue-600 flex items-center gap-1">
+    <Home className="w-4 h-4" /> Главная
+  </Link>
+  <ChevronRight className="w-4 h-4" />
+  <Link href="/account" className="hover:text-blue-600">
+    Личный кабинет
+  </Link>
+  <ChevronRight className="w-4 h-4" />
+  <span className="text-gray-900 font-medium">Мой гараж</span>
+</nav>
 
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Мой гараж</h1>

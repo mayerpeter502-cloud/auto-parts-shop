@@ -53,7 +53,7 @@ export function Header() {
             </span>
           </Link>
 
-          {/* Desktop Navigation Links */}
+          {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-6">
             <Link href="/catalog" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">
               Каталог
@@ -80,11 +80,11 @@ export function Header() {
 
           {/* Action Buttons */}
           <div className="flex items-center gap-2 sm:gap-4">
-            {/* Garage - ДОБАВЛЕНО ДЛЯ ДЕСКТОПА */}
+            {/* Garage */}
             {user && (
-              <Link href="/account/garage" className="p-2 text-gray-600 hover:bg-gray-100 rounded-xl transition-all group relative" title="Мой гараж">
+              <Link href="/account/garage" className="p-2 text-gray-600 hover:bg-gray-100 rounded-xl transition-all group relative flex flex-col items-center">
                 <Car className="w-6 h-6 group-hover:text-blue-600" />
-                <span className="hidden md:block text-xs mt-0.5 font-medium">Гараж</span>
+                <span className="hidden md:block text-[10px] mt-0.5 font-medium uppercase">Гараж</span>
               </Link>
             )}
 
@@ -117,12 +117,15 @@ export function Header() {
 
             <div className="h-8 w-px bg-gray-200 mx-1 hidden sm:block"></div>
 
+            {/* Account / User Name Section */}
             {user ? (
               <Link href="/account" className="flex items-center gap-2 p-1.5 hover:bg-gray-100 rounded-xl transition-all">
                 <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                   <User className="w-5 h-5 text-blue-600" />
                 </div>
-                <span className="hidden lg:block text-sm font-medium text-gray-700">Профиль</span>
+                <span className="hidden lg:block text-sm font-medium text-gray-700">
+                  {user.name || "Личный кабинет"}
+                </span>
               </Link>
             ) : (
               <Link href="/login" className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-medium text-sm">
@@ -158,8 +161,9 @@ export function Header() {
               </Link>
             )}
             <div className="h-px bg-gray-100 my-2"></div>
-            <Link href="/login" className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-all">
-              {user ? 'Личный кабинет' : 'Войти'}
+            <Link href="/account" className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-all font-medium">
+              <User className="w-5 h-5 text-blue-600" />
+              {user ? (user.name || "Личный кабинет") : "Войти"}
             </Link>
           </nav>
         </div>
