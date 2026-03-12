@@ -4,8 +4,7 @@ import './globals.css';
 import { AuthProvider } from '../contexts/AuthContext';
 import { CartProvider } from '../contexts/CartContext';
 import { GarageProvider } from '../contexts/GarageContext';
-import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
+import LayoutWrapper from '@/components/LayoutWrapper'; // Импортируем обертку
 
 export const metadata: Metadata = {
   title: {
@@ -45,11 +44,10 @@ export default function RootLayout({
         <AuthProvider>
           <CartProvider>
             <GarageProvider>
-              <div className="flex flex-col min-h-screen">
-                <Header />
-                <main className="flex-grow">{children}</main>
-                <Footer />
-              </div>
+              {/* Оборачиваем children в наш новый компонент */}
+              <LayoutWrapper>
+                {children}
+              </LayoutWrapper>
             </GarageProvider>
           </CartProvider>
         </AuthProvider>
