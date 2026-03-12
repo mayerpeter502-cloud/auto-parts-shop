@@ -48,7 +48,7 @@ export default function CatalogContent({ searchParams }: { searchParams: { categ
     setProducts(allProducts);
     setFilteredProducts(allProducts);
     setIsLoading(false);
-  }, []);
+  }, [searchParams.search, searchParams.category, filters]);
 
   // Сброс фильтров при переходе на /catalog без параметров
   useEffect(() => {
