@@ -9,7 +9,7 @@ export default function AdminOrdersPage() {
   const [filterStatus, setFilterStatus] = useState("all");
 
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem("autoparts_orders") || "[]");
+    const stored = JSON.parse(localStorage.getItem("auto_parts_orders") || "[]");
     setOrders(stored.sort((a: Order, b: Order) =>
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     ));
