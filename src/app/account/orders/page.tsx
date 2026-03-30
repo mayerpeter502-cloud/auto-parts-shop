@@ -36,7 +36,7 @@ export default function OrdersPage() {
 
   useEffect(() => {
     // ← ИСПРАВЛЕНО: Читаем ВСЕ заказы из localStorage
-    const storedOrders = localStorage.getItem("autoparts_orders");
+    const storedOrders = localStorage.getItem("auto_parts_orders");
     if (storedOrders) {
       const allOrders = JSON.parse(storedOrders);
       // Показываем ВСЕ заказы (и пользователя, и гостевые)
