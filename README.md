@@ -280,7 +280,7 @@ Skeleton loaders	✅	Интегрировано
 |-----------|--------|
 | GitHub | https://github.com/mayerpeter502-cloud/auto-parts-shop |
 | Demo | https://auto-parts-shop-cmsp.onrender.com |
-| Email | sheldu4enkovaleksey@yandex.ru |
+| Email | sheldu4enkov.aleksey@yandex.ru |
 
 ---
 
